@@ -9,20 +9,17 @@ export function useAuthInit() {
   const { setUser, setLoading, logout } = useAuthStore()
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setLoading(false)
         return
       }
-      // Fetch profile
       authApi.me()
         .then(setUser)
         .catch(() => logout())
         .finally(() => setLoading(false))
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         logout()
@@ -41,7 +38,7 @@ export function useLogin() {
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: async (data) => {
       // Sync tokens with the Supabase JS client so getSession() returns a valid session.
-      // Without this, ProtectedRoute's useAuthInit would call getSession() → null → logout.
+      // Without this, ProtectedRoute's useAuthInit calls getSession() → null → logout.
       await supabase.auth.setSession({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
