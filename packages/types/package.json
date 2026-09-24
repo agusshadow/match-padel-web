@@ -1,0 +1,16 @@
+{
+  "name": "@match-padel/types",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./supabase": "./src/supabase.ts",
+    "./api": "./src/api.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@match-padel/config": "workspace:*",
+    "typescript": "^5.4.0"
+  }
+}
