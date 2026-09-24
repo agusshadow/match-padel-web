@@ -39,7 +39,13 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Sync tokens with the Supabase JS client so getSession() returns a valid session.
+      // Without this, ProtectedRoute's useAuthInit would call getSession() → null → logout.
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
       setUser(data.user)
       navigate('/')
     },
@@ -52,7 +58,12 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => authApi.register(payload),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Sync tokens with the Supabase JS client (same reason as useLogin)
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
       setUser(data.user)
       navigate('/')
     },
