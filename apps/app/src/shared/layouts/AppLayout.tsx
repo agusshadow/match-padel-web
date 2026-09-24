@@ -1,6 +1,7 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Home, Swords, CalendarDays, User } from 'lucide-react'
+import { Home, Swords, CalendarDays, User, Bell } from 'lucide-react'
+import { useUnreadCount } from '@/features/notifications/hooks/useNotifications'
 
 const navItems = [
   { to: '/', icon: Home, label: 'nav.home', end: true },
@@ -9,11 +10,33 @@ const navItems = [
   { to: '/profile', icon: User, label: 'nav.profile' },
 ]
 
+function NotificationBell() {
+  const { data } = useUnreadCount()
+  const count = data?.count ?? 0
+
+  return (
+    <Link to="/notifications" className="relative p-2">
+      <Bell size={22} strokeWidth={1.75} className="text-muted-foreground" />
+      {count > 0 && (
+        <span className="absolute top-1 right-1 min-w-[16px] h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center px-0.5">
+          {count > 9 ? '9+' : count}
+        </span>
+      )}
+    </Link>
+  )
+}
+
 export function AppLayout() {
   const { t } = useTranslation()
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      {/* Top bar with notification bell */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 h-12 flex items-center justify-between">
+        <span className="text-sm font-bold text-foreground">🎾 Match Padel</span>
+        <NotificationBell />
+      </div>
+
       {/* Main content */}
       <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom,0px))]">
         <Outlet />

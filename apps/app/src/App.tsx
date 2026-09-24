@@ -11,6 +11,7 @@ import { ReservationsPage } from './features/reservations/components/Reservation
 import { NewReservationPage } from './features/reservations/components/NewReservationPage'
 import { ProfilePage } from './features/profile/components/ProfilePage'
 import { EditProfilePage } from './features/profile/components/EditProfilePage'
+import { NotificationsPage } from './features/notifications/components/NotificationsPage'
 import { AppLayout } from './shared/layouts/AppLayout'
 
 export function App() {
@@ -40,6 +41,7 @@ export function App() {
         <Route path="/matches/:id" element={<MatchDetailPage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/reservations/new" element={<NewReservationPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
 
       {/* Fallback */}
