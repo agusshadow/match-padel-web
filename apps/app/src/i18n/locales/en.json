@@ -1,0 +1,86 @@
+{
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "username": "Username",
+    "logout": "Sign out"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "back": "Back",
+    "seeAll": "See all",
+    "noResults": "No results"
+  },
+  "home": {
+    "title": "Home",
+    "welcome": "Welcome!",
+    "nextMatch": "Next match",
+    "myReservations": "My reservations",
+    "findMatch": "Find a match",
+    "myStats": "My stats"
+  },
+  "reservations": {
+    "title": "Reservations",
+    "new": "New reservation",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "noReservations": "You have no reservations",
+    "cancel": "Cancel reservation",
+    "detail": "Reservation detail",
+    "club": "Club",
+    "court": "Court",
+    "date": "Date",
+    "time": "Time",
+    "price": "Price",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    }
+  },
+  "matches": {
+    "title": "Matches",
+    "new": "New match",
+    "active": "Active",
+    "history": "History",
+    "noMatches": "You have no matches",
+    "invite": "Invite player",
+    "submitScore": "Submit score",
+    "status": {
+      "waiting": "Waiting",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "clubs": {
+    "title": "Clubs",
+    "search": "Search clubs",
+    "noCourts": "No courts available",
+    "availableCourts": "Available courts"
+  },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit profile",
+    "stats": "Stats",
+    "elo": "ELO",
+    "matches": "Matches",
+    "wins": "Wins"
+  },
+  "nav": {
+    "home": "Home",
+    "reservations": "Reservations",
+    "matches": "Matches",
+    "clubs": "Clubs",
+    "profile": "Profile"
+  }
+}

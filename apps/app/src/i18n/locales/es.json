@@ -1,0 +1,86 @@
+{
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "email": "Email",
+    "password": "Contraseña",
+    "fullName": "Nombre completo",
+    "username": "Usuario",
+    "logout": "Cerrar sesión"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "back": "Volver",
+    "seeAll": "Ver todo",
+    "noResults": "Sin resultados"
+  },
+  "home": {
+    "title": "Inicio",
+    "welcome": "¡Bienvenido!",
+    "nextMatch": "Próximo partido",
+    "myReservations": "Mis reservas",
+    "findMatch": "Buscar partido",
+    "myStats": "Mis estadísticas"
+  },
+  "reservations": {
+    "title": "Reservas",
+    "new": "Nueva reserva",
+    "upcoming": "Próximas",
+    "past": "Pasadas",
+    "noReservations": "No tenés reservas",
+    "cancel": "Cancelar reserva",
+    "detail": "Detalle de reserva",
+    "club": "Club",
+    "court": "Cancha",
+    "date": "Fecha",
+    "time": "Hora",
+    "price": "Precio",
+    "status": {
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "cancelled": "Cancelada",
+      "completed": "Completada"
+    }
+  },
+  "matches": {
+    "title": "Partidos",
+    "new": "Nuevo partido",
+    "active": "Activos",
+    "history": "Historial",
+    "noMatches": "No tenés partidos",
+    "invite": "Invitar jugador",
+    "submitScore": "Cargar resultado",
+    "status": {
+      "waiting": "Esperando",
+      "in_progress": "En curso",
+      "completed": "Finalizado",
+      "cancelled": "Cancelado"
+    }
+  },
+  "clubs": {
+    "title": "Clubes",
+    "search": "Buscar clubes",
+    "noCourts": "Sin canchas disponibles",
+    "availableCourts": "Canchas disponibles"
+  },
+  "profile": {
+    "title": "Perfil",
+    "edit": "Editar perfil",
+    "stats": "Estadísticas",
+    "elo": "ELO",
+    "matches": "Partidos",
+    "wins": "Victorias"
+  },
+  "nav": {
+    "home": "Inicio",
+    "reservations": "Reservas",
+    "matches": "Partidos",
+    "clubs": "Clubes",
+    "profile": "Perfil"
+  }
+}
