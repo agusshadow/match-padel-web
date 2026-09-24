@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/reservations', icon: '📅', label: 'Reservas' },
   { to: '/users', icon: '👥', label: 'Usuarios' },
   { to: '/matches', icon: '⚡', label: 'Partidos' },
+  { to: '/tournaments', icon: '🏆', label: 'Torneos' },
 ]
 
 export function AdminLayout() {

@@ -9,6 +9,7 @@ import { ClubsPage } from '@/features/clubs/ClubsPage'
 import { ReservationsPage } from '@/features/reservations/ReservationsPage'
 import { UsersPage } from '@/features/users/UsersPage'
 import { MatchesAdminPage } from '@/features/matches/MatchesAdminPage'
+import { TournamentsAdminPage } from '@/features/tournaments/TournamentsAdminPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="reservations" element={<ReservationsPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="matches" element={<MatchesAdminPage />} />
+          <Route path="tournaments" element={<TournamentsAdminPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
