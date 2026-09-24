@@ -15,6 +15,7 @@ import { NotificationsPage } from './features/notifications/components/Notificat
 import { TournamentsPage } from './features/tournaments/components/TournamentsPage'
 import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
 import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
+import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
 import { AppLayout } from './shared/layouts/AppLayout'
 
 export function App() {
@@ -45,6 +46,7 @@ export function App() {
         <Route path="/matches/:id" element={<MatchDetailPage />} />
         <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/reservations/new" element={<NewReservationPage />} />
+        <Route path="/reservations/:id" element={<PaymentResultPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/tournaments/new" element={<CreateTournamentPage />} />
         <Route path="/tournaments/:id" element={<TournamentDetailPage />} />

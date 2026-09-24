@@ -1,6 +1,7 @@
-import { CalendarDays, Clock, MapPin, Loader2 } from 'lucide-react'
+import { CalendarDays, Clock, MapPin, Loader2, CreditCard } from 'lucide-react'
+import { useState } from 'react'
 import type { Reservation } from '../services/reservationService'
-import { useCancelReservation } from '../hooks/useReservations'
+import { useCancelReservation, useCreatePaymentPreference } from '../hooks/useReservations'
 
 interface ReservationCardProps {
   reservation: Reservation
@@ -58,6 +59,8 @@ function isCancellable(reservation: Reservation): boolean {
 
 export function ReservationCard({ reservation }: ReservationCardProps) {
   const cancelMutation = useCancelReservation()
+  const payMutation = useCreatePaymentPreference()
+  const [payError, setPayError] = useState<string | null>(null)
   const status =
     STATUS_CONFIG[reservation.status as keyof typeof STATUS_CONFIG] ??
     STATUS_CONFIG.pending
@@ -67,6 +70,20 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
   const handleCancel = () => {
     if (!confirm('¿Cancelar esta reserva?')) return
     cancelMutation.mutate(reservation.id)
+  }
+
+  const handlePay = () => {
+    setPayError(null)
+    payMutation.mutate(reservation.id, {
+      onSuccess: (data) => {
+        // Redirect to MercadoPago checkout
+        const url = import.meta.env.PROD ? data.init_point : data.sandbox_init_point
+        window.location.href = url
+      },
+      onError: () => {
+        setPayError('No se pudo iniciar el pago. Intenta de nuevo.')
+      },
+    })
   }
 
   return (
@@ -124,29 +141,49 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
         )}
       </div>
 
-      {/* Footer: Price + Cancel button */}
+      {/* Footer: Price + Action buttons */}
       <div className="flex items-center justify-between pt-1 border-t border-border">
         <span className="font-semibold text-foreground">
           ${reservation.total_price.toLocaleString('es-AR')}
         </span>
 
-        {isCancellable(reservation) && (
-          <button
-            onClick={handleCancel}
-            disabled={cancelMutation.isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-destructive border border-destructive/30 rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-50"
-          >
-            {cancelMutation.isPending && (
-              <Loader2 size={12} className="animate-spin" />
-            )}
-            Cancelar
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Pay button — only for pending reservations */}
+          {reservation.status === 'pending' && (
+            <button
+              onClick={handlePay}
+              disabled={payMutation.isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {payMutation.isPending ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                <CreditCard size={12} />
+              )}
+              Pagar
+            </button>
+          )}
+
+          {isCancellable(reservation) && (
+            <button
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-destructive border border-destructive/30 rounded-lg hover:bg-destructive/10 transition-colors disabled:opacity-50"
+            >
+              {cancelMutation.isPending && (
+                <Loader2 size={12} className="animate-spin" />
+              )}
+              Cancelar
+            </button>
+          )}
+        </div>
       </div>
 
-      {cancelMutation.isError && (
+      {(cancelMutation.isError || payError) && (
         <p className="text-xs text-destructive">
-          {(cancelMutation.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Error al cancelar'}
+          {payError ??
+            (cancelMutation.error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+            'Error al procesar'}
         </p>
       )}
     </div>

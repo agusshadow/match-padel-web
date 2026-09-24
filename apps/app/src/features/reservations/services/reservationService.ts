@@ -77,4 +77,11 @@ export const reservationService = {
     const res = await api.delete(`/reservations/${id}`)
     return res.data.data
   },
+
+  createPaymentPreference: async (
+    reservationId: string,
+  ): Promise<{ preference_id: string; init_point: string; sandbox_init_point: string }> => {
+    const res = await api.post('/payments/preference', { reservation_id: reservationId })
+    return res.data.data
+  },
 }

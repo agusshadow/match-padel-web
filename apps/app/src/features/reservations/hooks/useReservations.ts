@@ -51,3 +51,10 @@ export function useCancelReservation() {
     },
   })
 }
+
+export function useCreatePaymentPreference() {
+  return useMutation({
+    mutationFn: (reservationId: string) =>
+      reservationService.createPaymentPreference(reservationId),
+  })
+}
