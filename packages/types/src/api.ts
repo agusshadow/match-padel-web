@@ -1,10 +1,13 @@
-// AUTO-GENERADO — no editar manualmente
-// Se genera desde el OpenAPI spec del backend
-
-// Envelope de respuesta del API
-export interface ApiResponse<T> {
-  success: true
+export interface ApiResponse<T = unknown> {
+  success: boolean
   data: T
+  message?: string
+  meta?: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
 }
 
 export interface ApiError {
@@ -12,10 +15,6 @@ export interface ApiError {
   error: {
     code: string
     message: string
-    details?: unknown
+    details?: Array<{ field: string; message: string }>
   }
 }
-
-// Las interfaces de entidades se agregan aquí al generar desde el spec
-// Por ahora: placeholder
-export type {} // evita error de módulo vacío

@@ -1,0 +1,62 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
+import { useJoinMatch } from '../hooks/useMatches'
+
+export function JoinMatchPage() {
+  const navigate = useNavigate()
+  const joinMatch = useJoinMatch()
+  const [lobbyCode, setLobbyCode] = useState('')
+
+  const handleJoin = async () => {
+    if (!lobbyCode.trim()) return
+    const match = await joinMatch.mutateAsync(lobbyCode.trim().toUpperCase())
+    navigate(`/matches/${match.id}`)
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex items-center gap-3 p-4 pt-6">
+        <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-muted transition-colors">
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-xl font-bold text-foreground">Unirse a partido</h1>
+      </div>
+
+      <div className="flex-1 p-4 space-y-6">
+        <p className="text-muted-foreground text-sm">
+          Ingresá el código de lobby que te compartió el organizador del partido.
+        </p>
+
+        <div>
+          <label className="text-sm font-medium text-foreground block mb-2">Código de lobby</label>
+          <input
+            type="text"
+            value={lobbyCode}
+            onChange={(e) => setLobbyCode(e.target.value.toUpperCase())}
+            placeholder="Ej: AB12C3"
+            maxLength={8}
+            className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-center font-mono text-xl font-bold tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-primary"
+            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+          />
+        </div>
+
+        {joinMatch.isError && (
+          <p className="text-sm text-destructive text-center">
+            Código inválido o partido no disponible.
+          </p>
+        )}
+      </div>
+
+      <div className="p-4 pb-6">
+        <button
+          onClick={handleJoin}
+          disabled={!lobbyCode.trim() || joinMatch.isPending}
+          className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-60 transition-colors"
+        >
+          {joinMatch.isPending ? 'Uniéndose...' : 'Unirse al partido'}
+        </button>
+      </div>
+    </div>
+  )
+}
