@@ -20,6 +20,7 @@ i18n.use(initReactI18next).init({
         'nav.home': 'Inicio',
         'nav.matches': 'Partidos',
         'nav.reservations': 'Reservas',
+        'nav.tournaments': 'Torneos',
         'nav.profile': 'Perfil',
         // Common
         'common.loading': 'Cargando...',

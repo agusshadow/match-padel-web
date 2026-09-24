@@ -12,6 +12,9 @@ import { NewReservationPage } from './features/reservations/components/NewReserv
 import { ProfilePage } from './features/profile/components/ProfilePage'
 import { EditProfilePage } from './features/profile/components/EditProfilePage'
 import { NotificationsPage } from './features/notifications/components/NotificationsPage'
+import { TournamentsPage } from './features/tournaments/components/TournamentsPage'
+import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
+import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
 import { AppLayout } from './shared/layouts/AppLayout'
 
 export function App() {
@@ -32,6 +35,7 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="/reservations" element={<ReservationsPage />} />
+          <Route path="/tournaments" element={<TournamentsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
@@ -42,6 +46,8 @@ export function App() {
         <Route path="/profile/edit" element={<EditProfilePage />} />
         <Route path="/reservations/new" element={<NewReservationPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/tournaments/new" element={<CreateTournamentPage />} />
+        <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
       </Route>
 
       {/* Fallback */}
