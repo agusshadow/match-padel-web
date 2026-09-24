@@ -9,13 +9,12 @@ export function CreateTournamentPage() {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    format: 'round_robin' as 'round_robin' | 'elimination',
+    format: 'round_robin' as 'round_robin' | 'single_elimination' | 'double_elimination' | 'americano',
     max_teams: 8,
     start_date: '',
     end_date: '',
-    min_elo: '',
-    max_elo: '',
-    prize_info: '',
+    entry_fee: '',
+    prize_pool: '',
   })
   const [error, setError] = useState('')
 
@@ -40,9 +39,8 @@ export function CreateTournamentPage() {
         max_teams: form.max_teams,
         start_date: new Date(form.start_date).toISOString(),
         end_date: form.end_date ? new Date(form.end_date).toISOString() : undefined,
-        min_elo: form.min_elo ? parseInt(form.min_elo) : undefined,
-        max_elo: form.max_elo ? parseInt(form.max_elo) : undefined,
-        prize_info: form.prize_info.trim() || undefined,
+        entry_fee: form.entry_fee ? parseFloat(form.entry_fee) : undefined,
+        prize_pool: form.prize_pool ? parseFloat(form.prize_pool) : undefined,
       }
       const tournament = await createTournament.mutateAsync(payload)
       navigate(`/tournaments/${tournament.id}`)
@@ -90,16 +88,18 @@ export function CreateTournamentPage() {
 
         <div>
           <label className="text-sm font-medium text-foreground block mb-2">Formato</label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
               { value: 'round_robin', label: 'Round Robin' },
-              { value: 'elimination', label: 'Eliminación' },
+              { value: 'single_elimination', label: 'Eliminación' },
+              { value: 'double_elimination', label: 'Doble Elim.' },
+              { value: 'americano', label: 'Americano' },
             ].map((opt) => (
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => set('format', opt.value as 'round_robin' | 'elimination')}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+                onClick={() => set('format', opt.value as typeof form.format)}
+                className={`py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   form.format === opt.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'border-border text-muted-foreground hover:border-foreground'
@@ -147,38 +147,29 @@ export function CreateTournamentPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">ELO mínimo</label>
+            <label className="text-sm font-medium text-foreground block mb-1">Cuota de entrada ($)</label>
             <input
               type="number"
-              value={form.min_elo}
-              onChange={(e) => set('min_elo', e.target.value)}
-              placeholder="800"
+              value={form.entry_fee}
+              onChange={(e) => set('entry_fee', e.target.value)}
+              placeholder="0"
               min={0}
+              step="0.01"
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">ELO máximo</label>
+            <label className="text-sm font-medium text-foreground block mb-1">Premio total ($)</label>
             <input
               type="number"
-              value={form.max_elo}
-              onChange={(e) => set('max_elo', e.target.value)}
-              placeholder="1500"
+              value={form.prize_pool}
+              onChange={(e) => set('prize_pool', e.target.value)}
+              placeholder="0"
               min={0}
+              step="0.01"
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground block mb-1">Premio (opcional)</label>
-          <input
-            type="text"
-            value={form.prize_info}
-            onChange={(e) => set('prize_info', e.target.value)}
-            placeholder="$50.000 para el ganador"
-            className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
         </div>
 
         <button

@@ -93,7 +93,10 @@ export function TournamentDetailPage() {
               {STATUS_LABELS[tournament.status]}
             </span>
             <span className="text-xs text-muted-foreground">
-              {tournament.format === 'round_robin' ? 'Round Robin' : 'Eliminación'}
+              {tournament.format === 'round_robin' ? 'Round Robin'
+                : tournament.format === 'single_elimination' ? 'Eliminación'
+                : tournament.format === 'double_elimination' ? 'Doble Eliminación'
+                : 'Americano'}
             </span>
           </div>
           {tournament.description && (
@@ -125,18 +128,15 @@ export function TournamentDetailPage() {
               <p className="font-medium text-foreground">{teams.length}/{tournament.max_teams}</p>
             </div>
           </div>
-          {tournament.prize_info && (
+          {tournament.prize_pool != null && tournament.prize_pool > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Premio</p>
-              <p className="text-sm font-medium text-foreground">💰 {tournament.prize_info}</p>
+              <p className="text-xs text-muted-foreground mb-0.5">Premio total</p>
+              <p className="text-sm font-medium text-foreground">💰 ${tournament.prize_pool.toLocaleString('es-AR')}</p>
             </div>
           )}
-          {(tournament.min_elo || tournament.max_elo) && (
+          {tournament.entry_fee != null && tournament.entry_fee > 0 && (
             <p className="text-xs text-muted-foreground">
-              ELO requerido:{' '}
-              {tournament.min_elo ? `${tournament.min_elo}+` : ''}
-              {tournament.min_elo && tournament.max_elo ? ' – ' : ''}
-              {tournament.max_elo ? `hasta ${tournament.max_elo}` : ''}
+              Cuota de entrada: ${tournament.entry_fee.toLocaleString('es-AR')}
             </p>
           )}
         </div>

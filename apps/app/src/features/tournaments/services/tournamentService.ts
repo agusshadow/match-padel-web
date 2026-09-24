@@ -3,8 +3,7 @@ import { api } from '../../../lib/axios'
 export interface TournamentTeam {
   id: string
   name: string | null
-  status: string
-  created_at: string
+  registered_at: string
   player1: { id: string; username: string; full_name: string; elo: number }
   player2: { id: string; username: string; full_name: string; elo: number }
 }
@@ -25,12 +24,12 @@ export interface Tournament {
   id: string
   name: string
   description: string | null
-  format: 'round_robin' | 'elimination'
+  format: 'round_robin' | 'single_elimination' | 'double_elimination' | 'americano'
   status: 'open' | 'in_progress' | 'completed' | 'cancelled'
   max_teams: number
-  min_elo: number | null
-  max_elo: number | null
-  prize_info: string | null
+  entry_fee: number | null
+  prize_pool: number | null
+  rules: Record<string, unknown> | null
   start_date: string
   end_date: string | null
   created_at: string
@@ -47,11 +46,11 @@ export interface CreateTournamentPayload {
   name: string
   description?: string
   club_id?: string
-  format: 'round_robin' | 'elimination'
+  format: 'round_robin' | 'single_elimination' | 'double_elimination' | 'americano'
   max_teams: number
-  min_elo?: number
-  max_elo?: number
-  prize_info?: string
+  entry_fee?: number
+  prize_pool?: number
+  rules?: Record<string, unknown>
   start_date: string
   end_date?: string
 }

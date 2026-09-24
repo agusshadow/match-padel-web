@@ -40,8 +40,11 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
 
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
         <span>🗓️ {new Date(t.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}</span>
-        <span>🏆 {t.format === 'round_robin' ? 'Round Robin' : 'Eliminación'}</span>
-        {t.prize_info && <span>💰 Premio</span>}
+        <span>🏆 {t.format === 'round_robin' ? 'Round Robin'
+          : t.format === 'single_elimination' ? 'Eliminación'
+          : t.format === 'double_elimination' ? 'Doble Elim.'
+          : 'Americano'}</span>
+        {t.prize_pool != null && t.prize_pool > 0 && <span>💰 Premio</span>}
       </div>
 
       {/* Capacity bar */}
@@ -58,12 +61,9 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
         </div>
       </div>
 
-      {(t.min_elo || t.max_elo) && (
+      {t.entry_fee != null && t.entry_fee > 0 && (
         <p className="text-xs text-muted-foreground">
-          ELO:{' '}
-          {t.min_elo ? `${t.min_elo}+` : ''}
-          {t.min_elo && t.max_elo ? ' – ' : ''}
-          {t.max_elo ? `hasta ${t.max_elo}` : ''}
+          Entrada: ${t.entry_fee.toLocaleString('es-AR')}
         </p>
       )}
     </button>
