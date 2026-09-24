@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@match-padel/config": "workspace:*",
+    "@match-padel/config": "*",
     "typescript": "^5.4.0"
   }
 }
