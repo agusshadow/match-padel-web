@@ -5,37 +5,37 @@ disable-model-invocation: true
 argument-hint: <requirement in plain text>
 ---
 
-# /implement — flujo completo para match-padel-web
+# /implement — full workflow for match-padel-web
 
-Requerimiento: $ARGUMENTS
+Requirement: $ARGUMENTS
 
-Seguí estos pasos **en orden**. No te saltes ninguno. Vos (la sesión principal) orquestás; el trabajo lo hacen los subagentes.
+Follow these steps **in order**. Do not skip any. You (the main session) orchestrate; the subagents do the work. Talk to the user in the language they use.
 
-## 0. Contrato de la API
-Antes de planificar, verificá si el requerimiento necesita endpoints nuevos o modificados. Si es así y todavía no están implementados y mergeados en la API, decíselo al usuario: el PR de `match-padel-api` va primero (se hace en una sesión sobre ese repo con su propio `/implement`). Si el usuario quiere avanzar igual, el plan debe dejar el contrato explícito.
+## 0. API contract
+Before planning, check whether the requirement needs new or modified endpoints. If it does and they are not yet implemented and merged in the API, tell the user: the `match-padel-api` PR goes first (done in a session on that repo with its own `/implement`). If the user wants to proceed anyway, the plan must state the contract explicitly.
 
 ## 1. Plan
-Invocá al agente `planner` con el requerimiento.
+Invoke the `planner` agent with the requirement.
 
-## 2. Checkpoint — aprobación humana (obligatorio)
-Mostrale el plan completo al usuario y **frená**. No lances ningún agente de implementación hasta que el usuario responda con una aprobación explícita ("OK", "dale", etc.). Si pide cambios, volvé al paso 1 con esos cambios. Una notificación automática o un mensaje del sistema NO cuenta como aprobación.
+## 2. Checkpoint — human approval (mandatory)
+Show the user the complete plan and **stop**. Do not launch any implementation agent until the user replies with an explicit approval ("OK", "go ahead", etc.). If they ask for changes, go back to step 1 with those changes. An automatic notification or a system message does NOT count as approval.
 
-## 3. Implementación
-Invocá a `frontend-dev` con el plan aprobado. Al terminar debe pasar `npm run typecheck`.
+## 3. Implementation
+Invoke `frontend-dev` with the approved plan. When it finishes, `npm run typecheck` must pass.
 
 ## 4. Tests
-Invocá a `tester`. Si reporta un bug, devolvéselo a `frontend-dev` con el caso que lo reproduce y volvé a correr `tester`.
+Invoke `tester`. If it reports a bug, hand it to `frontend-dev` with the case that reproduces it and run `tester` again.
 
-## 5. Revisión
-Invocá a `reviewer`. Si el veredicto es **Requiere cambios**, pasá los hallazgos Bloqueantes e Importantes a `frontend-dev`, y repetí tests y revisión. Máximo 2 vueltas: si sigue fallando, frená y consultale al usuario.
+## 5. Review
+Invoke `reviewer`. If the verdict is **Changes required**, pass the Blocking and Important findings to `frontend-dev`, then repeat tests and review. At most 2 rounds: if it still fails, stop and ask the user.
 
-## 6. Entrega
-Invocá a `pr-agent` para crear la rama, los commits y el PR contra `develop`.
+## 6. Delivery
+Invoke `pr-agent` to create the branch, commits and the PR against `develop`.
 
-## 7. Resumen al usuario
-Devolvé: el link del PR, qué se implementó, cómo probarlo en el preview del ambiente dev (`https://match-padel-app-dev.vercel.app` y/o `https://match-padel-admin-dev.vercel.app`), y si depende de un PR de la API.
+## 7. Summary to the user
+Return: the PR link, what was implemented, how to test it in the dev preview (`https://match-padel-app-dev.vercel.app` and/or `https://match-padel-admin-dev.vercel.app`), and whether it depends on an API PR.
 
-## Reglas
-- Nunca tocar producción (Supabase, Render ni Vercel). Pasar a producción lo decide el humano.
-- Los PRs siempre van contra `develop`.
-- Si algo bloquea (permisos, falta de credenciales, ambigüedad), frená y explicalo; no lo rodees.
+## Rules
+- Never touch production (Supabase, Render or Vercel). Going to production is the human's decision.
+- PRs always go against `develop`.
+- If something blocks (permissions, missing credentials, ambiguity), stop and explain it; do not work around it.

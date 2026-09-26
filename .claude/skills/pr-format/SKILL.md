@@ -3,22 +3,22 @@ name: pr-format
 description: Commit, branch and pull request format used in match-padel-web (English, conventional commits, squash to develop, merge commit to main).
 ---
 
-# Formato de commits y PRs
+# Commit and PR format
 
-**Idioma: inglés** para commits, títulos y descripciones.
+**Language: English** for commits, titles and descriptions.
 
-## Ramas
-`feat/<tema>`, `fix/<tema>`, `chore/<tema>`, `docs/<tema>` en kebab-case, siempre desde `develop`.
+## Branches
+`feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>` in kebab-case, always from `develop`.
 
-## Commits (convencionales)
-`<type>(<scope>): <imperative summary>` — types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`. Scope = feature o app (`matches`, `reservations`, `admin`, `ui`...). Ejemplo: `feat(reservations): add cancel button`.
+## Commits (conventional)
+`<type>(<scope>): <imperative summary>` — types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`. Scope = feature or app (`matches`, `reservations`, `admin`, `ui`...). Example: `feat(reservations): add cancel button`.
 
 ## Pull requests
-- Base **siempre `develop`**. Título con el mismo formato convencional.
-- Cuerpo: `.github/pull_request_template.md` completo (What changes / Why / Technical changes / API contract / How to test / Checklist / Related PR). Nada vacío: "None" o "N/A".
-- Sin capturas de pantalla: se revisa con el preview de Vercel de la rama (indicar cómo llegar a la pantalla).
-- Si depende de un PR de `match-padel-api`, enlazarlo; el de la API se mergea primero.
+- Base **always `develop`**. Title in the same conventional format.
+- Body: the full `.github/pull_request_template.md` (What changes / Why / Technical changes / API contract / How to test / Checklist / Related PR). Nothing left empty: "None" or "N/A".
+- No screenshots: review happens through the branch's Vercel preview (say how to reach the screen).
+- If it depends on a `match-padel-api` PR, link it; the API PR is merged first.
 
-## Método de merge
+## Merge method
 - PR → `develop`: **squash**.
-- `develop` → `main` (producción): **merge commit**. Lo hace el humano.
+- `develop` → `main` (production): **merge commit**. Done by the human.
