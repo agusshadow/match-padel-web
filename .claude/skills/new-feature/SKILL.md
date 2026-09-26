@@ -15,7 +15,7 @@ Full reference: `docs/implementing.md` ("Add a new feature") and `docs/conventio
 4. Forms with React Hook Form + Zod.
 5. Cover the loading, empty, error and success states.
 6. Register the route in `src/App.tsx` (protected if applicable).
-7. `apps/app`: add every text to `src/i18n/locales/es.json` and `en.json` and use them with `t('key')`.
+7. `apps/app`: add every text with `t('key')`. Add the keys to `src/i18n.ts` (the file actually loaded today) and mirror them in `src/i18n/locales/es.json` and `en.json`.
 8. Export the public surface from the feature's `index.ts`.
 9. Run `npm run typecheck`.
 

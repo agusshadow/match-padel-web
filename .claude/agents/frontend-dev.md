@@ -19,11 +19,13 @@ Read `CLAUDE.md`, `docs/conventions.md`, `docs/ui.md` and the relevant section o
 - UI states are always covered: loading, empty, error and success.
 
 ## Per app
-- **`apps/app`** (players): mobile-first, dark mode by default, bottom navigation. **All text goes through `t('key')`** and is added to `src/i18n/locales/es.json` and `en.json`.
+- **`apps/app`** (players): mobile-first, dark mode by default, bottom navigation. **All text goes through `t('key')`**; add each key to `src/i18n.ts` and mirror it in `src/i18n/locales/es.json` and `en.json` (see "Canonical files").
 - **`apps/admin`** (staff): desktop-first, dense tables and grids. Flatter structure (one folder per feature holding its pages). Respect the convention of the folder you are working in instead of forcing the other app's.
 
 ## Canonical files (legacy duplicates exist)
-In `apps/app`: use `features/auth/store/auth.store.ts` (`authStore.ts` is an unused duplicate) and `i18n.ts` (`i18n/index.ts` also exists; `main.tsx` imports `./i18n`). Do not add code to the duplicates and do not delete them: cleaning them up is a separate task.
+In `apps/app`: use `features/auth/store/auth.store.ts` (`authStore.ts` is an unused duplicate). Do not add code to unused duplicates and do not delete them: cleaning them up is a separate task.
+
+**i18n has two competing setups.** `src/i18n.ts` (Spanish only, flat keys like `'auth.login'`) is the one actually loaded, because `main.tsx` imports `./i18n` and that resolves to the file before the `i18n/` folder. `src/i18n/index.ts` with `locales/es.json` and `en.json` (nested keys, English included) is the target but is NOT loaded, so keys added only to the JSON files never show up in the app. Until a consolidation task is done, add every new key to `i18n.ts` (so it works at runtime) AND mirror it in `es.json`/`en.json`, and say so in your report. Do not delete either setup.
 
 ## Dependency on the API
 You implement against the **contract in the plan**. If the endpoint does not exist yet in the dev API, do not invent the response shape: flag it and stop that part.

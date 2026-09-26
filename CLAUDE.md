@@ -11,12 +11,12 @@ They share code through internal packages.
 
 ## Stack
 - **Monorepo**: Turborepo + npm workspaces (the real package manager is npm; there is a `package-lock.json`)
-- **Framework**: React 19 + TypeScript + Vite
+- **Framework**: React 18 + TypeScript + Vite 5 (Tailwind 3, Zustand 4)
 - **Styles**: Tailwind CSS + shadcn/ui (from `packages/ui`)
 - **Server state**: TanStack React Query v5
 - **Global UI state**: Zustand
 - **Forms**: React Hook Form + Zod
-- **HTTP**: Axios with interceptors (reads `response.data.data`)
+- **HTTP**: Axios with interceptors (target: unwrap `response.data.data`; today each service does `.then(r => r.data.data)` itself)
 - **Auth**: Supabase JS (auth only — login/register/JWT)
 - **Realtime DB**: `supabase.channel()` ONLY on `court_reservations`
 - **Realtime API**: Socket.io-client (chat, ELO ready, staff notifications)
@@ -87,7 +87,7 @@ Color tokens live in `packages/ui/src/globals.css`. The app's primary blue is `-
 In each app's `src/lib/axios.ts`:
 - Base URL: `VITE_API_URL`, which **must include `/api/v1`** (e.g. `https://match-padel-api-dev.onrender.com/api/v1`); the apps do not append it themselves
 - Request interceptor: adds `Authorization: Bearer <supabase_jwt>`
-- Response interceptor: reads `response.data.data` on success, throws an error with `response.data.error` on failure
+- Response interceptor (target): reads `response.data.data` on success, throws an error with `response.data.error` on failure. Today neither app's interceptor unwraps, so services do `.then(r => r.data.data)`; keep that pattern until the interceptor changes
 
 **Never** use `fetch` directly. Always Axios through the configured instance.
 
@@ -150,15 +150,15 @@ This document describes the **target architecture**. The existing code does not 
 |---|---|---|
 | Feature structure | `api/`, `components/`, `hooks/`, `store/`, `index.ts` | 6 features use `services/` and only 1 uses `api/`; only `auth` has an `index.ts` (1 of 10) |
 | Imports | Always through the feature's `index.ts` | There are 15 direct imports into `features/*/components` |
-| Types | From `@match-padel/types` | No file uses it; `packages/types` exists (`supabase.ts`, a 20-line `api.ts`) |
-| Base components | `@match-padel/ui` | Only 2 files use it |
+| Types | From `@match-padel/types` | No file imports the package alias; the few places that use the types import `packages/types/src/*` by long relative paths. `packages/types` has `supabase.ts` and a hand-written 20-line `api.ts` |
+| Base components | `@match-padel/ui` | Nothing imports it, and `packages/ui/src/index.ts` exports only `cn`, so no component is importable yet (9 components exist in `packages/ui/src/components`) |
 | i18n in `apps/app` | Every text through `t('key')` | Only 5 of 21 `.tsx` files use `useTranslation` |
-| Admin | `/:clubId/...` routes, `/platform/*`, sidebar by `club_staff` role | 6 flat routes (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), no role guards; login only, no registration |
-| HTTP | Axios only | There are 2 uses of `fetch(` |
+| Admin | `/:clubId/...` routes, `/platform/*`, sidebar by `club_staff` role | 6 flat routes (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), no per-route role guards (the login rejects users whose `users.role` is not `club_staff`/`super_admin`); login only, no registration |
+| HTTP | Axios only, all data through the API | No `fetch(` calls. But `apps/admin` bypasses the API: it queries and writes Supabase tables directly, and its `lib/axios.ts` is unused |
 | Tests | Vitest + RTL, 50% in `src/features/` | No framework and no tests |
 | Lint | ESLint | The `lint` script exists, but I found no ESLint configuration: it probably fails |
 | Package manager | (this document used to say pnpm) | npm |
-| Duplicates in `apps/app` | — | `auth.store.ts` (canonical, 10 imports) and `authStore.ts` (unused); `i18n.ts` and `i18n/index.ts` (`main.tsx` imports `./i18n`) |
+| Duplicates in `apps/app` | — | `auth.store.ts` (canonical, 10 imports) and `authStore.ts` (unused). Two i18n setups: `i18n.ts` (Spanish only, flat keys) is the one **loaded** (`main.tsx` imports `./i18n`, which resolves to the file first); `i18n/index.ts` + `locales/{es,en}.json` is the target but is not loaded. New keys go in `i18n.ts` and are mirrored in the JSON |
 
 ## Agent workflow
 
@@ -190,3 +190,9 @@ Supporting skills: `new-feature`, `pr-format`.
 - Commits and PRs in **English**, conventional commits. See the `pr-format` skill. No screenshots in PRs.
 - **Never** touch production from an agent session. Never put secret keys in the bundle: only public `VITE_` variables (anon key, never `service_role`).
 - If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR".
+
+## Documentation map
+
+- `docs/screens.md` — what exists today: routes per app, owning features, endpoints each screen calls, known gaps. **Read it before planning.**
+- `docs/architecture.md`, `docs/conventions.md`, `docs/implementing.md`, `docs/ui.md` — target architecture and how-tos. Anything not built yet is marked "target — not implemented yet".
+- `docs/screens.md` "Known gaps" lists verified deviations, including bugs found during the audit.
