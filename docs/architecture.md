@@ -1,186 +1,186 @@
-# Arquitectura — match-padel-web
+# Architecture — match-padel-web
 
-## Visión general
+## Overview
 
-Monorepo con **Turborepo** que contiene dos aplicaciones React y tres paquetes compartidos.
+**Turborepo** monorepo containing two React applications and three shared packages.
 
 ```
 match-padel-web/
 ├── apps/
-│   ├── app/          → PWA para usuarios finales (móvil-first)
-│   └── admin/        → Panel de administración para clubs y plataforma (desktop-first)
+│   ├── app/          → PWA for end users (mobile-first)
+│   └── admin/        → Admin panel for clubs and the platform (desktop-first)
 ├── packages/
-│   ├── ui/           → Componentes shadcn/ui compartidos
-│   ├── types/        → Tipos TypeScript auto-generados (nunca manuales)
-│   └── config/       → Configuraciones base de TS y Tailwind
+│   ├── ui/           → Shared shadcn/ui components
+│   ├── types/        → Auto-generated TypeScript types (never manual)
+│   └── config/       → Base TS and Tailwind configurations
 └── docs/
 ```
 
-## Aplicaciones
+## Applications
 
-### `apps/app` — Aplicación de usuarios
+### `apps/app` — User application
 
-**Audiencia**: Jugadores de pádel  
-**Dispositivo objetivo**: Móvil  
+**Audience**: Padel players  
+**Target device**: Mobile  
 **Hosting**: Vercel  
-**Modo**: PWA instalable
+**Mode**: Installable PWA
 
-Funcionalidades principales:
-- Registro/login (Supabase Auth)
-- Buscar y reservar canchas
-- Crear y unirse a partidos
-- Ver y gestionar torneos
-- Gamificación (ELO, logros, ranking)
-- Tienda de puntos
-- Notificaciones push (Firebase)
-- Chat en tiempo real (Socket.io)
+Main features:
+- Sign-up/login (Supabase Auth)
+- Search and book courts
+- Create and join matches
+- View and manage tournaments
+- Gamification (ELO, achievements, ranking)
+- Points store
+- Push notifications (Firebase)
+- Real-time chat (Socket.io)
 
-### `apps/admin` — Panel de administración
+### `apps/admin` — Admin panel
 
-**Audiencia**: Dueños y staff de clubs, super-admin de plataforma  
-**Dispositivo objetivo**: Desktop  
-**Hosting**: Vercel (subdominio o path separado)
+**Audience**: Club owners and staff, platform super-admin  
+**Target device**: Desktop  
+**Hosting**: Vercel (subdomain or separate path)
 
-Funcionalidades principales:
-- Gestión de canchas y horarios
-- Gestión de reservas del club
-- Torneos: creación, bracket, resultados
-- Gestión de staff
-- Finanzas: ingresos, pagos MP
-- Dashboard de estadísticas
-- Configuración del club
+Main features:
+- Court and schedule management
+- Club reservation management
+- Tournaments: creation, bracket, results
+- Staff management
+- Finance: revenue, MP payments
+- Statistics dashboard
+- Club settings
 
 ---
 
-## Paquetes compartidos
+## Shared packages
 
 ### `packages/ui`
 
-Contiene los componentes **shadcn/ui** ya configurados con el design system de Match Padel.
+Contains the **shadcn/ui** components already configured with the Match Padel design system.
 
-- `src/components/` — Componentes copiados de shadcn/ui (Button, Card, Input, Dialog, etc.)
+- `src/components/` — Components copied from shadcn/ui (Button, Card, Input, Dialog, etc.)
 - `src/lib/utils.ts` — `cn()` helper
-- `tailwind.config.ts` — Configuración Tailwind con tokens de color de Match Padel
+- `tailwind.config.ts` — Tailwind configuration with Match Padel color tokens
 
-**Regla crítica**: Las apps NO instalan shadcn/ui directamente. Todo componente nuevo se agrega aquí.
+**Critical rule**: Apps do NOT install shadcn/ui directly. Every new component is added here.
 
 ### `packages/types`
 
-Tipos TypeScript generados automáticamente. **Nunca se editan a mano.**
+Automatically generated TypeScript types. **Never edited by hand.**
 
-- `src/supabase.ts` — Generado con `supabase gen types typescript`
-- `src/api.ts` — Generado desde el OpenAPI spec del backend
+- `src/supabase.ts` — Generated with `supabase gen types typescript`
+- `src/api.ts` — Generated from the backend's OpenAPI spec
 
 ```ts
-// Uso en cualquier app o paquete:
+// Usage in any app or package:
 import type { Database } from '@match-padel/types/supabase'
 import type { ReservationResponse } from '@match-padel/types/api'
 ```
 
 ### `packages/config`
 
-Configuraciones reutilizables:
+Reusable configurations:
 
-- `tsconfig.base.json` — Base de TypeScript para todas las apps y paquetes
-- `tailwind.base.js` — Configuración base de Tailwind (extendida por apps y `packages/ui`)
+- `tsconfig.base.json` — TypeScript base for all apps and packages
+- `tailwind.base.js` — Base Tailwind configuration (extended by apps and `packages/ui`)
 
 ---
 
 ## Feature-Sliced Design (FSD)
 
-Cada app organiza su código en **features**. Este patrón es obligatorio.
+Each app organizes its code into **features**. This pattern is mandatory.
 
 ```
 src/
 ├── features/
-│   └── <nombre>/
-│       ├── api/            → Llamadas HTTP o Supabase (useQuery, useMutation)
-│       ├── components/     → Componentes React de esta feature
-│       ├── hooks/          → Hooks custom de esta feature
-│       ├── store/          → Zustand store (solo si hay estado complejo)
-│       └── index.ts        → Barrel: todo lo que exporta esta feature
-├── components/             → Componentes globales reutilizables
-├── lib/                    → Clientes (axios, supabase, socket), helpers
-└── locales/                → Archivos i18n (es.json, en.json)
+│   └── <name>/
+│       ├── api/            → HTTP or Supabase calls (useQuery, useMutation)
+│       ├── components/     → React components for this feature
+│       ├── hooks/          → Custom hooks for this feature
+│       ├── store/          → Zustand store (only if there is complex state)
+│       └── index.ts        → Barrel: everything this feature exports
+├── components/             → Reusable global components
+├── lib/                    → Clients (axios, supabase, socket), helpers
+└── locales/                → i18n files (es.json, en.json)
 ```
 
-### Regla de importaciones FSD
+### FSD import rule
 
 ```ts
-// ✅ CORRECTO: importar desde el barrel de la feature
+// ✅ CORRECT: import from the feature's barrel
 import { ReservationCard, useReservations } from '@/features/reservations'
 
-// ❌ PROHIBIDO: importar internals de otra feature
+// ❌ FORBIDDEN: importing another feature's internals
 import { ReservationCard } from '@/features/reservations/components/ReservationCard'
 ```
 
-El `index.ts` de cada feature es la **única interfaz pública**. Todo lo que no esté exportado ahí es privado.
+Each feature's `index.ts` is the **only public interface**. Anything not exported there is private.
 
 ---
 
-## Flujo de datos
+## Data flow
 
 ```
-Componente
+Component
     ↓
-    Hook de feature (useQuery / useMutation de React Query)
+    Feature hook (React Query's useQuery / useMutation)
     ↓
-    Función de api/ (axios o supabase-js)
+    api/ function (axios or supabase-js)
     ↓
-    API REST / Supabase / Socket.io
+    REST API / Supabase / Socket.io
 ```
 
-### React Query como fuente de verdad del servidor
+### React Query as the source of truth for server state
 
-- `useQuery` para datos que vienen del servidor
-- `useMutation` para operaciones de escritura
-- `invalidateQueries` para refrescar después de mutaciones
-- Caching automático — no duplicar estado en Zustand
+- `useQuery` for data coming from the server
+- `useMutation` for write operations
+- `invalidateQueries` to refresh after mutations
+- Automatic caching — do not duplicate state in Zustand
 
-### Zustand solo para estado de UI
+### Zustand only for UI state
 
 ```ts
-// ✅ Correcto: estado de UI que no viene del servidor
+// ✅ Correct: UI state that does not come from the server
 const useAdminSidebarStore = create<SidebarState>(...)
 
-// ❌ Incorrecto: datos del servidor en Zustand
-const useReservationsStore = create(... // No, esto va en React Query
+// ❌ Incorrect: server data in Zustand
+const useReservationsStore = create(... // No, this belongs in React Query
 ```
 
 ---
 
-## Tiempo real
+## Real-time
 
-### Supabase Realtime (exclusivo para `court_reservations`)
+### Supabase Realtime (exclusively for `court_reservations`)
 
 ```ts
-// Solo para este caso de uso: disponibilidad de canchas
+// Only for this use case: court availability
 supabase.channel('court_reservations')
   .on('postgres_changes', { event: '*', schema: 'public', table: 'court_reservations' }, handler)
   .subscribe()
 ```
 
-### Socket.io para todo lo demás
+### Socket.io for everything else
 
-| Evento             | Room                  | Uso                          |
+| Event              | Room                  | Use                          |
 |--------------------|-----------------------|------------------------------|
-| `match:update`     | `match:{matchId}`     | Cambios en partido activo     |
-| `chat:message`     | `match:{matchId}`     | Chat en tiempo real           |
-| `notification:new` | `user:{userId}`       | Notificaciones push app       |
-| `staff:notify`     | `club:{clubId}:staff` | Alertas para staff del club   |
-| `tournament:bracket` | `tournament:{id}`   | Actualizaciones de bracket    |
+| `match:update`     | `match:{matchId}`     | Changes to an active match    |
+| `chat:message`     | `match:{matchId}`     | Real-time chat                |
+| `notification:new` | `user:{userId}`       | App push notifications        |
+| `staff:notify`     | `club:{clubId}:staff` | Alerts for club staff         |
+| `tournament:bracket` | `tournament:{id}`   | Bracket updates               |
 
 ---
 
-## Autenticación
+## Authentication
 
-1. Supabase Auth gestiona sesiones (JWT)
-2. `supabase.auth.getSession()` devuelve el token
-3. El token se inyecta en el header `Authorization: Bearer <token>` de cada request a la API via interceptor de Axios
-4. La API verifica el token con Supabase `service_role`
+1. Supabase Auth manages sessions (JWT)
+2. `supabase.auth.getSession()` returns the token
+3. The token is injected into the `Authorization: Bearer <token>` header of every API request via an Axios interceptor
+4. The API verifies the token with Supabase `service_role`
 
 ```ts
-// lib/axios.ts — interceptor global
+// lib/axios.ts — global interceptor
 api.interceptors.request.use(async (config) => {
   const { data: { session } } = await supabase.auth.getSession()
   if (session) {
@@ -192,9 +192,9 @@ api.interceptors.request.use(async (config) => {
 
 ---
 
-## Multi-tenant en admin
+## Multi-tenancy in admin
 
-Todas las rutas del admin que corresponden a un club incluyen `/:clubId/` en la URL.
+All admin routes that belong to a club include `/:clubId/` in the URL.
 
 ```
 /clubs/:clubId/reservations
@@ -203,18 +203,18 @@ Todas las rutas del admin que corresponden a un club incluyen `/:clubId/` en la 
 /clubs/:clubId/tournaments
 ```
 
-El guard `requireClubAccess` verifica en `localStorage` o Zustand que el usuario tiene rol válido en ese `clubId`.
+The `requireClubAccess` guard checks in `localStorage` or Zustand that the user has a valid role in that `clubId`.
 
 ---
 
-## Build y pipeline Turborepo
+## Build and Turborepo pipeline
 
 ```json
-// turbo.json (simplificado)
+// turbo.json (simplified)
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],  // paquetes antes que apps
+      "dependsOn": ["^build"],  // packages before apps
       "outputs": ["dist/**"]
     },
     "dev": {
@@ -228,26 +228,26 @@ El guard `requireClubAccess` verifica en `localStorage` o Zustand que el usuario
 }
 ```
 
-**Orden de build**: `packages/config` → `packages/types` → `packages/ui` → `apps/app` + `apps/admin`
+**Build order**: `packages/config` → `packages/types` → `packages/ui` → `apps/app` + `apps/admin`
 
 ---
 
-## Variables de entorno
+## Environment variables
 
-Cada app tiene su propio `.env.local`. Prefijo `VITE_` para que Vite las exponga al cliente.
+Each app has its own `.env.local`. The `VITE_` prefix is required for Vite to expose them to the client.
 
 ```env
-# Compartido por ambas apps
+# Shared by both apps
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 VITE_API_URL=
 
-# Solo apps/app
+# apps/app only
 VITE_FIREBASE_API_KEY=
 VITE_SOCKET_URL=
 
-# Solo apps/admin
-VITE_ADMIN_SECRET=  # Solo si se usa alguna ruta protegida extra
+# apps/admin only
+VITE_ADMIN_SECRET=  # Only if an extra protected route is used
 ```
 
 ---
@@ -256,5 +256,5 @@ VITE_ADMIN_SECRET=  # Solo si se usa alguna ruta protegida extra
 
 | App     | Host   | Trigger              | URL                          |
 |---------|--------|----------------------|------------------------------|
-| app     | Vercel | push a `main`        | `app.matchpadel.com`         |
-| admin   | Vercel | push a `main`        | `admin.matchpadel.com`       |
+| app     | Vercel | push to `main`       | `app.matchpadel.com`         |
+| admin   | Vercel | push to `main`       | `admin.matchpadel.com`       |

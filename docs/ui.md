@@ -1,34 +1,34 @@
-# Sistema de UI — match-padel-web
+# UI System — match-padel-web
 
-## Stack de UI
+## UI Stack
 
-- **shadcn/ui**: Componentes copiados en `packages/ui/src/components/` (código propio, no deps)
-- **Tailwind CSS**: Utilidades de estilo, con configuración base en `packages/config/tailwind.base.js`
-- **CSS Custom Properties**: Tokens de color del design system de Match Padel
+- **shadcn/ui**: Components copied into `packages/ui/src/components/` (owned code, no deps)
+- **Tailwind CSS**: Styling utilities, with base configuration in `packages/config/tailwind.base.js`
+- **CSS Custom Properties**: Color tokens of the Match Padel design system
 
 ---
 
-## Paleta de colores
+## Color palette
 
-Match Padel usa **azul como color primario** sobre **blanco/gris muy claro**.
+Match Padel uses **blue as the primary color** on **white/very light gray**.
 
-### Tokens CSS (en `packages/ui/src/globals.css`)
+### CSS tokens (in `packages/ui/src/globals.css`)
 
 ```css
 :root {
-  /* Fondos */
-  --background: 0 0% 100%;           /* blanco */
-  --foreground: 222 47% 11%;         /* casi negro */
+  /* Backgrounds */
+  --background: 0 0% 100%;           /* white */
+  --foreground: 222 47% 11%;         /* almost black */
   
-  /* Primary — Azul Match Padel */
-  --primary: 213 94% 38%;            /* #0B5ED7 — azul principal */
-  --primary-foreground: 0 0% 100%;   /* texto sobre primary */
+  /* Primary — Match Padel blue */
+  --primary: 213 94% 38%;            /* #0B5ED7 — main blue */
+  --primary-foreground: 0 0% 100%;   /* text on primary */
   
-  /* Secondary — Azul claro / acento */
-  --secondary: 213 100% 96%;         /* #EBF4FF — fondo azul suave */
+  /* Secondary — Light blue / accent */
+  --secondary: 213 100% 96%;         /* #EBF4FF — soft blue background */
   --secondary-foreground: 213 94% 28%;
 
-  /* Muted — grises para texto secundario */
+  /* Muted — grays for secondary text */
   --muted: 210 40% 96%;
   --muted-foreground: 215 16% 47%;
 
@@ -36,14 +36,14 @@ Match Padel usa **azul como color primario** sobre **blanco/gris muy claro**.
   --accent: 213 100% 93%;
   --accent-foreground: 213 94% 28%;
 
-  /* Destructive — rojo para errores */
+  /* Destructive — red for errors */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  /* Bordes y cards */
+  /* Borders and cards */
   --border: 214 32% 91%;
   --input: 214 32% 91%;
-  --ring: 213 94% 38%;               /* mismo que primary para focus rings */
+  --ring: 213 94% 38%;               /* same as primary for focus rings */
 
   /* Cards */
   --card: 0 0% 100%;
@@ -60,7 +60,7 @@ Match Padel usa **azul como color primario** sobre **blanco/gris muy claro**.
 .dark {
   --background: 222 47% 8%;
   --foreground: 210 40% 98%;
-  --primary: 213 87% 55%;            /* azul más brillante en dark mode */
+  --primary: 213 87% 55%;            /* brighter blue in dark mode */
   --primary-foreground: 222 47% 8%;
   --secondary: 217 33% 17%;
   --secondary-foreground: 210 40% 98%;
@@ -80,90 +80,90 @@ Match Padel usa **azul como color primario** sobre **blanco/gris muy claro**.
 }
 ```
 
-### Cómo actualizar el azul primario
+### How to update the primary blue
 
-Si el usuario final provee el hex exacto del azul de la marca, convertirlo a HSL y reemplazar `--primary`:
+If the end user provides the exact hex of the brand blue, convert it to HSL and replace `--primary`:
 
 ```
 Hex: #1A6BE8  →  HSL: 213 78% 51%  →  --primary: 213 78% 51%;
 ```
 
-Herramienta: https://www.colorhexa.com/ o cualquier conversor hex-to-hsl.
+Tool: https://www.colorhexa.com/ or any hex-to-HSL converter.
 
 ---
 
-## Uso de colores en Tailwind
+## Using colors in Tailwind
 
-**Siempre** usar los tokens semánticos, nunca colores hardcodeados:
+**Always** use the semantic tokens, never hardcoded colors:
 
 ```tsx
-// ✅ Correcto — usa el token
+// ✅ Correct — uses the token
 <div className="bg-primary text-primary-foreground" />
 <p className="text-muted-foreground" />
 <div className="border border-border rounded-[--radius]" />
 
-// ❌ Prohibido — hardcodeado
+// ❌ Forbidden — hardcoded
 <div className="bg-blue-600 text-white" />
 <p className="text-gray-500" />
 ```
 
 ---
 
-## Componentes disponibles en `@match-padel/ui`
+## Components available in `@match-padel/ui`
 
-Lista base de componentes shadcn/ui configurados:
+Base list of configured shadcn/ui components:
 
-| Componente      | Uso principal                                |
+| Component       | Main use                                     |
 |-----------------|----------------------------------------------|
-| `Button`        | Acciones primarias, secundarias, destructivas |
-| `Card`          | Contenedores de contenido                    |
-| `Input`         | Campos de texto                              |
-| `Label`         | Labels para formularios                      |
+| `Button`        | Primary, secondary, destructive actions      |
+| `Card`          | Content containers                           |
+| `Input`         | Text fields                                  |
+| `Label`         | Form labels                                  |
 | `Select`        | Dropdowns                                    |
-| `Dialog`        | Modales                                      |
-| `Sheet`         | Drawer desde el lado (bottom sheet en móvil) |
-| `Tabs`          | Navegación por pestañas                      |
-| `Badge`         | Etiquetas de estado                          |
-| `Avatar`        | Foto de perfil                               |
+| `Dialog`        | Modals                                       |
+| `Sheet`         | Side drawer (bottom sheet on mobile)         |
+| `Tabs`          | Tabbed navigation                            |
+| `Badge`         | Status labels                                |
+| `Avatar`        | Profile picture                              |
 | `Skeleton`      | Loading states                               |
-| `Toast`         | Notificaciones efímeras                      |
-| `Separator`     | Líneas divisoras                             |
-| `ScrollArea`    | Contenedores con scroll custom               |
-| `DropdownMenu`  | Menús contextuales                           |
-| `Form`          | Wrapper para React Hook Form                 |
-| `Table`         | Tablas de datos (admin principalmente)       |
-| `Calendar`      | Selector de fechas                           |
-| `Popover`       | Tooltips y contenido flotante                |
+| `Toast`         | Ephemeral notifications                      |
+| `Separator`     | Divider lines                                |
+| `ScrollArea`    | Containers with custom scroll                |
+| `DropdownMenu`  | Context menus                                |
+| `Form`          | Wrapper for React Hook Form                  |
+| `Table`         | Data tables (mainly admin)                   |
+| `Calendar`      | Date picker                                  |
+| `Popover`       | Tooltips and floating content                |
 
 ---
 
-## Agregar un componente nuevo a `packages/ui`
+## Adding a new component to `packages/ui`
 
-### Opción A: Copiar de shadcn/ui CLI (recomendado)
+### Option A: Copy from the shadcn/ui CLI (recommended)
 
-En la raíz del monorepo, el CLI de shadcn/ui está configurado para escribir en `packages/ui`:
+At the monorepo root, the shadcn/ui CLI is configured to write into `packages/ui`:
 
 ```bash
-# Desde la raíz del monorepo
-pnpm --filter @match-padel/ui dlx shadcn-ui@latest add <nombre-componente>
+# From the monorepo root
+pnpm --filter @match-padel/ui dlx shadcn-ui@latest add <component-name>
 ```
 
-El componente se copia en `packages/ui/src/components/<Nombre>.tsx` y se puede editar libremente.
+The component is copied into `packages/ui/src/components/<Name>.tsx` and can be edited freely.
 
-### Opción B: Crear manualmente
+### Option B: Create manually
 
-1. Crear `packages/ui/src/components/<Nombre>.tsx` siguiendo el patrón de los existentes
-2. Exportar desde `packages/ui/src/index.ts`
-3. Usar `cn()` para clases condicionales y tokens CSS para colores
+1. Create `packages/ui/src/components/<Name>.tsx` following the pattern of the existing ones
+2. Export from `packages/ui/src/index.ts`
+3. Use `cn()` for conditional classes and CSS tokens for colors
 
 ---
 
 ## Dark mode
 
-- `apps/app`: **dark mode por defecto** (móvil, experiencia tipo app nativa)
-- `apps/admin`: **light mode por defecto** (desktop, dashboard de gestión)
+- `apps/app`: **dark mode by default** (mobile, native-app-like experience)
+- `apps/admin`: **light mode by default** (desktop, management dashboard)
 
-### Configuración en HTML
+### HTML setup
 
 ```html
 <!-- apps/app/index.html -->
@@ -173,7 +173,7 @@ El componente se copia en `packages/ui/src/components/<Nombre>.tsx` y se puede e
 <html>
 ```
 
-### Toggle de tema (apps/app)
+### Theme toggle (apps/app)
 
 ```tsx
 // src/components/ThemeToggle.tsx
@@ -191,14 +191,14 @@ export function ThemeToggle() {
 
 ---
 
-## Layout móvil (apps/app)
+## Mobile layout (apps/app)
 
 ```
 ┌─────────────────────┐
 │  Header (sticky)    │  h-14, bg-background, border-b
 ├─────────────────────┤
 │                     │
-│   Contenido main    │  flex-1, overflow-y-auto, pb-20
+│    Main content     │  flex-1, overflow-y-auto, pb-20
 │                     │
 ├─────────────────────┤
 │  Bottom Nav         │  h-16, bg-background, border-t, fixed bottom-0
@@ -206,7 +206,7 @@ export function ThemeToggle() {
 ```
 
 ```tsx
-// Layout base de apps/app
+// Base layout of apps/app
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
@@ -229,7 +229,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 │        │  Topbar                  │
 │        ├──────────────────────────┤
 │Sidebar │                          │
-│        │   Contenido principal    │
+│        │      Main content        │
 │        │                          │
 └────────┴──────────────────────────┘
 ```
@@ -256,14 +256,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
 ## Bottom Sheet (apps/app)
 
-Para la tienda y otras pantallas que necesitan un drawer desde abajo:
+For the store and other screens that need a drawer from the bottom:
 
 ```tsx
 import { Sheet, SheetContent, SheetTrigger } from '@match-padel/ui'
 
 <Sheet>
   <SheetTrigger asChild>
-    <Button>Abrir tienda</Button>
+    <Button>Open store</Button>
   </SheetTrigger>
   <SheetContent side="bottom" className="h-[90vh] rounded-t-2xl">
     <StoreContent />
@@ -275,10 +275,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@match-padel/ui'
 
 ## Loading states
 
-Usar `Skeleton` de `@match-padel/ui` para loading states, nunca spinners genéricos en toda la página:
+Use `Skeleton` from `@match-padel/ui` for loading states, never generic full-page spinners:
 
 ```tsx
-// Loading state de una card
+// Loading state of a card
 export function ReservationCardSkeleton() {
   return (
     <Card>
@@ -291,9 +291,9 @@ export function ReservationCardSkeleton() {
 
 ---
 
-## Iconos
+## Icons
 
-Usar `lucide-react` (viene incluido con shadcn/ui):
+Use `lucide-react` (included with shadcn/ui):
 
 ```tsx
 import { Calendar, MapPin, Users, ChevronRight } from 'lucide-react'
@@ -301,27 +301,27 @@ import { Calendar, MapPin, Users, ChevronRight } from 'lucide-react'
 <Calendar className="h-4 w-4 text-muted-foreground" />
 ```
 
-Tamaños estándar:
-- `h-3 w-3` — micro, en badges
-- `h-4 w-4` — inline en texto
-- `h-5 w-5` — en botones
+Standard sizes:
+- `h-3 w-3` — micro, in badges
+- `h-4 w-4` — inline in text
+- `h-5 w-5` — in buttons
 - `h-6 w-6` — standalone icons
-- `h-8 w-8` — títulos
+- `h-8 w-8` — headings
 
 ---
 
-## Tipografía
+## Typography
 
-Font por defecto: **Inter** (Google Fonts)
+Default font: **Inter** (Google Fonts)
 
 ```html
-<!-- index.html de cada app -->
+<!-- index.html of each app -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 ```
 
 ```css
-/* En tailwind.config.ts */
+/* In tailwind.config.ts */
 fontFamily: {
   sans: ['Inter', 'system-ui', 'sans-serif'],
 }

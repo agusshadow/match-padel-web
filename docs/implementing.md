@@ -1,26 +1,26 @@
-# Cómo implementar — match-padel-web
+# How to implement — match-padel-web
 
-Guía paso a paso para agregar funcionalidad nueva sin romper el patrón existente.
+Step-by-step guide to add new functionality without breaking the existing pattern.
 
 ---
 
-## Agregar una nueva feature
+## Add a new feature
 
-### Paso 1: Crear la estructura de carpetas
+### Step 1: Create the folder structure
 
 ```bash
-mkdir -p src/features/<nombre>/{api,components,hooks,store}
-touch src/features/<nombre>/index.ts
+mkdir -p src/features/<name>/{api,components,hooks,store}
+touch src/features/<name>/index.ts
 ```
 
-Ejemplo: feature `tournaments` en `apps/app`:
+Example: `tournaments` feature in `apps/app`:
 
 ```bash
 mkdir -p src/features/tournaments/{api,components,hooks}
 touch src/features/tournaments/index.ts
 ```
 
-### Paso 2: Definir los tipos (importar, no declarar)
+### Step 2: Define the types (import, don't declare)
 
 ```ts
 // src/features/tournaments/api/tournamentsApi.ts
@@ -38,7 +38,7 @@ export async function joinTournament(tournamentId: string): Promise<void> {
 }
 ```
 
-### Paso 3: Crear los hooks de React Query
+### Step 3: Create the React Query hooks
 
 ```ts
 // src/features/tournaments/hooks/useTournaments.ts
@@ -64,7 +64,7 @@ export function useJoinTournament() {
 }
 ```
 
-### Paso 4: Crear los componentes
+### Step 4: Create the components
 
 ```tsx
 // src/features/tournaments/components/TournamentCard.tsx
@@ -99,7 +99,7 @@ export function TournamentCard({ tournament }: TournamentCardProps) {
 }
 ```
 
-### Paso 5: Exportar desde el barrel
+### Step 5: Export from the barrel
 
 ```ts
 // src/features/tournaments/index.ts
@@ -108,17 +108,17 @@ export { TournamentList } from './components/TournamentList'
 export { useTournaments, useJoinTournament } from './hooks/useTournaments'
 ```
 
-### Paso 6: Agregar la ruta
+### Step 6: Add the route
 
 ```tsx
-// src/router.tsx (o donde esté el router)
+// src/router.tsx (or wherever the router lives)
 import { lazy } from 'react'
 const TournamentsPage = lazy(() => import('@/pages/TournamentsPage'))
 
 <Route path="/tournaments" element={<TournamentsPage />} />
 ```
 
-### Paso 7: Agregar traducciones
+### Step 7: Add translations
 
 ```json
 // src/locales/es/tournaments.json
@@ -133,9 +133,9 @@ const TournamentsPage = lazy(() => import('@/pages/TournamentsPage'))
 
 ---
 
-## Agregar un componente a `packages/ui`
+## Add a component to `packages/ui`
 
-### Paso 1: Agregar el componente (patrón shadcn/ui)
+### Step 1: Add the component (shadcn/ui pattern)
 
 ```tsx
 // packages/ui/src/components/Badge.tsx
@@ -163,13 +163,13 @@ export function Badge({ variant = 'default', className, children }: BadgeProps) 
 }
 ```
 
-### Paso 2: Exportar desde `packages/ui/src/index.ts`
+### Step 2: Export from `packages/ui/src/index.ts`
 
 ```ts
 export { Badge } from './components/Badge'
 ```
 
-### Paso 3: Usar en cualquier app
+### Step 3: Use it in any app
 
 ```ts
 import { Badge } from '@match-padel/ui'
@@ -177,9 +177,9 @@ import { Badge } from '@match-padel/ui'
 
 ---
 
-## Agregar un componente global en una app
+## Add a global component in an app
 
-Si el componente NO es reutilizable entre `app` y `admin`, va en la propia app:
+If the component is NOT reusable between `app` and `admin`, it goes in the app itself:
 
 ```tsx
 // apps/app/src/components/BottomNav.tsx
@@ -188,9 +188,9 @@ Si el componente NO es reutilizable entre `app` y `admin`, va en la propia app:
 
 ---
 
-## Agregar tiempo real (Socket.io)
+## Add realtime (Socket.io)
 
-### Paso 1: Crear un hook de socket para la feature
+### Step 1: Create a socket hook for the feature
 
 ```ts
 // src/features/matches/hooks/useMatchSocket.ts
@@ -206,7 +206,7 @@ export function useMatchSocket(matchId: string) {
     socket.emit('join', room)
 
     socket.on('match:update', (data) => {
-      // Invalidar query para que React Query refetch
+      // Invalidate the query so React Query refetches
       queryClient.invalidateQueries({ queryKey: ['match', matchId] })
     })
 
@@ -218,11 +218,11 @@ export function useMatchSocket(matchId: string) {
 }
 ```
 
-### Paso 2: Usar el hook en el componente
+### Step 2: Use the hook in the component
 
 ```tsx
 export function MatchDetail({ matchId }: Props) {
-  useMatchSocket(matchId) // se suscribe al entrar, se desuscribe al salir
+  useMatchSocket(matchId) // subscribes on mount, unsubscribes on unmount
 
   const { data: match } = useMatch(matchId)
   // ...
@@ -231,7 +231,7 @@ export function MatchDetail({ matchId }: Props) {
 
 ---
 
-## Agregar tiempo real con Supabase (SOLO `court_reservations`)
+## Add realtime with Supabase (ONLY `court_reservations`)
 
 ```ts
 // src/features/reservations/hooks/useCourtAvailability.ts
@@ -262,16 +262,16 @@ export function useCourtAvailability(courtId: string) {
 }
 ```
 
-**No usar Supabase Realtime para ninguna otra tabla.**
+**Do not use Supabase Realtime for any other table.**
 
 ---
 
-## Agregar estado de UI con Zustand
+## Add UI state with Zustand
 
-Solo cuando React Query no alcanza (estado de UI que no viene del servidor):
+Only when React Query is not enough (UI state that does not come from the server):
 
 ```ts
-// src/features/<nombre>/store/<nombre>Store.ts
+// src/features/<name>/store/<name>Store.ts
 import { create } from 'zustand'
 
 interface TournamentUIState {
@@ -291,18 +291,18 @@ export const useTournamentUIStore = create<TournamentUIState>((set) => ({
 
 ---
 
-## Agregar una ruta protegida
+## Add a protected route
 
 ```tsx
-// src/components/PrivateRoute.tsx (ya existe)
-// Uso:
+// src/components/PrivateRoute.tsx (already exists)
+// Usage:
 <Route path="/reservations" element={
   <PrivateRoute>
     <ReservationsPage />
   </PrivateRoute>
 } />
 
-// Para admin, con verificación de rol en club:
+// For admin, with club role check:
 <Route path="/clubs/:clubId/staff" element={
   <RequireClubRole roles={['owner', 'admin']}>
     <StaffPage />
@@ -312,9 +312,9 @@ export const useTournamentUIStore = create<TournamentUIState>((set) => ({
 
 ---
 
-## Agregar una página
+## Add a page
 
-Las páginas son componentes simples que componen features. No tienen lógica propia.
+Pages are simple components that compose features. They have no logic of their own.
 
 ```tsx
 // apps/app/src/pages/TournamentsPage.tsx
@@ -336,29 +336,29 @@ export default function TournamentsPage() {
 
 ---
 
-## Actualizar tipos de DB
+## Update DB types
 
-Cuando cambia el schema de Supabase:
+When the Supabase schema changes:
 
 ```bash
-# En la raíz del monorepo
+# At the monorepo root
 pnpm supabase:types
 
-# Que ejecuta:
+# Which runs:
 supabase gen types typescript --project-id <PROJECT_ID> > packages/types/src/supabase.ts
 ```
 
-Los tipos se actualizan solos y cualquier componente que los usa recibe TypeScript errors si el schema cambió incompatiblemente.
+Types update automatically, and any component that uses them gets TypeScript errors if the schema changed in an incompatible way.
 
 ---
 
-## Checklist antes de hacer PR
+## Checklist before opening a PR
 
-- [ ] La feature tiene su `index.ts` con todas las exportaciones
-- [ ] No hay imports directos de internals de otras features
-- [ ] Los tipos de entidades de DB se importan desde `@match-padel/types`
-- [ ] Los textos visibles usan `t()` de i18n
-- [ ] Los componentes UI vienen de `@match-padel/ui`
-- [ ] No hay `console.log` en el código
-- [ ] Los query keys siguen la convención de arrays
-- [ ] El estado del servidor está en React Query, no en Zustand
+- [ ] The feature has its `index.ts` with all exports
+- [ ] There are no direct imports of other features' internals
+- [ ] DB entity types are imported from `@match-padel/types`
+- [ ] Visible text uses `t()` from i18n
+- [ ] UI components come from `@match-padel/ui`
+- [ ] There are no `console.log` calls in the code
+- [ ] Query keys follow the array convention
+- [ ] Server state lives in React Query, not in Zustand

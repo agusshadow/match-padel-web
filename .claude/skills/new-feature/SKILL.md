@@ -5,7 +5,7 @@ description: Recipe to create a new feature in match-padel-web (apps/app or apps
 
 # Create a new feature
 
-Full reference: `docs/implementing.md` ("Agregar una nueva feature") and `docs/conventions.md`. This skill is the operational summary.
+Full reference: `docs/implementing.md` ("Add a new feature") and `docs/conventions.md`. This skill is the operational summary.
 
 1. Confirm which app it belongs to (`apps/app` or `apps/admin`) and that the feature does not already exist in `src/features/`.
 2. Create `src/features/<name>/` following the convention of **that app**:

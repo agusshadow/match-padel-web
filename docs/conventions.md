@@ -1,46 +1,46 @@
-# Convenciones — match-padel-web
+# Conventions — match-padel-web
 
-## Nomenclatura
+## Naming
 
-| Elemento               | Convención       | Ejemplo                              |
+| Element                | Convention       | Example                              |
 |------------------------|------------------|--------------------------------------|
-| Archivos de componente | PascalCase       | `ReservationCard.tsx`                |
-| Archivos de hook       | camelCase        | `useReservations.ts`                 |
-| Archivos de store      | camelCase        | `reservationStore.ts`                |
-| Archivos de api        | camelCase        | `reservationsApi.ts`                 |
-| Archivos de utils      | camelCase        | `formatDate.ts`                      |
-| Componentes React      | PascalCase       | `function ReservationCard()`         |
-| Hooks custom           | camelCase, `use` | `function useReservations()`         |
-| Stores Zustand         | camelCase, `use` | `const useReservationStore = create` |
-| Variables / funciones  | camelCase        | `const reservationDate`              |
-| Constantes             | UPPER_SNAKE      | `MAX_PLAYERS_PER_MATCH = 4`          |
+| Component files        | PascalCase       | `ReservationCard.tsx`                |
+| Hook files             | camelCase        | `useReservations.ts`                 |
+| Store files            | camelCase        | `reservationStore.ts`                |
+| API files              | camelCase        | `reservationsApi.ts`                 |
+| Utils files            | camelCase        | `formatDate.ts`                      |
+| React components       | PascalCase       | `function ReservationCard()`         |
+| Custom hooks           | camelCase, `use` | `function useReservations()`         |
+| Zustand stores         | camelCase, `use` | `const useReservationStore = create` |
+| Variables / functions  | camelCase        | `const reservationDate`              |
+| Constants              | UPPER_SNAKE      | `MAX_PLAYERS_PER_MATCH = 4`          |
 | Props interfaces       | PascalCase       | `interface ReservationCardProps`     |
 | Query keys             | array literal    | `['reservations', clubId]`           |
 
 ---
 
-## Estructura de una feature
+## Feature structure
 
-Toda funcionalidad nueva vive en `src/features/<nombre>/`. La estructura es obligatoria:
+Every new piece of functionality lives in `src/features/<name>/`. The structure is mandatory:
 
 ```
 features/reservations/
 ├── api/
-│   └── reservationsApi.ts      → Funciones que llaman a la API
+│   └── reservationsApi.ts      → Functions that call the API
 ├── components/
 │   ├── ReservationCard.tsx
 │   ├── ReservationList.tsx
 │   └── CreateReservationForm.tsx
 ├── hooks/
-│   └── useReservations.ts      → useQuery / useMutation de esta feature
-├── store/                      → Solo si hay estado de UI complejo
+│   └── useReservations.ts      → useQuery / useMutation for this feature
+├── store/                      → Only if there is complex UI state
 │   └── reservationStore.ts
-└── index.ts                    → ÚNICO punto de exportación pública
+└── index.ts                    → ONLY public export point
 ```
 
-### `index.ts` — el barrel
+### `index.ts` — the barrel
 
-Todo lo que la feature exporta al resto de la app:
+Everything the feature exports to the rest of the app:
 
 ```ts
 // features/reservations/index.ts
@@ -50,16 +50,16 @@ export { useReservations } from './hooks/useReservations'
 export type { Reservation } from './api/reservationsApi'
 ```
 
-Lo que NO está en `index.ts` es **privado** a la feature.
+Anything NOT in `index.ts` is **private** to the feature.
 
 ---
 
-## Tipos TypeScript
+## TypeScript types
 
-### Regla absoluta: nunca declarar interfaces de entidades a mano
+### Absolute rule: never declare entity interfaces by hand
 
 ```ts
-// ❌ PROHIBIDO
+// ❌ FORBIDDEN
 interface Reservation {
   id: string
   court_id: string
@@ -67,17 +67,17 @@ interface Reservation {
   start_time: string
 }
 
-// ✅ CORRECTO: importar desde el paquete generado
+// ✅ CORRECT: import from the generated package
 import type { Database } from '@match-padel/types/supabase'
 type Reservation = Database['public']['Tables']['reservations']['Row']
 
-// ✅ CORRECTO: para respuestas de la API REST
+// ✅ CORRECT: for REST API responses
 import type { ReservationResponse } from '@match-padel/types/api'
 ```
 
-### Props de componentes
+### Component props
 
-Las props SÍ se declaran manualmente (no son entidades de DB):
+Props ARE declared manually (they are not DB entities):
 
 ```ts
 interface ReservationCardProps {
@@ -91,9 +91,9 @@ export function ReservationCard({ reservation, onCancel, isLoading }: Reservatio
 
 ---
 
-## React Query — patrones
+## React Query — patterns
 
-### useQuery para lectura
+### useQuery for reads
 
 ```ts
 // features/reservations/hooks/useReservations.ts
@@ -104,12 +104,12 @@ export function useReservations(clubId: string) {
   return useQuery({
     queryKey: ['reservations', clubId],
     queryFn: () => getReservations(clubId),
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 ```
 
-### useMutation para escritura
+### useMutation for writes
 
 ```ts
 export function useCancelReservation() {
@@ -118,50 +118,50 @@ export function useCancelReservation() {
   return useMutation({
     mutationFn: (reservationId: string) => cancelReservation(reservationId),
     onSuccess: (_, reservationId) => {
-      // Refrescar la lista después de cancelar
+      // Refresh the list after cancelling
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
     },
   })
 }
 ```
 
-### Query keys — convenio
+### Query keys — convention
 
 ```ts
-// Siempre array, del más general al más específico
-['reservations']                    // lista general
-['reservations', clubId]            // lista filtrada por club
-['reservations', clubId, 'active']  // sublista con estado
-['reservation', reservationId]      // entidad individual
+// Always an array, from most general to most specific
+['reservations']                    // general list
+['reservations', clubId]            // list filtered by club
+['reservations', clubId, 'active']  // sublist with status
+['reservation', reservationId]      // single entity
 ```
 
 ---
 
-## Componentes
+## Components
 
-### Siempre desde `@match-padel/ui`
+### Always from `@match-padel/ui`
 
 ```ts
-// ✅ CORRECTO
+// ✅ CORRECT
 import { Button, Card, Input } from '@match-padel/ui'
 
-// ❌ PROHIBIDO: nunca importar desde shadcn directamente en apps/
+// ❌ FORBIDDEN: never import from shadcn directly in apps/
 import { Button } from '@/components/ui/button'
 ```
 
-### Componentes de feature vs. componentes globales
+### Feature components vs. global components
 
 ```ts
-// Componente de feature: solo lo usa esa feature
+// Feature component: only used by that feature
 // apps/app/src/features/reservations/components/ReservationCard.tsx
 
-// Componente global: lo usan múltiples features
+// Global component: used by multiple features
 // apps/app/src/components/EmptyState.tsx
 // apps/app/src/components/LoadingSpinner.tsx
 // apps/app/src/components/PageHeader.tsx
 ```
 
-### Patrón de loading / error en componentes
+### Loading / error pattern in components
 
 ```tsx
 export function ReservationList({ clubId }: Props) {
@@ -183,9 +183,9 @@ export function ReservationList({ clubId }: Props) {
 
 ---
 
-## Formularios
+## Forms
 
-Siempre React Hook Form + Zod:
+Always React Hook Form + Zod:
 
 ```tsx
 import { useForm } from 'react-hook-form'
@@ -209,7 +209,7 @@ export function CreateReservationForm() {
 
   return (
     <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
-      {/* campos */}
+      {/* fields */}
     </form>
   )
 }
@@ -217,9 +217,9 @@ export function CreateReservationForm() {
 
 ---
 
-## Internacionalización (i18n)
+## Internationalization (i18n)
 
-**Siempre** usar `t()` para textos visibles al usuario. Nunca strings hardcodeados en español o inglés en JSX.
+**Always** use `t()` for user-visible text. Never hardcoded strings in Spanish or English in JSX.
 
 ```tsx
 import { useTranslation } from 'react-i18next'
@@ -231,7 +231,7 @@ export function ReservationCard() {
 }
 ```
 
-Archivos de traducción en `src/locales/`:
+Translation files in `src/locales/`:
 
 ```json
 // locales/es/reservations.json
@@ -245,15 +245,15 @@ Archivos de traducción en `src/locales/`:
 
 ---
 
-## Axios — patrones
+## Axios — patterns
 
-El cliente Axios ya tiene configurado el interceptor de auth y el unwrapping de `response.data.data`. Las funciones de `api/` solo consumen el resultado:
+The Axios client already has the auth interceptor and the `response.data.data` unwrapping configured. The `api/` functions just consume the result:
 
 ```ts
 // features/reservations/api/reservationsApi.ts
 import { api } from '@/lib/axios'
 
-// La respuesta ya está unwrapped por el interceptor
+// The response is already unwrapped by the interceptor
 export async function getReservations(clubId: string): Promise<Reservation[]> {
   return api.get(`/clubs/${clubId}/reservations`)
 }
@@ -265,18 +265,18 @@ export async function cancelReservation(reservationId: string): Promise<void> {
 
 ---
 
-## Gestión de errores
+## Error handling
 
-Los errores de red/API los maneja React Query automáticamente. Para mostrarlos en UI:
+Network/API errors are handled by React Query automatically. To show them in the UI:
 
 ```tsx
 const { error } = useReservations(clubId)
 
-// error.message viene del envelope del backend: error.message
+// error.message comes from the backend envelope: error.message
 if (error) return <ErrorMessage message={error.message} />
 ```
 
-Para errores de formulario, Zod los muestra via React Hook Form:
+For form errors, Zod displays them via React Hook Form:
 
 ```tsx
 {errors.date && <p className="text-destructive text-sm">{errors.date.message}</p>}
@@ -287,31 +287,31 @@ Para errores de formulario, Zod los muestra via React Hook Form:
 ## Routing
 
 ```ts
-// apps/app: React Router con lazy loading por feature
+// apps/app: React Router with lazy loading per feature
 const Reservations = lazy(() => import('@/features/reservations'))
 const Matches = lazy(() => import('@/features/matches'))
 
-// apps/admin: misma estructura, pero con /:clubId en rutas de club
+// apps/admin: same structure, but with /:clubId in club routes
 <Route path="/clubs/:clubId/reservations" element={<AdminReservations />} />
 ```
 
 ---
 
-## Importaciones — orden convencional
+## Imports — conventional order
 
 ```ts
-// 1. React y librerías externas
+// 1. React and external libraries
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-// 2. Paquetes internos del monorepo
+// 2. Internal monorepo packages
 import { Button, Card } from '@match-padel/ui'
 import type { Database } from '@match-padel/types/supabase'
 
-// 3. Features (solo via barrel)
+// 3. Features (only via barrel)
 import { useReservations } from '@/features/reservations'
 
-// 4. Componentes globales
+// 4. Global components
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 
 // 5. Lib / utils
@@ -323,10 +323,10 @@ import { api } from '@/lib/axios'
 
 ## CSS / Tailwind
 
-- Clases Tailwind directas en JSX (no CSS modules, no styled-components)
-- Usar `cn()` de `@match-padel/ui` para clases condicionales
-- Los colores vienen de CSS variables del design system (`bg-primary`, `text-destructive`, etc.)
-- No hardcodear colores: nunca `bg-blue-500`, siempre `bg-primary`
+- Tailwind classes directly in JSX (no CSS modules, no styled-components)
+- Use `cn()` from `@match-padel/ui` for conditional classes
+- Colors come from the design system's CSS variables (`bg-primary`, `text-destructive`, etc.)
+- Do not hardcode colors: never `bg-blue-500`, always `bg-primary`
 
 ```tsx
 import { cn } from '@match-padel/ui'
