@@ -180,13 +180,16 @@ Requirements come in through a Claude session. The main session **orchestrates**
 | `reviewer` | Diff review. Does not modify code |
 | `pr-agent` | Git and `gh`: branches, commits, PR |
 
-Supporting skills: `new-feature`, `pr-format`.
+Supporting skills: `new-feature`, `pr-format`, `release`.
 
 ## Branches, environments and hard rules
 
 - `main` is **production** (Vercel projects `match-padel-app` and `match-padel-admin`, pointing at the production API and Supabase). `develop` is the working branch, which points at the dev API and dev Supabase through Preview environment variables.
 - The Vercel projects are **not connected to GitHub yet**: dev deploys are manual and published at the fixed aliases `match-padel-app-dev.vercel.app` and `match-padel-admin-dev.vercel.app` (`vercel alias set`). Once they are connected, every PR will get a preview.
-- Every PR goes against `develop` and is merged with **squash**. `develop` → `main` uses a **merge commit** and is done by the human.
+- **`main` and `develop` accept no direct commits or pushes.** Everything goes through a pull request. GitHub branch protection is not available for private repos on the free plan, so it is enforced locally: (1) a Claude Code hook (`.claude/hooks/guard-protected-branches.py`, registered in `.claude/settings.json`) that blocks agents, in every session on this repo; (2) git hooks in `.githooks/` for the human, enabled once per clone with `git config core.hooksPath .githooks`. Only the human may override the git hooks in an emergency (`ALLOW_PROTECTED_BRANCH=1`); agents must never bypass them.
+- **Day-to-day:** feature branch from `develop` → PR against `develop` → merged with **squash** by the human.
+- **Release** (`/release` skill): when `develop` has accumulated several commits, a `release/vX.Y.Z` branch is cut from `develop` with all of them plus **one** extra commit, `chore: version bump`, that only raises the version. It is merged into `main` with a **merge commit** (to keep traceability), then `main` is merged back into `develop` (PR, **merge commit**) so both branches are level again.
+- Never enable "automatically delete head branches" on the repository: the release flow uses `develop` and `main` as PR heads.
 - Commits and PRs in **English**, conventional commits. See the `pr-format` skill. No screenshots in PRs.
 - **Never** touch production from an agent session. Never put secret keys in the bundle: only public `VITE_` variables (anon key, never `service_role`).
 - If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR".
