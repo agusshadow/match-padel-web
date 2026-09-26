@@ -131,7 +131,9 @@ Once features have their barrels, import the page from `@/features/tournaments` 
 
 ### Step 7: Add translations
 
-Add a top-level key per domain to **both** `src/i18n/locales/es.json` and `src/i18n/locales/en.json` (`apps/app` only; single default namespace, no per-domain files):
+Two i18n setups coexist in `apps/app` (see the note in [conventions.md](./conventions.md)). `src/i18n.ts` is the one **actually loaded** today, so add every key there first, as a flat key (`'tournaments.join': 'Unirse'`). Then mirror it in the JSON files below, so the future consolidation is mechanical. Keys added only to the JSON files never show up in the app.
+
+JSON mirror: add a top-level key per domain to **both** `src/i18n/locales/es.json` and `src/i18n/locales/en.json` (`apps/app` only; single default namespace, no per-domain files):
 
 ```json
 // src/i18n/locales/es.json
@@ -146,7 +148,9 @@ Add a top-level key per domain to **both** `src/i18n/locales/es.json` and `src/i
 }
 ```
 
-See the note on the duplicated `src/i18n.ts` / `src/i18n/index.ts` in [conventions.md](./conventions.md) before assuming the JSON files are the ones loaded.
+### Step 8: Update the documentation
+
+Add the route and the endpoints it calls to `docs/screens.md`. If the change fixes or introduces a deviation from the target architecture, update the "Real state vs. target" table in `CLAUDE.md`. If you added an environment variable, update both `.env.example` files.
 
 ---
 
@@ -409,3 +413,7 @@ Note that `lucide-react` is declared only in `packages/ui`, although `apps/app` 
 - [ ] There are no `console.log` calls in the code
 - [ ] Query keys follow the array convention
 - [ ] Server state lives in React Query, not in Zustand
+- [ ] `npm run typecheck` passes
+- [ ] `docs/screens.md` is updated (routes, feature layers, endpoints called)
+- [ ] `.env.example` is updated if a variable was added
+- [ ] The PR follows `.github/pull_request_template.md` and targets `develop`

@@ -1,5 +1,5 @@
 // AUTO-GENERATED — do not edit manually
-// Run: pnpm supabase:types
+// Run: npm run supabase:types
 // Project: ebdnlrwzhthqflsbdzvu
 
 export type Json =
