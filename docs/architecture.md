@@ -310,7 +310,7 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 
 | App     | Vercel project       | Trigger                                   | URL                                                      |
 |---------|----------------------|-------------------------------------------|----------------------------------------------------------|
-| app     | `match-padel-app`    | manual (Vercel not connected to GitHub yet) | `app.matchpadel.com` (prod); `match-padel-app-dev.vercel.app` (dev alias)     |
-| admin   | `match-padel-admin`  | manual (Vercel not connected to GitHub yet) | `admin.matchpadel.com` (prod); `match-padel-admin-dev.vercel.app` (dev alias) |
+| app     | `match-padel-app`    | manual (Vercel not connected to GitHub yet) | `match-padel-app.vercel.app` (prod); `match-padel-app-dev.vercel.app` (dev alias)     |
+| admin   | `match-padel-admin`  | manual (Vercel not connected to GitHub yet) | `match-padel-admin.vercel.app` (prod); `match-padel-admin-dev.vercel.app` (dev alias) |
 
 Automatic deploys on push to `main` and a preview per PR (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.

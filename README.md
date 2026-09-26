@@ -1,44 +1,53 @@
 # match-padel-web
 
-Monorepo de frontends para Match Padel.
+Monorepo (Turborepo + npm workspaces) with the two frontends for Match Padel. They talk to [`match-padel-api`](https://github.com/agusshadow/match-padel-api).
 
 ## Apps
 
-| App     | Descripción                        | URL                        |
-|---------|------------------------------------|----------------------------|
-| `app`   | PWA para usuarios finales (móvil)  | app.matchpadel.com         |
-| `admin` | Panel de administración (desktop)  | admin.matchpadel.com       |
+| App | Description | Production | Dev |
+|---|---|---|---|
+| `apps/app` | Player PWA (mobile-first) | https://match-padel-app.vercel.app | https://match-padel-app-dev.vercel.app |
+| `apps/admin` | Admin panel for staff (desktop-first) | https://match-padel-admin.vercel.app | https://match-padel-admin-dev.vercel.app |
 
-## Paquetes
+The Vercel projects are **not connected to GitHub yet**: deploys are manual, and the dev URLs are fixed aliases (`vercel alias set`). Production points at the production API and Supabase; the dev environment points at `match-padel-api-dev` and the `match-padel-dev` Supabase project.
 
-| Paquete   | Descripción                            |
-|-----------|----------------------------------------|
-| `ui`      | Componentes shadcn/ui del design system |
-| `types`   | Tipos TS auto-generados (DB + API)     |
-| `config`  | Configs base de TS y Tailwind          |
+## Packages
+
+| Package | Description |
+|---|---|
+| `packages/ui` | shadcn-style components (9 exist; the package barrel exports only `cn` for now) |
+| `packages/types` | TypeScript types: generated Supabase types and a small hand-written `api.ts` |
+| `packages/config` | Base TypeScript and Tailwind configs |
 
 ## Setup
 
 ```bash
-# Instalar dependencias
-pnpm install
-
-# Desarrollo (ambas apps en paralelo)
-pnpm dev
-
-# Build
-pnpm build
-
-# Typecheck
-pnpm typecheck
-
-# Actualizar tipos de DB
-pnpm supabase:types
+npm install
+cp apps/app/.env.example apps/app/.env.local      # and the same for apps/admin
+npm run dev            # both apps in parallel
 ```
 
-## Documentación
+| Script | What it does |
+|---|---|
+| `npm run dev` | Run both apps (Turborepo) |
+| `npm run build` | Build everything |
+| `npm run typecheck` | Type-check everything |
+| `npm run supabase:types` | Regenerate `packages/types/src/supabase.ts` (needs the Supabase CLI and `SUPABASE_PROJECT_ID`) |
 
-- [Arquitectura](./docs/architecture.md)
-- [Convenciones](./docs/conventions.md)
-- [Cómo implementar](./docs/implementing.md)
-- [Sistema de UI](./docs/ui.md)
+There is no test framework yet, and `npm run lint` has no ESLint configuration to run (see "Real state vs. target" in `CLAUDE.md`).
+
+## Working on this repo
+
+- `main` and `develop` accept **no direct commits or pushes**. Work on a branch from `develop` and open a pull request against it (squash merge). Releases go through a `release/vX.Y.Z` branch (merge commit). Details in `CLAUDE.md`.
+- Enable the local git hooks once per clone: `git config core.hooksPath .githooks`.
+- With Claude Code, use `/implement <requirement>` for a change (plan, your approval, code, tests, review, PR) and `/release` to cut a release. Agents and skills live in `.claude/`.
+- If a change needs new API endpoints, the `match-padel-api` PR is merged first.
+- Commits and PRs are written in English, using conventional commits.
+
+## Documentation
+
+Everything under `docs/` is written for humans and agents alike, in English.
+
+- [`CLAUDE.md`](./CLAUDE.md) — working contract: stack, architecture rules, real state vs. target, workflow.
+- [`docs/screens.md`](./docs/screens.md) — routes, screens and endpoints used, as they exist today.
+- [`docs/architecture.md`](./docs/architecture.md), [`docs/conventions.md`](./docs/conventions.md), [`docs/implementing.md`](./docs/implementing.md), [`docs/ui.md`](./docs/ui.md) — target architecture and how-tos.

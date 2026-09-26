@@ -34,3 +34,4 @@ You implement against the **contract in the plan**. If the endpoint does not exi
 - You do not write tests: that belongs to `tester`. You do not make commits or PRs: that belongs to `pr-agent`.
 - When done, run `npm run typecheck` and fix anything you broke. Return the list of files touched and any deviation from the plan.
 - Do not touch real environment variables or `.env` files.
+- Keep the docs in sync: update `docs/screens.md` for every route, screen or endpoint usage you add, change or remove, both `.env.example` files for new variables, and the "Real state vs. target" table in `CLAUDE.md` if you fix or introduce a deviation. Mention it in your report.

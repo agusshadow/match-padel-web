@@ -157,7 +157,6 @@ This document describes the **target architecture**. The existing code does not 
 | HTTP | Axios only, all data through the API | No `fetch(` calls. But `apps/admin` bypasses the API: it queries and writes Supabase tables directly, and its `lib/axios.ts` is unused |
 | Tests | Vitest + RTL, 50% in `src/features/` | No framework and no tests |
 | Lint | ESLint | The `lint` script exists, but I found no ESLint configuration: it probably fails |
-| Package manager | (this document used to say pnpm) | npm |
 | Duplicates in `apps/app` | — | `auth.store.ts` (canonical, 10 imports) and `authStore.ts` (unused). Two i18n setups: `i18n.ts` (Spanish only, flat keys) is the one **loaded** (`main.tsx` imports `./i18n`, which resolves to the file first); `i18n/index.ts` + `locales/{es,en}.json` is the target but is not loaded. New keys go in `i18n.ts` and are mirrored in the JSON |
 
 ## Agent workflow
@@ -199,3 +198,15 @@ Supporting skills: `new-feature`, `pr-format`, `release`.
 - `docs/screens.md` — what exists today: routes per app, owning features, endpoints each screen calls, known gaps. **Read it before planning.**
 - `docs/architecture.md`, `docs/conventions.md`, `docs/implementing.md`, `docs/ui.md` — target architecture and how-tos. Anything not built yet is marked "target — not implemented yet".
 - `docs/screens.md` "Known gaps" lists verified deviations, including bugs found during the audit.
+
+## Keeping documentation current
+
+Documentation is part of the definition of done. In the **same PR** as the code:
+
+- Added, changed or removed a route, screen or the endpoints a screen calls → update `docs/screens.md`.
+- Fixed or introduced a deviation from the target architecture → update the "Real state vs. target" table above.
+- Added an environment variable → update both `.env.example` files.
+- Added an i18n key in `apps/app` → see "Real state vs. target" (keys go in `i18n.ts` and are mirrored in the JSON files).
+- Described something that is not built yet → mark it "target — not implemented yet".
+
+`frontend-dev` makes the update, `reviewer` checks it, and the PR checklist has an item for it.

@@ -103,5 +103,4 @@ Only things verifiable by reading the code. They are deviations from the target 
 - **Dark mode**: `apps/app/index.html` has no `dark` class and nothing toggles it, although the pages use `dark:` variants.
 - **PWA assets**: `vite.config.ts` and `index.html` reference `/icon-192.png`, `/icon-512.png` and `/favicon.svg`, but neither app has a `public/` folder.
 - **Undeclared dependency**: `apps/app` imports `lucide-react`, which is declared only in `packages/ui/package.json`.
-- **Env example**: `apps/app/.env.example` and `apps/admin/.env.example` set `VITE_API_URL=https://api.matchpadel.com` without `/api/v1`. `VITE_SOCKET_URL` and the `VITE_FIREBASE_*` variables are listed but not read by any code.
 - **Lint and tests**: `npm run lint` runs `eslint src --ext .ts,.tsx`, but there is no ESLint config or dependency; there is no test framework or test file.
