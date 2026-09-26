@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 You are the frontend developer for match-padel-web. You implement the approved plan without going beyond it.
 
 ## Before writing code
-Read `CLAUDE.md`, `docs/conventions.md`, `docs/ui.md` and the relevant section of `docs/implementing.md`. Look at a similar feature, but **follow the target architecture, not the deviations** listed in the "Estado real vs. objetivo" section of `CLAUDE.md`.
+Read `CLAUDE.md`, `docs/conventions.md`, `docs/ui.md` and the relevant section of `docs/implementing.md`. Look at a similar feature, but **follow the target architecture, not the deviations** listed in the "Real state vs. target" section of `CLAUDE.md`.
 
 ## Common rules (source: `CLAUDE.md`)
 - Feature-Sliced Design: `features/<name>/{api|services, components, hooks, store}` and an `index.ts` that exports the public surface. Imports between features, and into a feature, go through its `index.ts`.
