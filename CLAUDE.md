@@ -10,7 +10,7 @@ Monorepo con Turborepo que contiene dos aplicaciones React:
 Comparten código a través de packages internos.
 
 ## Stack
-- **Monorepo**: Turborepo + pnpm workspaces
+- **Monorepo**: Turborepo + npm workspaces (el gestor real es npm; hay `package-lock.json`)
 - **Framework**: React 19 + TypeScript + Vite
 - **Estilos**: Tailwind CSS + shadcn/ui (desde `packages/ui`)
 - **Estado servidor**: TanStack React Query v5
@@ -22,7 +22,7 @@ Comparten código a través de packages internos.
 - **Realtime API**: Socket.io-client (chat, ELO ready, notificaciones de staff)
 - **i18n**: i18next + react-i18next (solo en `apps/app`, español base)
 - **PWA**: vite-plugin-pwa + Workbox (solo en `apps/app`)
-- **Tests**: Vitest + React Testing Library (cobertura mínima 50% en `src/features/`)
+- **Tests**: Vitest + React Testing Library (objetivo; todavía no configurado, ver "Estado real vs. objetivo")
 
 ## Estructura del monorepo
 
@@ -85,7 +85,7 @@ Los tokens de color están en `packages/ui/src/globals.css`. El azul primario de
 ## Axios instance
 
 En `src/lib/axios.ts` de cada app:
-- Base URL: `VITE_API_URL` (env variable) + `/api/v1`
+- Base URL: `VITE_API_URL`, que **debe incluir `/api/v1`** (ej. `https://match-padel-api-dev.onrender.com/api/v1`); las apps no lo agregan solas
 - Interceptor de request: agrega `Authorization: Bearer <supabase_jwt>`
 - Interceptor de response: lee `response.data.data` en éxito, lanza error con `response.data.error` en fallo
 
@@ -107,9 +107,7 @@ Prefijo `VITE_` obligatorio para que Vite las exponga al browser.
 ## Path aliases
 
 Configurados en `tsconfig.json` y `vite.config.ts` de cada app:
-- `@/features/*` → `src/features/*`
-- `@/components/*` → `src/components/*`
-- `@/lib/*` → `src/lib/*`
+- `@/*` → `src/*` (un solo alias por app; `@/features/...`, `@/lib/...` funcionan por esa regla)
 
 Para packages internos del monorepo:
 - `@match-padel/ui` → `packages/ui`
@@ -143,3 +141,52 @@ Para packages internos del monorepo:
 - ❌ Strings de UI hardcodeados en español en `apps/app` — usar i18n
 - ❌ Usar `any` en TypeScript
 - ❌ Importar entre features directamente — si feature A necesita algo de feature B, extraerlo a un componente global o a un package
+
+## Estado real vs. objetivo
+
+Este documento describe la **arquitectura objetivo**. El código existente no siempre la cumple. Para código nuevo seguí el objetivo; no copies los desvíos de la columna derecha, y no los "arregles de paso" sin que el plan lo pida (se limpian en tareas aparte).
+
+| Tema | Objetivo (este documento) | Realidad hoy |
+|---|---|---|
+| Estructura de feature | `api/`, `components/`, `hooks/`, `store/`, `index.ts` | 6 features usan `services/` y solo 1 usa `api/`; solo `auth` tiene `index.ts` (1 de 10) |
+| Imports | Siempre por el `index.ts` de la feature | Hay 15 imports directos a `features/*/components` |
+| Tipos | Desde `@match-padel/types` | Ningún archivo lo usa; `packages/types` existe (`supabase.ts`, `api.ts` de 20 líneas) |
+| Componentes base | `@match-padel/ui` | Solo 2 archivos lo usan |
+| i18n en `apps/app` | Todo texto por `t('key')` | Solo 5 de 21 archivos `.tsx` usan `useTranslation` |
+| Admin | Rutas `/:clubId/...`, `/platform/*`, sidebar según rol de `club_staff` | 6 rutas planas (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), sin guardas por rol; solo login, sin registro |
+| HTTP | Solo Axios | Hay 2 usos de `fetch(` |
+| Tests | Vitest + RTL, 50% en `src/features/` | Sin framework ni tests |
+| Lint | ESLint | Existe el script `lint`, pero no encontré configuración de ESLint: probablemente falla |
+| Gestor de paquetes | (el documento decía pnpm) | npm |
+| Duplicados en `apps/app` | — | `auth.store.ts` (canónico, 10 imports) y `authStore.ts` (sin uso); `i18n.ts` y `i18n/index.ts` (`main.tsx` importa `./i18n`) |
+
+## Flujo de trabajo con agentes
+
+Los requerimientos entran por una sesión de Claude. La sesión principal **orquesta**; los subagentes de `.claude/agents/` ejecutan. El comando `/implement <requerimiento>` (`.claude/skills/implement/`) dispara el flujo completo:
+
+0. Verificar el contrato de API (si falta, el PR de `match-padel-api` va primero)
+1. `planner` → plan
+2. **Checkpoint: el usuario aprueba el plan** (nada se codea antes)
+3. `frontend-dev` → implementación
+4. `tester` → tests
+5. `reviewer` → revisión (máx. 2 vueltas de correcciones)
+6. `pr-agent` → rama, commits y PR contra `develop`
+
+| Agente | Responsabilidad |
+|---|---|
+| `planner` | Plan del lado web. Solo lectura |
+| `frontend-dev` | Código de `apps/app` y `apps/admin` |
+| `tester` | Tests. No modifica código de producción |
+| `reviewer` | Revisión del diff. No modifica código |
+| `pr-agent` | Git y `gh`: ramas, commits, PR |
+
+Skills de apoyo: `new-feature`, `pr-format`.
+
+## Ramas, ambientes y reglas duras
+
+- `main` es **producción** (proyectos de Vercel `match-padel-app` y `match-padel-admin`, apuntando a la API y Supabase de producción). `develop` es la rama de trabajo, que apunta a la API dev y Supabase dev mediante variables de entorno de Preview.
+- Los proyectos de Vercel **todavía no están conectados a GitHub**: los deploys de dev son manuales y se publican en los alias fijos `match-padel-app-dev.vercel.app` y `match-padel-admin-dev.vercel.app` (`vercel alias set`). Cuando se conecten, cada PR tendrá su preview.
+- Todo PR va contra `develop` y se mergea con **squash**. `develop` → `main` usa **merge commit** y lo hace el humano.
+- Commits y PRs en **inglés**, commits convencionales. Ver el skill `pr-format`. Sin capturas de pantalla en los PR.
+- **Nunca** tocar producción desde una sesión de agentes. Nunca poner claves secretas en el bundle: solo variables `VITE_` públicas (anon key, nunca `service_role`).
+- Si el cambio depende de la API, el PR de `match-padel-api` se mergea primero y este lo referencia en "Related PR".
