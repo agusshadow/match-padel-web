@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useClubes, useClubAvailability } from '../../clubs/hooks/useClubes'
+import { useClubes, useClubById, useClubAvailability } from '../../clubs/hooks/useClubes'
 import { useCreateReservation } from '../hooks/useReservations'
 import { useReservationStore } from '../store/reservationStore'
 import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
@@ -377,7 +377,22 @@ const STEPS = ['Elegir club', 'Elegir turno', 'Confirmar']
 export function NewReservationPage() {
   const [step, setStep] = useState(0)
   const navigate = useNavigate()
-  const { resetWizard } = useReservationStore()
+  const { resetWizard, setClub, selectedClubId } = useReservationStore()
+
+  // Arriving from a club's detail page ("Reservar cancha") — the club is
+  // already known, so skip straight to step 1 instead of the club list.
+  const [searchParams] = useSearchParams()
+  const preselectedClubId = searchParams.get('clubId')
+  const { data: preselectedClub } = useClubById(
+    preselectedClubId && preselectedClubId !== selectedClubId ? preselectedClubId : null,
+  )
+
+  useEffect(() => {
+    if (preselectedClub && preselectedClub.id !== selectedClubId) {
+      setClub(preselectedClub.id, preselectedClub.name)
+      setStep(1)
+    }
+  }, [preselectedClub, selectedClubId, setClub])
 
   const handleBack = () => {
     if (step === 0) {
