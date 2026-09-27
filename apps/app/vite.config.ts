@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Match Padel',
         short_name: 'MatchPadel',
-        theme_color: '#0B5ED7',
+        theme_color: '#2C58A4',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
