@@ -17,7 +17,7 @@ export function MatchesPage() {
 
   const currentTabConfig = TABS.find((t) => t.id === activeTab)!
   const filteredMatches = (allMatches ?? []).filter((m) =>
-    currentTabConfig.statuses.includes(m.status as any)
+    (currentTabConfig.statuses as readonly string[]).includes(m.status)
   )
 
   return (

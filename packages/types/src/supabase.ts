@@ -97,6 +97,8 @@ export type Database = {
           email: string | null
           id: string
           is_active: boolean
+          lat: number | null
+          lng: number | null
           logo_url: string | null
           name: string
           phone: string | null
@@ -113,6 +115,8 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
           name: string
           phone?: string | null
@@ -129,6 +133,8 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
           name?: string
           phone?: string | null
@@ -623,6 +629,87 @@ export type Database = {
           },
         ]
       }
+      tournament_matches: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string | null
+          round: number
+          scheduled_at: string | null
+          score_team1: number[] | null
+          score_team2: number[] | null
+          status: string
+          team1_id: string | null
+          team2_id: string | null
+          tournament_id: string
+          winner_team_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          round?: number
+          scheduled_at?: string | null
+          score_team1?: number[] | null
+          score_team2?: number[] | null
+          status?: string
+          team1_id?: string | null
+          team2_id?: string | null
+          tournament_id: string
+          winner_team_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          round?: number
+          scheduled_at?: string | null
+          score_team1?: number[] | null
+          score_team2?: number[] | null
+          status?: string
+          team1_id?: string | null
+          team2_id?: string | null
+          tournament_id?: string
+          winner_team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_matches_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_team1_id_fkey"
+            columns: ["team1_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_team2_id_fkey"
+            columns: ["team2_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_winner_team_id_fkey"
+            columns: ["winner_team_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tournament_teams: {
         Row: {
           id: string
@@ -789,11 +876,16 @@ export type Database = {
           created_at: string
           elo: number
           fcm_token: string | null
-          full_name: string
+          first_name: string
+          full_name: string | null
           id: string
           is_active: boolean
+          last_name: string
+          onboarding_completed_at: string | null
           phone: string | null
+          preferred_hand: Database["public"]["Enums"]["preferred_hand"] | null
           role: Database["public"]["Enums"]["user_role"]
+          skill_level: Database["public"]["Enums"]["skill_level"] | null
           updated_at: string
           username: string
         }
@@ -802,11 +894,16 @@ export type Database = {
           created_at?: string
           elo?: number
           fcm_token?: string | null
-          full_name: string
+          first_name: string
+          full_name?: string | null
           id: string
           is_active?: boolean
+          last_name: string
+          onboarding_completed_at?: string | null
           phone?: string | null
+          preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
           role?: Database["public"]["Enums"]["user_role"]
+          skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username: string
         }
@@ -815,11 +912,16 @@ export type Database = {
           created_at?: string
           elo?: number
           fcm_token?: string | null
-          full_name?: string
+          first_name?: string
+          full_name?: string | null
           id?: string
           is_active?: boolean
+          last_name?: string
+          onboarding_completed_at?: string | null
           phone?: string | null
+          preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
           role?: Database["public"]["Enums"]["user_role"]
+          skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username?: string
         }
@@ -848,8 +950,10 @@ export type Database = {
         | "rejected"
         | "cancelled"
         | "refunded"
+      preferred_hand: "drive" | "backhand"
       reservation_status: "pending" | "confirmed" | "cancelled" | "completed"
       score_status: "pending" | "accepted" | "disputed"
+      skill_level: "beginner" | "intermediate" | "advanced"
       staff_role: "owner" | "admin" | "staff"
       tournament_format:
         | "round_robin"
@@ -1007,8 +1111,10 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      preferred_hand: ["drive", "backhand"],
       reservation_status: ["pending", "confirmed", "cancelled", "completed"],
       score_status: ["pending", "accepted", "disputed"],
+      skill_level: ["beginner", "intermediate", "advanced"],
       staff_role: ["owner", "admin", "staff"],
       tournament_format: [
         "round_robin",

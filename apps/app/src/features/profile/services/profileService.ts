@@ -1,5 +1,5 @@
 import { api } from '../../../lib/axios'
-import type { Tables } from '../../../../../packages/types/src/supabase'
+import type { Tables } from '../../../../../../packages/types/src/supabase'
 
 type User = Tables<'users'>
 
