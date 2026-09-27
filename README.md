@@ -1,9 +1,7 @@
-# assets
+# assets (deprecated — do not use)
 
-Image storage for PR screenshots only.
+This branch is **deprecated**. It was created for PR screenshots, but the mechanism it relied on — embedding an image via `raw.githubusercontent.com` pointing at this branch — never actually worked: `match-padel-web` is a private repo, and that CDN path only renders for public repos (there's no way to authenticate it). Every PR that tried this had a broken image link.
 
-This branch is never merged into `develop` or `main` — it exists purely so PR descriptions can embed images via `raw.githubusercontent.com` links without bloating the project history with binaries.
+**Screenshots now live in [`agusshadow/match-padel-assets`](https://github.com/agusshadow/match-padel-assets)**, a small public repo made for exactly this (nothing sensitive in it — just UI screenshots). See its own README for the path convention. `pr-format` and `pr-agent` (in `.claude/`) were updated accordingly.
 
-Path convention: `pr-<number>/<app>-<screen-slug>-{before|after}.png`, where `<app>` is `app` or `admin`.
-
-Managed by `pr-agent` as part of the `/implement` delivery flow. Do not open a pull request for this branch.
+Do not add new screenshots here. This branch is kept only so the old broken links in already-merged PRs still resolve to *something* rather than a 404 on the branch itself; it will not be deleted, but it will not grow either.
