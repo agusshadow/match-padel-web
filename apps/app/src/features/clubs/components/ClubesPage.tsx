@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet'
 import L from 'leaflet'
 import { Map, List, Search, Loader2, Building2, ArrowRight } from 'lucide-react'
 import { useClubes } from '../hooks/useClubes'
+import { useUserLocation, distanceKm } from '../hooks/useUserLocation'
 import type { Club } from '../services/clubService'
 
 // Vite bundles Leaflet's default marker icon at paths that break at runtime
@@ -29,8 +30,33 @@ export function ClubesPage() {
   const [view, setView] = useState<'map' | 'list'>('map')
   const [search, setSearch] = useState('')
   const { data, isLoading } = useClubes({ search: search || undefined, limit: 50 })
+  const location = useUserLocation()
   const clubs = data?.data ?? []
   const clubsWithLocation = clubs.filter((c) => c.lat != null && c.lng != null)
+
+  // Sorted by distance once we know where the player is — otherwise keep the
+  // API's own order (alphabetical) rather than pretending to know proximity.
+  const sortedClubs = useMemo(() => {
+    if (location.status !== 'granted') return clubs
+    return [...clubs].sort((a, b) => {
+      if (a.lat == null || a.lng == null) return 1
+      if (b.lat == null || b.lng == null) return -1
+      return (
+        distanceKm(location.coords, [a.lat, a.lng]) - distanceKm(location.coords, [b.lat, b.lng])
+      )
+    })
+  }, [clubs, location])
+
+  // Wait for geolocation to resolve (granted or given up) before mounting
+  // the map — MapContainer's `center` only applies on first mount, so this
+  // avoids showing Buenos Aires for a moment and then jumping.
+  const mapReady = location.status !== 'loading'
+  const mapCenter: [number, number] =
+    location.status === 'granted'
+      ? location.coords
+      : clubsWithLocation.length > 0
+        ? [clubsWithLocation[0].lat!, clubsWithLocation[0].lng!]
+        : DEFAULT_CENTER
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -71,7 +97,7 @@ export function ClubesPage() {
         </div>
       </div>
 
-      {isLoading && (
+      {(isLoading || (view === 'map' && !mapReady)) && (
         <div className="flex justify-center py-8">
           <Loader2 size={24} className="animate-spin text-primary" />
         </div>
@@ -83,22 +109,31 @@ export function ClubesPage() {
         </p>
       )}
 
-      {!isLoading && clubs.length > 0 && view === 'map' && (
+      {!isLoading && clubs.length > 0 && view === 'map' && mapReady && (
         <div style={{ height: 'calc(100vh - 12rem)' }}>
           <MapContainer
-            center={
-              clubsWithLocation.length > 0
-                ? [clubsWithLocation[0].lat!, clubsWithLocation[0].lng!]
-                : DEFAULT_CENTER
-            }
-            zoom={13}
+            center={mapCenter}
+            zoom={location.status === 'granted' ? 14 : 13}
             scrollWheelZoom={false}
             style={{ height: '100%', width: '100%' }}
           >
+            {/* Standard OSM tiles (free, no API key — CARTO's old keyless
+                basemap endpoint now requires one) with a CSS filter for a
+                more minimalist, less saturated look. */}
             <TileLayer
+              className="grayscale-[60%] contrast-[110%] brightness-[105%]"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {location.status === 'granted' && (
+              <CircleMarker
+                center={location.coords}
+                radius={8}
+                pathOptions={{ color: '#fff', weight: 2, fillColor: '#2563eb', fillOpacity: 1 }}
+              >
+                <Popup>Tu ubicación</Popup>
+              </CircleMarker>
+            )}
             {clubsWithLocation.map((club) => (
               <Marker key={club.id} position={[club.lat!, club.lng!]} icon={markerIcon}>
                 <Popup>
@@ -123,7 +158,7 @@ export function ClubesPage() {
 
       {!isLoading && clubs.length > 0 && view === 'list' && (
         <div className="px-4 pb-4 space-y-2">
-          {clubs.map((club: Club) => (
+          {sortedClubs.map((club: Club) => (
             <button
               key={club.id}
               onClick={() => navigate(`/clubs/${club.id}`)}
@@ -147,6 +182,9 @@ export function ClubesPage() {
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {club.courts_count} {club.courts_count === 1 ? 'cancha' : 'canchas'}
+                  {location.status === 'granted' && club.lat != null && club.lng != null && (
+                    <> · {distanceKm(location.coords, [club.lat, club.lng]).toFixed(1)} km</>
+                  )}
                 </p>
               </div>
               <ArrowRight size={16} className="text-muted-foreground flex-shrink-0" />
