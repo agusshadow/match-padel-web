@@ -1,27 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useClubes } from '../../clubs/hooks/useClubes'
-import { useClubCourts } from '../../clubs/hooks/useClubes'
-import { useAvailableSlots, useCreateReservation } from '../hooks/useReservations'
+import { useClubes, useClubAvailability } from '../../clubs/hooks/useClubes'
+import { useCreateReservation } from '../hooks/useReservations'
 import { useReservationStore } from '../store/reservationStore'
-import type { Court } from '../../clubs/services/clubService'
-import type { TimeSlot } from '../services/reservationService'
+import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 
-// Min date = today, max date = 30 days ahead
-function getTodayStr(): string {
-  return new Date().toISOString().slice(0, 10)
-}
-function getMaxDateStr(): string {
-  const d = new Date()
-  d.setDate(d.getDate() + 30)
-  return d.toISOString().slice(0, 10)
+const DAY_LABELS = ['Hoy', 'Mañana']
+
+// 5 day tabs starting today — the reservation window that matters in
+// practice is a few days out, a date picker is more friction than it's worth.
+function getDayTabs(): { label: string; date: string }[] {
+  const days: { label: string; date: string }[] = []
+  for (let i = 0; i < 5; i++) {
+    const d = new Date()
+    d.setDate(d.getDate() + i)
+    const label =
+      DAY_LABELS[i] ??
+      d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
+    days.push({ label, date: d.toISOString().slice(0, 10) })
+  }
+  return days
 }
 
 function formatTime(iso: string): string {
   const d = new Date(iso)
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function surfaceLabel(surface: string): string {
+  return surface === 'indoor' ? 'Cubierta' : surface === 'outdoor' ? 'Descubierta' : 'Panorámica'
 }
 
 // ---- Step 1: Select Club ----
@@ -99,28 +108,36 @@ function StepSelectClub({ onNext }: { onNext: () => void }) {
   )
 }
 
-// ---- Step 2: Select Court + Date + Slot ----
-function StepSelectSlot({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
+// ---- Step 2: Select Date + Time Slot, then Court ----
+// Time first, court second: the player cares about when they can play, not
+// which specific court — the court (and its exact price) only matters once
+// a time is chosen. See Trello card #47.
+function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) {
   const {
     selectedClubId,
     selectedClubName,
-    selectedCourtId,
-    selectedCourt,
     selectedDate,
     selectedSlot,
-    setCourt,
+    selectedCourtId,
     setDate,
     setSlot,
+    setCourt,
   } = useReservationStore()
 
-  const { data: courts, isLoading: loadingCourts } = useClubCourts(selectedClubId)
-  const { data: slots, isLoading: loadingSlots } = useAvailableSlots(
-    selectedCourtId,
-    selectedDate,
-  )
+  const [dayTabs] = useState(getDayTabs)
+  const activeDate = selectedDate ?? dayTabs[0].date
 
-  const today = getTodayStr()
-  const maxDate = getMaxDateStr()
+  // "Hoy" is the active tab by default without the user tapping it — write
+  // that default into the store too, or selectedDate stays null and the
+  // confirm step's summary shows a blank date.
+  useEffect(() => {
+    if (!selectedDate) setDate(dayTabs[0].date)
+  }, [selectedDate, dayTabs, setDate])
+
+  const { data: slots, isLoading: loadingSlots } = useClubAvailability(
+    selectedClubId,
+    activeDate,
+  )
 
   return (
     <div className="space-y-5">
@@ -129,19 +146,81 @@ function StepSelectSlot({ onNext, onBack }: { onNext: () => void; onBack: () => 
         Club: <span className="font-medium text-foreground">{selectedClubName}</span>
       </p>
 
-      {/* Select Court */}
+      {/* Day tabs */}
       <div>
-        <p className="text-sm font-medium text-foreground mb-2">Cancha</p>
-        {loadingCourts ? (
-          <Loader2 size={20} className="animate-spin text-primary" />
+        <p className="text-sm font-medium text-foreground mb-2">Día</p>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {dayTabs.map((day) => (
+            <button
+              key={day.date}
+              onClick={() => setDate(day.date)}
+              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors border ${
+                activeDate === day.date
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card border-border text-foreground hover:bg-accent'
+              }`}
+            >
+              {day.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Time slots for the selected day */}
+      <div>
+        <p className="text-sm font-medium text-foreground mb-2">Horario</p>
+        {loadingSlots ? (
+          <div className="flex justify-center py-6">
+            <Loader2 size={20} className="animate-spin text-primary" />
+          </div>
+        ) : (slots ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No hay turnos disponibles para este día.
+          </p>
         ) : (
-          <div className="grid grid-cols-1 gap-2">
-            {(courts ?? []).map((court: Court) => (
+          <div className="space-y-2">
+            {(slots ?? []).map((slot: ClubAvailabilitySlot) => (
               <button
-                key={court.id}
-                onClick={() => setCourt(court)}
-                className={`flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
-                  selectedCourtId === court.id
+                key={slot.start_time}
+                onClick={() => setSlot(slot)}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
+                  selectedSlot?.start_time === slot.start_time
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border bg-card hover:bg-accent'
+                }`}
+              >
+                <span className="font-medium text-sm text-foreground">
+                  {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  desde ${slot.min_price.toLocaleString('es-AR')}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Court, chosen from the selected slot's available courts */}
+      {selectedSlot && (
+        <div>
+          <p className="text-sm font-medium text-foreground mb-2">Cancha</p>
+          <div className="space-y-2">
+            {selectedSlot.courts.map((court: ClubAvailabilityCourt) => (
+              <button
+                key={court.court_id}
+                onClick={() =>
+                  setCourt({
+                    id: court.court_id,
+                    name: court.name,
+                    surface: court.surface,
+                    is_indoor: court.is_indoor,
+                    price_per_hour: court.price_per_hour,
+                    is_active: true,
+                  })
+                }
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
+                  selectedCourtId === court.court_id
                     ? 'border-primary bg-primary/5'
                     : 'border-border bg-card hover:bg-accent'
                 }`}
@@ -149,77 +228,22 @@ function StepSelectSlot({ onNext, onBack }: { onNext: () => void; onBack: () => 
                 <div>
                   <p className="font-medium text-sm text-foreground">{court.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {court.surface === 'indoor'
-                      ? 'Cubierta'
-                      : court.surface === 'outdoor'
-                      ? 'Descubierta'
-                      : 'Panorámica'}{' '}
-                    · ${court.price_per_hour.toLocaleString('es-AR')}/hora
+                    {surfaceLabel(court.surface)} · ${court.price_per_hour.toLocaleString('es-AR')}/hora
                   </p>
                 </div>
-                {selectedCourtId === court.id && (
+                {selectedCourtId === court.court_id && (
                   <Check size={16} className="text-primary flex-shrink-0" />
                 )}
               </button>
             ))}
           </div>
-        )}
-      </div>
-
-      {/* Select Date */}
-      {selectedCourtId && (
-        <div>
-          <p className="text-sm font-medium text-foreground mb-2">Fecha</p>
-          <input
-            type="date"
-            min={today}
-            max={maxDate}
-            value={selectedDate ?? ''}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-      )}
-
-      {/* Slot Grid */}
-      {selectedCourtId && selectedDate && (
-        <div>
-          <p className="text-sm font-medium text-foreground mb-2">Horario disponible</p>
-          {loadingSlots ? (
-            <div className="flex justify-center py-6">
-              <Loader2 size={20} className="animate-spin text-primary" />
-            </div>
-          ) : (slots ?? []).length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No hay turnos disponibles para esta fecha.
-            </p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {(slots ?? []).map((slot: TimeSlot) => (
-                <button
-                  key={slot.start_time}
-                  onClick={() => slot.available && setSlot(slot)}
-                  disabled={!slot.available}
-                  className={`py-2.5 px-2 rounded-lg text-xs font-medium transition-colors border ${
-                    !slot.available
-                      ? 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50'
-                      : selectedSlot?.start_time === slot.start_time
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card border-border hover:border-primary hover:bg-primary/5 text-foreground'
-                  }`}
-                >
-                  {formatTime(slot.start_time)}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
       {/* Next button */}
       <button
         onClick={onNext}
-        disabled={!selectedSlot}
+        disabled={!selectedSlot || !selectedCourtId}
         className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors"
       >
         Continuar

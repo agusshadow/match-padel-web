@@ -25,7 +25,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` |
 | `/matches/:id` | `MatchDetailPage` | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `PUT /matches/:id/score/accept`, `DELETE /matches/:id` |
 | `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me` |
-| `/reservations/new` | `NewReservationPage` (3-step wizard) | protected | `reservations` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id/courts`, `GET /courts/:id/slots?date=`, `POST /reservations` |
+| `/reservations/new` | `NewReservationPage` (3-step wizard: club → day/time slot → court → confirm; time is chosen before the court, not after — see Trello card #47) | protected | `reservations` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id/availability?date=` (combined slot availability across the club's courts, with per-court pricing), `POST /reservations` |
 | `/reservations/:id` | `PaymentResultPage` (reads `?payment=success\|failure\|pending`) | protected | `reservations` | none (invalidates the reservations queries) |
 | `/notifications` | `NotificationsPage` | protected | `notifications` | `GET /notifications`, `PUT /notifications/:id/read`, `PUT /notifications/read-all` |
 | `/tournaments/new` | `CreateTournamentPage` | protected | `tournaments` | `POST /tournaments` |
