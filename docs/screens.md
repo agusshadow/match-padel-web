@@ -101,6 +101,5 @@ Only things verifiable by reading the code. They are deviations from the target 
 - **Admin hits Supabase tables directly** (including `insert`/`update` on `clubs` and `court_reservations`) instead of the API; the target only allows Supabase for auth and the `court_reservations` realtime channel.
 - **Admin styling**: `AdminLayout` and pages use hardcoded `gray`/`green`/`red` Tailwind classes and emojis as icons; `apps/admin` does not import `packages/ui/src/globals.css`, so the design tokens are not loaded there. `App.tsx` and `LoginPage` use `as any` and `catch (err: any)`.
 - **Dark mode**: `apps/app/index.html` has no `dark` class and nothing toggles it, although the pages use `dark:` variants.
-- **PWA assets**: `vite.config.ts` and `index.html` reference `/icon-192.png`, `/icon-512.png` and `/favicon.svg`, but neither app has a `public/` folder.
 - **Undeclared dependency**: `apps/app` imports `lucide-react`, which is declared only in `packages/ui/package.json`.
 - **Lint and tests**: `npm run lint` runs `eslint src --ext .ts,.tsx`, but there is no ESLint config or dependency; there is no test framework or test file.
