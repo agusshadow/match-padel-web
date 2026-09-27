@@ -29,7 +29,7 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0];
       {player.users?.avatar_url ? (
         <img
           src={player.users.avatar_url}
-          alt={player.users.full_name}
+          alt={player.users.full_name ?? ''}
           className="w-14 h-14 rounded-full object-cover"
         />
       ) : (

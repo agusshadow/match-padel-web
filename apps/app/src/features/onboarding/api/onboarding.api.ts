@@ -1,5 +1,5 @@
 import { api } from '../../../lib/axios'
-import type { ApiResponse } from '../../../../../packages/types/src/api'
+import type { ApiResponse } from '../../../../../../packages/types/src/api'
 import type { User } from '../../auth/api/auth.api'
 
 export const onboardingApi = {

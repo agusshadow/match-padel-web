@@ -69,7 +69,7 @@ export function ProfilePage() {
           {user?.avatar_url ? (
             <img
               src={user.avatar_url}
-              alt={user.full_name}
+              alt={user.full_name ?? ''}
               className="w-20 h-20 rounded-full object-cover"
             />
           ) : (
