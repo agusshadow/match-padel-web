@@ -17,6 +17,17 @@
     "phone": "Teléfono (opcional)",
     "logout": "Cerrar sesión"
   },
+  "onboarding": {
+    "skip": "Saltear",
+    "next": "Siguiente",
+    "start": "Empezar",
+    "step1Title": "Encontrá tu próximo partido",
+    "step1Body": "Creá un partido y sumá jugadores, o unite a uno existente con un código de invitación. Elegí singles o dobles y jugá cuando quieras.",
+    "step2Title": "Reservá una cancha en segundos",
+    "step2Body": "Buscá un club, elegí cancha, día y horario disponible, y pagá desde la app. Vas a ver el estado de tu reserva en todo momento.",
+    "step3Title": "Sumate a un torneo",
+    "step3Body": "Anotate en torneos organizados por los clubes, formá tu pareja y seguí el cuadro de partidos hasta la final."
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Ocurrió un error",

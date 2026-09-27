@@ -8,7 +8,7 @@ All API paths below are relative to `VITE_API_URL` (which includes `/api/v1`). A
 
 ## `apps/app` — player PWA
 
-Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `ProtectedRoute` (`src/shared/components/ProtectedRoute.tsx`), which runs `useAuthInit()` and redirects to `/auth` when not authenticated. Routes marked "bottom nav" also render inside `AppLayout` (`src/shared/layouts/AppLayout.tsx`).
+Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `ProtectedRoute` (`src/shared/components/ProtectedRoute.tsx`), which runs `useAuthInit()`, redirects to `/auth` when not authenticated, and redirects to `/onboarding` when authenticated but `user.onboarding_completed_at` is falsy (except when already on `/onboarding`). Routes marked "bottom nav" also render inside `AppLayout` (`src/shared/layouts/AppLayout.tsx`).
 
 | Path | Page component | Access | Feature folder | API endpoints called |
 |------|----------------|--------|----------------|----------------------|
@@ -18,6 +18,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/reservations` | `ReservationsPage` | protected, bottom nav | `reservations` | `GET /reservations` (limit 50); from `ReservationCard`: `DELETE /reservations/:id`, `POST /payments/preference` |
 | `/tournaments` | `TournamentsPage` | protected, bottom nav | `tournaments` | `GET /tournaments` |
 | `/profile` | `ProfilePage` | protected, bottom nav | `profile` | `GET /users/me/stats`, `POST /auth/logout` |
+| `/onboarding` | `OnboardingPage` | protected | `onboarding` | `PUT /users/me` |
 | `/matches/new` | `NewMatchPage` | protected | `matches` | `POST /matches` |
 | `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` |
 | `/matches/:id` | `MatchDetailPage` | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `PUT /matches/:id/score/accept`, `DELETE /matches/:id` |
@@ -42,6 +43,7 @@ Supabase from the browser in `apps/app`: only auth (`getSession`, `setSession`, 
 | `home` | no | no | yes (`HomePage`) | no | no | no |
 | `matches` | no | yes (`matchService.ts`) | yes (5 files) | yes (`useMatches.ts`) | no | no |
 | `notifications` | no | no (axios inside the hooks) | yes (`NotificationsPage`) | yes (`useNotifications.ts`) | no | no |
+| `onboarding` | yes (`onboarding.api.ts`) | no | yes (`OnboardingPage`) | yes (`useOnboarding.ts`) | no | yes |
 | `profile` | no | yes (`profileService.ts`) | yes (2 files) | yes (`useProfile.ts`) | no | no |
 | `reservations` | no | yes (`reservationService.ts`) | yes (4 files) | yes (`useReservations.ts`) | yes (`reservationStore.ts`, booking wizard) | no |
 | `tournaments` | no | yes (`tournamentService.ts`) | yes (3 files) | yes (`useTournaments.ts`) | no | no |

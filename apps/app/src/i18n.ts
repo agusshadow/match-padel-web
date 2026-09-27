@@ -24,6 +24,18 @@ i18n.use(initReactI18next).init({
         'auth.handDrive': 'Drive',
         'auth.handBackhand': 'Revés',
         'auth.phone': 'Teléfono (opcional)',
+        'onboarding.skip': 'Saltear',
+        'onboarding.next': 'Siguiente',
+        'onboarding.start': 'Empezar',
+        'onboarding.step1Title': 'Encontrá tu próximo partido',
+        'onboarding.step1Body':
+          'Creá un partido y sumá jugadores, o unite a uno existente con un código de invitación. Elegí singles o dobles y jugá cuando quieras.',
+        'onboarding.step2Title': 'Reservá una cancha en segundos',
+        'onboarding.step2Body':
+          'Buscá un club, elegí cancha, día y horario disponible, y pagá desde la app. Vas a ver el estado de tu reserva en todo momento.',
+        'onboarding.step3Title': 'Sumate a un torneo',
+        'onboarding.step3Body':
+          'Anotate en torneos organizados por los clubes, formá tu pareja y seguí el cuadro de partidos hasta la final.',
         'auth.forgotPassword': '¿Olvidaste tu contraseña?',
         // Nav
         'nav.home': 'Inicio',

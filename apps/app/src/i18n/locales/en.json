@@ -17,6 +17,17 @@
     "phone": "Phone (optional)",
     "logout": "Sign out"
   },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "step1Title": "Find your next match",
+    "step1Body": "Create a match and invite players, or join one with an invite code. Play singles or doubles whenever you want.",
+    "step2Title": "Book a court in seconds",
+    "step2Body": "Search a club, pick a court, day and available time slot, and pay right from the app. You'll see your booking status at all times.",
+    "step3Title": "Join a tournament",
+    "step3Body": "Sign up for tournaments organized by clubs, team up with a partner, and follow the bracket all the way to the final."
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",

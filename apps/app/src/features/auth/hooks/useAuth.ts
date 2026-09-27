@@ -44,7 +44,10 @@ export function useLogin() {
         refresh_token: data.refresh_token,
       })
       setUser(data.user)
-      navigate('/')
+      // A user who registered but closed the app before finishing/skipping
+      // onboarding still sees it on their next login, not just right after
+      // registering.
+      navigate(data.user.onboarding_completed_at ? '/' : '/onboarding')
     },
   })
 }
@@ -62,7 +65,7 @@ export function useRegister() {
         refresh_token: data.refresh_token,
       })
       setUser(data.user)
-      navigate('/')
+      navigate('/onboarding')
     },
   })
 }
