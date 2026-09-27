@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, MapPin, Loader2, CreditCard } from 'lucide-react'
+import { CalendarDays, Clock, MapPin, Loader2, CreditCard, Building2 } from 'lucide-react'
 import { useState } from 'react'
 import type { Reservation } from '../services/reservationService'
 import { useCancelReservation, useCreatePaymentPreference } from '../hooks/useReservations'
@@ -99,7 +99,7 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
             />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg">🏟️</span>
+              <Building2 className="w-4 h-4 text-primary" />
             </div>
           )}
           <div className="min-w-0">

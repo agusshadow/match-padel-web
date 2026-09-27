@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Calendar, Trophy, Coins } from 'lucide-react'
 import { useTournaments } from '../hooks/useTournaments'
 import { Tournament } from '../services/tournamentService'
 
@@ -39,12 +40,22 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
       </div>
 
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span>🗓️ {new Date(t.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}</span>
-        <span>🏆 {t.format === 'round_robin' ? 'Round Robin'
+        <span className="inline-flex items-center gap-1">
+          <Calendar className="w-3.5 h-3.5" />
+          {new Date(t.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <Trophy className="w-3.5 h-3.5" />
+          {t.format === 'round_robin' ? 'Round Robin'
           : t.format === 'single_elimination' ? 'Eliminación'
           : t.format === 'double_elimination' ? 'Doble Elim.'
-          : 'Americano'}</span>
-        {t.prize_pool != null && t.prize_pool > 0 && <span>💰 Premio</span>}
+          : 'Americano'}
+        </span>
+        {t.prize_pool != null && t.prize_pool > 0 && (
+          <span className="inline-flex items-center gap-1">
+            <Coins className="w-3.5 h-3.5" /> Premio
+          </span>
+        )}
       </div>
 
       {/* Capacity bar */}
@@ -120,7 +131,7 @@ export function TournamentsPage() {
           <div className="py-12 text-center text-muted-foreground text-sm">Cargando torneos...</div>
         ) : tournaments.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="text-4xl mb-3">🏆</p>
+            <Trophy className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
             <p className="font-medium text-foreground">No hay torneos</p>
             <p className="text-sm text-muted-foreground mt-1">Crea el primero</p>
           </div>

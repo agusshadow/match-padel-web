@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react'
 import { useCreateTournament } from '../hooks/useTournaments'
 
 export function CreateTournamentPage() {
@@ -53,7 +54,9 @@ export function CreateTournamentPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground text-lg">←</button>
+        <button onClick={() => navigate(-1)} className="text-muted-foreground">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
         <h1 className="font-bold text-foreground">Crear Torneo</h1>
       </div>
 

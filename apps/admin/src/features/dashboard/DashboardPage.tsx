@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Building2, LandPlot, Users, CalendarDays, Swords, Hourglass, type LucideIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 interface Stats {
@@ -10,11 +11,11 @@ interface Stats {
   pendingReservations: number
 }
 
-function StatCard({ label, value, icon, color }: { label: string; value: number; icon: string; color: string }) {
+function StatCard({ label, value, icon: Icon, color }: { label: string; value: number; icon: LucideIcon; color: string }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
       <div className="flex items-center gap-3 mb-2">
-        <span className="text-2xl">{icon}</span>
+        <Icon className="w-6 h-6" />
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${color}`}>{label}</span>
       </div>
       <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
@@ -72,12 +73,12 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatCard label="Clubes" value={stats?.totalClubs ?? 0} icon="🏟️" color="bg-blue-100 text-blue-700" />
-          <StatCard label="Canchas" value={stats?.totalCourts ?? 0} icon="🎾" color="bg-green-100 text-green-700" />
-          <StatCard label="Usuarios" value={stats?.totalUsers ?? 0} icon="👥" color="bg-purple-100 text-purple-700" />
-          <StatCard label="Reservas" value={stats?.totalReservations ?? 0} icon="📅" color="bg-orange-100 text-orange-700" />
-          <StatCard label="Partidos" value={stats?.totalMatches ?? 0} icon="⚡" color="bg-yellow-100 text-yellow-700" />
-          <StatCard label="Pendientes" value={stats?.pendingReservations ?? 0} icon="⏳" color="bg-red-100 text-red-700" />
+          <StatCard label="Clubes" value={stats?.totalClubs ?? 0} icon={Building2} color="bg-blue-100 text-blue-700" />
+          <StatCard label="Canchas" value={stats?.totalCourts ?? 0} icon={LandPlot} color="bg-green-100 text-green-700" />
+          <StatCard label="Usuarios" value={stats?.totalUsers ?? 0} icon={Users} color="bg-purple-100 text-purple-700" />
+          <StatCard label="Reservas" value={stats?.totalReservations ?? 0} icon={CalendarDays} color="bg-orange-100 text-orange-700" />
+          <StatCard label="Partidos" value={stats?.totalMatches ?? 0} icon={Swords} color="bg-yellow-100 text-yellow-700" />
+          <StatCard label="Pendientes" value={stats?.pendingReservations ?? 0} icon={Hourglass} color="bg-red-100 text-red-700" />
         </div>
       )}
 

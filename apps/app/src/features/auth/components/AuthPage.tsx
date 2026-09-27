@@ -42,7 +42,7 @@ export function AuthPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <span className="text-3xl">🎾</span>
+            <img src="/logo-app.svg" alt="Match Padel" className="w-9 h-9" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Match Padel</h1>
           <p className="text-sm text-muted-foreground mt-1">

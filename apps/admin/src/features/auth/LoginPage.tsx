@@ -54,7 +54,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-green-600 mb-4">
-            <span className="text-2xl">🎾</span>
+            <img src="/logo-app.svg" alt="Match Padel" className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Match Padel</h1>
           <p className="text-sm text-gray-500 mt-1">Panel de Administración</p>

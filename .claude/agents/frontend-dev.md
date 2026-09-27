@@ -14,6 +14,7 @@ Read `CLAUDE.md`, `docs/conventions.md`, `docs/ui.md` and the relevant section o
 - Server data with TanStack React Query; ephemeral UI state with Zustand; forms with React Hook Form + Zod.
 - HTTP always through the Axios instance in `src/lib/axios.ts`. Never `fetch`. Successful responses arrive in `data.data`.
 - Base components from `@match-padel/ui`; do not install shadcn in the apps.
+- **Never use an emoji as an icon** (UI icon, button, status marker, list bullet), in either app. Use `lucide-react`, imported directly in the file (that is the established convention; see `docs/ui.md`). A brand mark uses the real logo asset (`/logo-app.svg`), not an emoji or a generic icon. Emoji are only acceptable inside real user-authored content.
 - Entity types from `@match-padel/types`; do not declare them by hand. No `any`.
 - `supabase.channel()` only on `court_reservations`; all other realtime goes through Socket.io against the API.
 - UI states are always covered: loading, empty, error and success.

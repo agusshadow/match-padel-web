@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Search, Check, Loader2, ChevronLeft } from 'lucide-react'
+import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useClubes } from '../../clubs/hooks/useClubes'
 import { useClubCourts } from '../../clubs/hooks/useClubes'
@@ -79,7 +79,7 @@ function StepSelectClub({ onNext }: { onNext: () => void }) {
               />
             ) : (
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">🏟️</span>
+                <Building2 className="w-5 h-5 text-primary" />
               </div>
             )}
             <div className="min-w-0 flex-1">
