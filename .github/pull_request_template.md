@@ -15,6 +15,9 @@
 <!-- Steps to verify in the dev environment -->
 1.
 
+## Screenshots
+<!-- Required if this PR touches apps/app or apps/admin. Embedded from the `assets` branch via raw.githubusercontent.com. "Not applicable" otherwise. -->
+
 ## Checklist
 - [ ] CI is green
 - [ ] Tests added or updated
