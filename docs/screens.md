@@ -106,3 +106,4 @@ Only things verifiable by reading the code. They are deviations from the target 
 - **Admin styling**: `AdminLayout` and pages use hardcoded `gray`/`green`/`red` Tailwind classes instead of the shared design tokens; `apps/admin` does not import `packages/ui/src/globals.css`, so those tokens are not loaded there. `App.tsx` and `LoginPage` use `as any` and `catch (err: any)`.
 - **Dark mode**: `apps/app/index.html` has no `dark` class and nothing toggles it, although the pages use `dark:` variants.
 - **Lint and tests**: `npm run lint` runs `eslint src --ext .ts,.tsx`, but there is no ESLint config or dependency; there is no test framework or test file.
+<!-- test PR for screenshot embedding, will be closed -->
