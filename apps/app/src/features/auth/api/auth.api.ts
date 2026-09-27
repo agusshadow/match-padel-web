@@ -33,6 +33,11 @@ export interface AuthResponse {
   refresh_token: string
 }
 
+export interface RegisterResponse {
+  user: User
+  email_verification_required: true
+}
+
 export interface CompleteProfilePayload {
   first_name: string
   last_name: string
@@ -44,7 +49,7 @@ export interface CompleteProfilePayload {
 
 export const authApi = {
   register: (payload: RegisterPayload) =>
-    api.post<ApiResponse<AuthResponse>>('/auth/register', payload).then((r) => r.data.data),
+    api.post<ApiResponse<RegisterResponse>>('/auth/register', payload).then((r) => r.data.data),
 
   login: (payload: LoginPayload) =>
     api.post<ApiResponse<AuthResponse>>('/auth/login', payload).then((r) => r.data.data),
