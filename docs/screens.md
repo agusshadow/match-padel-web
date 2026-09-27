@@ -17,6 +17,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/complete-profile` | `CompleteProfilePage` | protected | `auth` | `PUT /users/me` |
 | `/` | `HomePage` | protected, bottom nav | `home` | `GET /reservations` (limit 3), `GET /matches` |
 | `/matches` | `MatchesPage` | protected, bottom nav | `matches` | `GET /matches` |
+| `/clubs` | `ClubesPage` (map/list toggle, map is the default view) | protected, bottom nav | `clubs` | `GET /clubs`. Map uses Leaflet + OpenStreetMap tiles (no API key); markers only for clubs with `lat`/`lng` set. Tapping a club (marker popup or list row) navigates to `/clubs/:id` |
 | `/reservations` | `ReservationsPage` | protected, bottom nav | `reservations` | `GET /reservations` (limit 50); from `ReservationCard`: `DELETE /reservations/:id`, `POST /payments/preference` |
 | `/tournaments` | `TournamentsPage` | protected, bottom nav | `tournaments` | `GET /tournaments` |
 | `/profile` | `ProfilePage` | protected, bottom nav | `profile` | `GET /users/me/stats`, `POST /auth/logout` |

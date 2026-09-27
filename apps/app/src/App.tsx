@@ -12,6 +12,7 @@ import { JoinMatchPage } from './features/matches/components/JoinMatchPage'
 import { ReservationsPage } from './features/reservations/components/ReservationsPage'
 import { NewReservationPage } from './features/reservations/components/NewReservationPage'
 import { ClubDetailPage } from './features/clubs/components/ClubDetailPage'
+import { ClubesPage } from './features/clubs/components/ClubesPage'
 import { ProfilePage } from './features/profile/components/ProfilePage'
 import { EditProfilePage } from './features/profile/components/EditProfilePage'
 import { NotificationsPage } from './features/notifications/components/NotificationsPage'
@@ -43,6 +44,7 @@ export function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/matches" element={<MatchesPage />} />
+          <Route path="/clubs" element={<ClubesPage />} />
           <Route path="/reservations" element={<ReservationsPage />} />
           <Route path="/tournaments" element={<TournamentsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
