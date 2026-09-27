@@ -53,6 +53,7 @@ i18n.use(initReactI18next).init({
         // Nav
         'nav.home': 'Inicio',
         'nav.matches': 'Partidos',
+        'nav.clubs': 'Clubes',
         'nav.reservations': 'Reservas',
         'nav.tournaments': 'Torneos',
         'nav.profile': 'Perfil',

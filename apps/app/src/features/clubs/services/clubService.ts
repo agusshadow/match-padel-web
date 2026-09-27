@@ -11,6 +11,8 @@ export interface Club {
   cover_url: string | null
   email: string | null
   phone: string | null
+  lat: number | null
+  lng: number | null
   is_active: boolean
   created_at: string
   courts_count: number
