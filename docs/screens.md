@@ -17,6 +17,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/complete-profile` | `CompleteProfilePage` | protected | `auth` | `PUT /users/me` |
 | `/` | `HomePage` | protected, bottom nav | `home` | `GET /reservations` (limit 3), `GET /matches` |
 | `/matches` | `MatchesPage` | protected, bottom nav | `matches` | `GET /matches` |
+| `/clubs` | `ClubesPage` (map/list toggle, map is the default view) | protected, bottom nav | `clubs` | `GET /clubs`. Map uses Leaflet + OpenStreetMap tiles (grayscale-filtered for a more minimalist look; no API key). Requests the browser's geolocation (`useUserLocation`) to center the map and sort the list by distance — falls back to the first club with coordinates (then Buenos Aires) if denied/unavailable, never blocks on it past the browser's own timeout. Markers only for clubs with `lat`/`lng` set. Tapping a club (marker popup or list row) navigates to `/clubs/:id` |
 | `/reservations` | `ReservationsPage` | protected, bottom nav | `reservations` | `GET /reservations` (limit 50); from `ReservationCard`: `DELETE /reservations/:id`, `POST /payments/preference` |
 | `/tournaments` | `TournamentsPage` | protected, bottom nav | `tournaments` | `GET /tournaments` |
 | `/profile` | `ProfilePage` | protected, bottom nav | `profile` | `GET /users/me/stats`, `POST /auth/logout` |
@@ -25,7 +26,8 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` |
 | `/matches/:id` | `MatchDetailPage` | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `PUT /matches/:id/score/accept`, `DELETE /matches/:id` |
 | `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me` |
-| `/reservations/new` | `NewReservationPage` (3-step wizard) | protected | `reservations` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id/courts`, `GET /courts/:id/slots?date=`, `POST /reservations` |
+| `/reservations/new` | `NewReservationPage` (3-step wizard: club → day/time slot → court → confirm; time is chosen before the court, not after — see Trello card #47). Reads `?clubId=` — if present, the club is preselected and step 1 is skipped (arriving from `/clubs/:id`'s "Reservar cancha") | protected | `reservations` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id` (when `?clubId=` is present), `GET /clubs/:id/availability?date=` (combined slot availability across the club's courts, with per-court pricing), `POST /reservations` |
+| `/clubs/:id` | `ClubDetailPage` | protected | `clubs` | `GET /clubs/:id` (cover photo, name, description, address, courts). "Reservar cancha" navigates to `/reservations/new?clubId=:id` |
 | `/reservations/:id` | `PaymentResultPage` (reads `?payment=success\|failure\|pending`) | protected | `reservations` | none (invalidates the reservations queries) |
 | `/notifications` | `NotificationsPage` | protected | `notifications` | `GET /notifications`, `PUT /notifications/:id/read`, `PUT /notifications/read-all` |
 | `/tournaments/new` | `CreateTournamentPage` | protected | `tournaments` | `POST /tournaments` |

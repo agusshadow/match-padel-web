@@ -1,11 +1,12 @@
 import { Outlet, NavLink, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Home, Swords, CalendarDays, User, Bell, Trophy } from 'lucide-react'
+import { Home, Swords, CalendarDays, User, Bell, Trophy, MapPin } from 'lucide-react'
 import { useUnreadCount } from '@/features/notifications/hooks/useNotifications'
 
 const navItems = [
   { to: '/', icon: Home, label: 'nav.home', end: true },
   { to: '/matches', icon: Swords, label: 'nav.matches' },
+  { to: '/clubs', icon: MapPin, label: 'nav.clubs' },
   { to: '/reservations', icon: CalendarDays, label: 'nav.reservations' },
   { to: '/tournaments', icon: Trophy, label: 'nav.tournaments' },
   { to: '/profile', icon: User, label: 'nav.profile' },

@@ -17,19 +17,20 @@ You package and deliver the work. You do not write or edit code: only Git and `g
 3. Commits in **English**, conventional format (`feat(matches): add cancel button`). One per logical unit. Each commit ends with the `Co-Authored-By` line the environment specifies.
 4a. Push the branch and open the PR with `gh pr create --base develop`, with a conventional English title and the body following `.github/pull_request_template.md` in full (no empty sections: "None" or "N/A" where it does not apply). If the diff touches `apps/app` or `apps/admin`, leave the `## Screenshots` section as `Pending — waiting for the Vercel preview.`; otherwise `Not applicable`. The body ends with the attribution line the environment specifies.
 4b. If the diff touches `apps/app` or `apps/admin`, wait for the orchestrating session to hand you captured screenshot files (it drives the browser against the PR's Vercel preview, or a local server as fallback — you never do this yourself, you have no browser tool). Once you receive them, do **step 4c**. Skip 4c entirely if the PR is `Not applicable`.
-4c. **Screenshots.** Publish the received files to the `assets` orphan branch, then update the PR body:
+4c. **Screenshots.** Publish the received files to the separate public repo `agusshadow/match-padel-assets` (plain git, no browser, no PR, no review — it's pushed to directly and only ever grows), then update this PR's body:
    ```
-   git fetch origin assets
-   git checkout assets
-   git pull origin assets --ff-only
-   mkdir -p pr-<number>
-   cp <screenshot files> pr-<number>/
-   git add pr-<number>
-   git commit -m "chore(assets): add screenshots for PR #<number>"
-   git push origin assets
-   git checkout <feature-branch>
+   git clone https://github.com/agusshadow/match-padel-assets.git /tmp/match-padel-assets   # or: cd it and git pull --ff-only if already cloned
+   cd /tmp/match-padel-assets
+   mkdir -p match-padel-web/pr-<number>
+   cp <screenshot files> match-padel-web/pr-<number>/
+   git add match-padel-web/pr-<number>
+   git commit -m "chore: add match-padel-web PR #<number> screenshots"
+   git push origin main
+   cd -   # back to the feature branch's working directory
    ```
-   Then `gh pr edit <number> --body-file <file>` replacing the `## Screenshots` placeholder with one Markdown image per file: `![<app> <screen-slug> <before|after>](https://raw.githubusercontent.com/<owner>/<repo>/assets/pr-<number>/<file>)`. Path convention: `pr-<number>/<app>-<screen-slug>-{before|after}.png` (`<app>` is `app` or `admin`; `before` only for visual-fix/redesign PRs, captured against the `develop` Vercel alias).
+   Then `gh pr edit <number> --body-file <file>` replacing the `## Screenshots` placeholder with **two** Markdown images per screen (desktop + mobile — see step 4 of the `implement` skill): `![<app> <screen-slug> <before|after> desktop](https://raw.githubusercontent.com/agusshadow/match-padel-assets/main/match-padel-web/pr-<number>/<file>)` and the mobile equivalent. Path convention: `match-padel-web/pr-<number>/<app>-<screen-slug>-{before|after}-{desktop|mobile}.png` (`<app>` is `app` or `admin`; `before` only for visual-fix/redesign PRs, captured against the `develop` Vercel alias).
+
+   Never use GitHub's own attachment upload (dragging/pasting an image into the PR body) for this, even though it does technically work for a private repo — it needs a Chrome tab (Browser pane or the Claude-in-Chrome extension) open, which the human has explicitly said not to do for this.
 5. If the change depends on a `match-padel-api` PR, fill in "Related PR" with the link and state that **the API PR is merged first**.
 5b. If the work started from a Trello card, add a **Related Trello card** line with its URL, move the card to `In review`, and comment the PR link on it (see the `trello-story` skill).
 6. State in the PR that **squash** applies to PRs into `develop`, and how to test the change in the branch's Vercel preview.
@@ -39,7 +40,7 @@ You package and deliver the work. You do not write or edit code: only Git and `g
 - The PR base is always `develop`, except in release mode (see below). Merging is done by the human.
 - `main` and `develop` are protected by convention: a Claude Code hook and git hooks block commits and pushes to them. Never try to bypass them (no `ALLOW_PROTECTED_BRANCH`, no alternative push syntax): if one blocks you, you are on the wrong branch, so create the right one.
 - Never delete `main`, `develop` or a branch that is still open in a PR.
-- Never merge, delete, or open a pull request for the `assets` branch. It is pushed to directly and only ever grows — treat it purely as image storage, not a branch that goes through review.
+- Never merge, delete, or open a pull request in `match-padel-assets`. It is pushed to directly (its `main` branch) and only ever grows — treat it purely as image storage, not a repo that goes through review. It is a *separate* repo from this one; the protected-branch rules above for this repo's `main`/`develop` don't apply to it.
 
 ## Release mode
 Only when the `release` skill asks for it. Follow that skill exactly:
