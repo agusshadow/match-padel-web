@@ -11,11 +11,19 @@ const loginSchema = z.object({
 })
 
 const registerSchema = loginSchema.extend({
-  full_name: z.string().min(2, 'Ingresá tu nombre completo'),
+  first_name: z.string().min(2, 'Ingresá tu nombre'),
+  last_name: z.string().min(2, 'Ingresá tu apellido'),
   username: z
     .string()
     .min(3, 'Mínimo 3 caracteres')
     .regex(/^[a-z0-9_]+$/, 'Solo letras minúsculas, números y _'),
+  skill_level: z.enum(['beginner', 'intermediate', 'advanced'], {
+    errorMap: () => ({ message: 'Elegí tu nivel de juego' }),
+  }),
+  preferred_hand: z.enum(['drive', 'backhand'], {
+    errorMap: () => ({ message: 'Elegí tu lado preferido' }),
+  }),
+  phone: z.union([z.string().min(6, 'Mínimo 6 caracteres').max(20), z.literal('')]).optional(),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -34,7 +42,9 @@ export function AuthPage() {
   const error = login.error || register.error
 
   const handleLogin = loginForm.handleSubmit((data) => login.mutate(data))
-  const handleRegister = registerForm.handleSubmit((data) => register.mutate(data))
+  const handleRegister = registerForm.handleSubmit((data) =>
+    register.mutate({ ...data, phone: data.phone || undefined })
+  )
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -129,20 +139,38 @@ export function AuthPage() {
         {/* Register Form */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5">
-                {t('auth.fullName')}
-              </label>
-              <input
-                {...registerForm.register('full_name')}
-                type="text"
-                autoComplete="name"
-                className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
-                placeholder="Juan Pérez"
-              />
-              {registerForm.formState.errors.full_name && (
-                <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.full_name.message}</p>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  {t('auth.firstName')}
+                </label>
+                <input
+                  {...registerForm.register('first_name')}
+                  type="text"
+                  autoComplete="given-name"
+                  className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                  placeholder="Juan"
+                />
+                {registerForm.formState.errors.first_name && (
+                  <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.first_name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">
+                  {t('auth.lastName')}
+                </label>
+                <input
+                  {...registerForm.register('last_name')}
+                  type="text"
+                  autoComplete="family-name"
+                  className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                  placeholder="Pérez"
+                />
+                {registerForm.formState.errors.last_name && (
+                  <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.last_name.message}</p>
+                )}
+              </div>
             </div>
 
             <div>
@@ -190,6 +218,72 @@ export function AuthPage() {
               />
               {registerForm.formState.errors.password && (
                 <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.password.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {t('auth.skillLevel')}
+              </label>
+              <div className="flex bg-muted rounded-lg p-1">
+                {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => registerForm.setValue('skill_level', level, { shouldValidate: true })}
+                    className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${
+                      registerForm.watch('skill_level') === level
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t(`auth.skill${level.charAt(0).toUpperCase()}${level.slice(1)}`)}
+                  </button>
+                ))}
+              </div>
+              {registerForm.formState.errors.skill_level && (
+                <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.skill_level.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {t('auth.preferredHand')}
+              </label>
+              <div className="flex bg-muted rounded-lg p-1">
+                {(['drive', 'backhand'] as const).map((hand) => (
+                  <button
+                    key={hand}
+                    type="button"
+                    onClick={() => registerForm.setValue('preferred_hand', hand, { shouldValidate: true })}
+                    className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${
+                      registerForm.watch('preferred_hand') === hand
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t(hand === 'drive' ? 'auth.handDrive' : 'auth.handBackhand')}
+                  </button>
+                ))}
+              </div>
+              {registerForm.formState.errors.preferred_hand && (
+                <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.preferred_hand.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                {t('auth.phone')}
+              </label>
+              <input
+                {...registerForm.register('phone')}
+                type="tel"
+                autoComplete="tel"
+                className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                placeholder="+54 9 11 1234-5678"
+              />
+              {registerForm.formState.errors.phone && (
+                <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.phone.message}</p>
               )}
             </div>
 

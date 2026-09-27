@@ -4,8 +4,17 @@
     "register": "Sign up",
     "email": "Email",
     "password": "Password",
-    "fullName": "Full name",
+    "firstName": "First name",
+    "lastName": "Last name",
     "username": "Username",
+    "skillLevel": "Skill level",
+    "skillBeginner": "Beginner",
+    "skillIntermediate": "Intermediate",
+    "skillAdvanced": "Advanced",
+    "preferredHand": "Preferred hand",
+    "handDrive": "Drive",
+    "handBackhand": "Backhand",
+    "phone": "Phone (optional)",
     "logout": "Sign out"
   },
   "common": {
