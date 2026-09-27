@@ -29,3 +29,12 @@ export function useClubCourts(clubId: string | null) {
     staleTime: 1000 * 60 * 5,
   })
 }
+
+export function useClubAvailability(clubId: string | null, date: string | null) {
+  return useQuery({
+    queryKey: [CLUBS_KEY, 'availability', clubId, date],
+    queryFn: () => clubService.getClubAvailability(clubId!, date!),
+    enabled: !!clubId && !!date,
+    staleTime: 1000 * 30, // 30 seconds — availability changes often
+  })
+}

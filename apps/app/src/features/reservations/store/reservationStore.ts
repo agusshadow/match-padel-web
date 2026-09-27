@@ -1,24 +1,25 @@
 import { create } from 'zustand'
-import type { Court } from '../../clubs/services/clubService'
-import type { TimeSlot } from '../services/reservationService'
+import type { Court, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 
 interface ReservationWizardState {
   // Step 1: Club
   selectedClubId: string | null
   selectedClubName: string | null
-  // Step 2: Court + date + slot
+  // Step 2: Date + time slot (chosen before the court, on purpose — the
+  // player cares about the time, not which specific court)
+  selectedDate: string | null // YYYY-MM-DD
+  selectedSlot: ClubAvailabilitySlot | null
+  // Step 2b: Court, chosen from the slot's own available courts
   selectedCourtId: string | null
   selectedCourt: Court | null
-  selectedDate: string | null // YYYY-MM-DD
-  selectedSlot: TimeSlot | null
   // Step 3: Notes
   notes: string
 
   // Actions
   setClub: (id: string, name: string) => void
-  setCourt: (court: Court) => void
   setDate: (date: string) => void
-  setSlot: (slot: TimeSlot) => void
+  setSlot: (slot: ClubAvailabilitySlot) => void
+  setCourt: (court: Court) => void
   setNotes: (notes: string) => void
   resetWizard: () => void
 }
@@ -26,10 +27,10 @@ interface ReservationWizardState {
 const initialState = {
   selectedClubId: null,
   selectedClubName: null,
-  selectedCourtId: null,
-  selectedCourt: null,
   selectedDate: null,
   selectedSlot: null,
+  selectedCourtId: null,
+  selectedCourt: null,
   notes: '',
 }
 
@@ -41,28 +42,36 @@ export const useReservationStore = create<ReservationWizardState>((set) => ({
       selectedClubId: id,
       selectedClubName: name,
       // Reset downstream selections when club changes
-      selectedCourtId: null,
-      selectedCourt: null,
       selectedDate: null,
       selectedSlot: null,
+      selectedCourtId: null,
+      selectedCourt: null,
+    }),
+
+  setDate: (date) =>
+    set({
+      selectedDate: date,
+      // Reset slot + court when date changes — the previous slot's courts
+      // no longer apply to a different day.
+      selectedSlot: null,
+      selectedCourtId: null,
+      selectedCourt: null,
+    }),
+
+  setSlot: (slot) =>
+    set({
+      selectedSlot: slot,
+      // Reset court when slot changes — it belonged to the previous slot's
+      // court list.
+      selectedCourtId: null,
+      selectedCourt: null,
     }),
 
   setCourt: (court) =>
     set({
       selectedCourtId: court.id,
       selectedCourt: court,
-      // Reset slot when court changes
-      selectedDate: null,
-      selectedSlot: null,
     }),
-
-  setDate: (date) =>
-    set({
-      selectedDate: date,
-      selectedSlot: null, // Reset slot when date changes
-    }),
-
-  setSlot: (slot) => set({ selectedSlot: slot }),
 
   setNotes: (notes) => set({ notes }),
 
