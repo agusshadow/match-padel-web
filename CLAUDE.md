@@ -157,7 +157,7 @@ This document describes the **target architecture**. The existing code does not 
 | HTTP | Axios only, all data through the API | No `fetch(` calls. But `apps/admin` bypasses the API: it queries and writes Supabase tables directly, and its `lib/axios.ts` is unused |
 | Tests | Vitest + RTL, 50% in `src/features/` | No framework and no tests |
 | Lint | ESLint | The `lint` script exists, but I found no ESLint configuration: it probably fails |
-| Duplicates in `apps/app` | — | `auth.store.ts` (canonical, 10 imports) and `authStore.ts` (unused). Two i18n setups: `i18n.ts` (Spanish only, flat keys) is the one **loaded** (`main.tsx` imports `./i18n`, which resolves to the file first); `i18n/index.ts` + `locales/{es,en}.json` is the target but is not loaded. New keys go in `i18n.ts` and are mirrored in the JSON |
+| Duplicates in `apps/app` | — | `auth.store.ts` is the only auth store now (`authStore.ts`, the unused duplicate, was removed — card #33). Two i18n setups: `i18n.ts` (Spanish only, flat keys) is the one **loaded** (`main.tsx` imports `./i18n`, which resolves to the file first); `i18n/index.ts` + `locales/{es,en}.json` is the target but is not loaded. New keys go in `i18n.ts` and are mirrored in the JSON |
 
 ## Agent workflow
 
