@@ -4,6 +4,8 @@
     "register": "Registrarse",
     "email": "Email",
     "password": "Contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "firstName": "Nombre",
     "lastName": "Apellido",
     "username": "Usuario",

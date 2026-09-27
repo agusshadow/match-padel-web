@@ -13,6 +13,8 @@ i18n.use(initReactI18next).init({
         'auth.logout': 'Cerrar sesión',
         'auth.email': 'Email',
         'auth.password': 'Contraseña',
+        'auth.showPassword': 'Mostrar contraseña',
+        'auth.hidePassword': 'Ocultar contraseña',
         'auth.firstName': 'Nombre',
         'auth.lastName': 'Apellido',
         'auth.username': 'Usuario',

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
+import { Eye, EyeOff } from 'lucide-react'
 import { useLogin, useRegister } from '../hooks/useAuth'
 import { supabase } from '../../../lib/supabase'
 
@@ -34,6 +35,8 @@ export function AuthPage() {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
   const login = useLogin()
   const register = useRegister()
 
@@ -163,13 +166,23 @@ export function AuthPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 {t('auth.password')}
               </label>
-              <input
-                {...loginForm.register('password')}
-                type="password"
-                autoComplete="current-password"
-                className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  {...loginForm.register('password')}
+                  type={showLoginPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  className="w-full px-3 py-2.5 pr-10 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((v) => !v)}
+                  aria-label={showLoginPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                >
+                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {loginForm.formState.errors.password && (
                 <p className="text-destructive text-xs mt-1">{loginForm.formState.errors.password.message}</p>
               )}
@@ -258,13 +271,23 @@ export function AuthPage() {
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 {t('auth.password')}
               </label>
-              <input
-                {...registerForm.register('password')}
-                type="password"
-                autoComplete="new-password"
-                className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  {...registerForm.register('password')}
+                  type={showRegisterPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  className="w-full px-3 py-2.5 pr-10 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-sm"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPassword((v) => !v)}
+                  aria-label={showRegisterPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                >
+                  {showRegisterPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {registerForm.formState.errors.password && (
                 <p className="text-destructive text-xs mt-1">{registerForm.formState.errors.password.message}</p>
               )}
