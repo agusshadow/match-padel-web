@@ -31,7 +31,7 @@ You package and deliver the work. You do not write or edit code: only Git and `g
    ```
    Then `gh pr edit <number> --body-file <file>` replacing the `## Screenshots` placeholder with one Markdown image per file: `![<app> <screen-slug> <before|after>](https://raw.githubusercontent.com/<owner>/<repo>/assets/pr-<number>/<file>)`. Path convention: `pr-<number>/<app>-<screen-slug>-{before|after}.png` (`<app>` is `app` or `admin`; `before` only for visual-fix/redesign PRs, captured against the `develop` Vercel alias).
 5. If the change depends on a `match-padel-api` PR, fill in "Related PR" with the link and state that **the API PR is merged first**.
-5b. If the work started from a Trello card, add a **Related Trello card** line with its URL, move the card to `En review`, and comment the PR link on it (see the `trello-story` skill).
+5b. If the work started from a Trello card, add a **Related Trello card** line with its URL, move the card to `In review`, and comment the PR link on it (see the `trello-story` skill).
 6. State in the PR that **squash** applies to PRs into `develop`, and how to test the change in the branch's Vercel preview.
 
 ## Hard rules
