@@ -189,7 +189,7 @@ Supporting skills: `new-feature`, `pr-format`, `release`, `trello-story`.
 - **Day-to-day:** feature branch from `develop` → PR against `develop` → merged with **squash** by the human.
 - **Release** (`/release` skill): when `develop` has accumulated several commits, a `release/vX.Y.Z` branch is cut from `develop` with all of them plus **one** extra commit, `chore: version bump`, that only raises the version. It is merged into `main` with a **merge commit** (to keep traceability), then `main` is merged back into `develop` (PR, **merge commit**) so both branches are level again.
 - Never enable "automatically delete head branches" on the repository: the release flow uses `develop` and `main` as PR heads.
-- Commits and PRs in **English**, conventional commits. See the `pr-format` skill. No screenshots in PRs.
+- Commits and PRs in **English**, conventional commits. See the `pr-format` skill, including the Screenshots rule for PRs touching `apps/app`/`apps/admin` (images live on the never-merged `assets` orphan branch, never on `develop`/`main`).
 - **Never** touch production from an agent session. Never put secret keys in the bundle: only public `VITE_` variables (anon key, never `service_role`).
 - If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR".
 

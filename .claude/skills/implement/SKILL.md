@@ -38,7 +38,11 @@ Invoke `tester`. If it reports a bug, hand it to `frontend-dev` with the case th
 Invoke `reviewer`. If the verdict is **Changes required**, pass the Blocking and Important findings to `frontend-dev`, then repeat tests and review. At most 2 rounds: if it still fails, stop and ask the user.
 
 ## 7. Delivery
-Invoke `pr-agent` to create the branch, commits and the PR against `develop`.
+1. Invoke `pr-agent` to create the branch, commits and open the PR against `develop` (its step 4a). `pr-agent` has no browser tool — everything below that needs one is driven by **you (the main session)**, not a subagent.
+2. If the diff does not touch `apps/app` or `apps/admin`, the PR body already says `Not applicable` for Screenshots — skip to step 8.
+3. Otherwise, wait for the Vercel bot's preview comment on the PR (poll `gh pr view <number> --json comments`, timeout ~5 minutes). If it doesn't land in time, fall back to a local dev server for the affected app(s).
+4. For each affected screen, resize the Browser pane to the right viewport (mobile for `apps/app`, desktop for `apps/admin`), navigate to the preview (or local) URL, take the screenshot, save it to the scratchpad following the `pr-format` skill's path convention. For a visual-fix/redesign PR, also capture the "before" state against the `develop` Vercel alias.
+5. Hand the resulting files to `pr-agent` for step 4c: it publishes them to the `assets` branch and edits the PR body to embed them.
 
 ## 8. Summary to the user
 Return: the PR link, what was implemented, and whether it depends on an API PR. Point to the Vercel preview the bot commented on the PR (or the `-git-develop-` branch alias) instead of asking the user to run anything locally.
