@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { authApi, type LoginPayload, type RegisterPayload } from '../api/auth.api'
+import { authApi, type CompleteProfilePayload, type LoginPayload, type RegisterPayload } from '../api/auth.api'
 import { useAuthStore } from '../store/auth.store'
 import { supabase } from '../../../lib/supabase'
 import { useEffect } from 'react'
@@ -44,7 +44,10 @@ export function useLogin() {
         refresh_token: data.refresh_token,
       })
       setUser(data.user)
-      navigate('/')
+      // A user who registered but closed the app before finishing/skipping
+      // onboarding still sees it on their next login, not just right after
+      // registering.
+      navigate(data.user.onboarding_completed_at ? '/' : '/onboarding')
     },
   })
 }
@@ -62,7 +65,20 @@ export function useRegister() {
         refresh_token: data.refresh_token,
       })
       setUser(data.user)
-      navigate('/')
+      navigate('/onboarding')
+    },
+  })
+}
+
+export function useCompleteProfile() {
+  const { setUser } = useAuthStore()
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: (payload: CompleteProfilePayload) => authApi.completeProfile(payload),
+    onSuccess: (user) => {
+      setUser(user)
+      navigate(user.onboarding_completed_at ? '/' : '/onboarding')
     },
   })
 }

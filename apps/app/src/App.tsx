@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './features/auth/store/auth.store'
 import { ProtectedRoute } from './shared/components/ProtectedRoute'
 import { AuthPage } from './features/auth/components/AuthPage'
+import { CompleteProfilePage } from './features/auth/components/CompleteProfilePage'
 import { HomePage } from './features/home/components/HomePage'
 import { MatchesPage } from './features/matches/components/MatchesPage'
 import { MatchDetailPage } from './features/matches/components/MatchDetailPage'
@@ -16,6 +17,7 @@ import { TournamentsPage } from './features/tournaments/components/TournamentsPa
 import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
 import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
+import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
 export function App() {
@@ -41,6 +43,8 @@ export function App() {
         </Route>
 
         {/* Full-screen pages (no bottom nav) */}
+        <Route path="/complete-profile" element={<CompleteProfilePage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/matches/new" element={<NewMatchPage />} />
         <Route path="/matches/join" element={<JoinMatchPage />} />
         <Route path="/matches/:id" element={<MatchDetailPage />} />

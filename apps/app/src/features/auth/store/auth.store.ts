@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Tables } from '../../../../../packages/types/src/supabase'
-
-type User = Tables<'users'>
+import type { User } from '../api/auth.api'
 
 interface AuthState {
   user: User | null
