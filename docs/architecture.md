@@ -37,7 +37,7 @@ Main features:
 - Push notifications (Firebase) — today there are only in-app notifications, polled over the API; Firebase (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
 - Real-time chat (Socket.io) (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
 
-Installable PWA setup today: `vite-plugin-pwa` in `apps/app/vite.config.ts` with `registerType: 'autoUpdate'` and a web manifest (name, `theme_color`, `display: 'standalone'`, `/icon-192.png` and `/icon-512.png`). There is no custom Workbox configuration: offline caching of the user's reservations (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). The icon files are not in the repo yet (no `public/` folder).
+Installable PWA setup today: `vite-plugin-pwa` in `apps/app/vite.config.ts` with `registerType: 'autoUpdate'` and a web manifest (name, `theme_color`, `display: 'standalone'`, `/icon-192.png`, `/icon-512.png` and `/icon-512-maskable.png`). The icons, `favicon.png` and `apple-touch-icon.png` live in `apps/app/public/`, generated from the brand logo in `agusshadow/match-padel-app-legacy`. There is no custom Workbox configuration: offline caching of the user's reservations (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md).
 
 ### `apps/admin` — Admin panel
 
