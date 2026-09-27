@@ -308,9 +308,9 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 
 ## Deploy
 
-| App     | Vercel project       | Trigger                                   | URL                                                      |
-|---------|----------------------|-------------------------------------------|----------------------------------------------------------|
-| app     | `match-padel-app`    | manual (Vercel not connected to GitHub yet) | `match-padel-app.vercel.app` (prod); `match-padel-app-dev.vercel.app` (dev alias)     |
-| admin   | `match-padel-admin`  | manual (Vercel not connected to GitHub yet) | `match-padel-admin.vercel.app` (prod); `match-padel-admin-dev.vercel.app` (dev alias) |
+| App     | Vercel project       | Trigger                          | URL                                                      |
+|---------|----------------------|-----------------------------------|----------------------------------------------------------|
+| app     | `match-padel-app`    | automatic, via GitHub integration | `match-padel-app.vercel.app` (prod, from `main`); `match-padel-app-git-develop-agusshadows-projects.vercel.app` (from `develop`)     |
+| admin   | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
 
-Automatic deploys on push to `main` and a preview per PR (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.
+Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.

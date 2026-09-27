@@ -41,7 +41,7 @@ Invoke `reviewer`. If the verdict is **Changes required**, pass the Blocking and
 Invoke `pr-agent` to create the branch, commits and the PR against `develop`.
 
 ## 8. Summary to the user
-Return: the PR link, what was implemented, how to test it in the dev preview (`https://match-padel-app-dev.vercel.app` and/or `https://match-padel-admin-dev.vercel.app`), and whether it depends on an API PR.
+Return: the PR link, what was implemented, and whether it depends on an API PR. Point to the Vercel preview the bot commented on the PR (or the `-git-develop-` branch alias) instead of asking the user to run anything locally.
 
 ## Rules
 - Never touch production (Supabase, Render or Vercel). Going to production is the human's decision.

@@ -27,7 +27,7 @@ Follow the steps in order. Talk to the user in the language they use. There is a
 6. **Report and stop.** Give the user the PR link and tell them to merge it with **"Create a merge commit"** (not squash). Then wait.
 
 ### What goes in "Production steps"
-- The Vercel projects are **not connected to GitHub yet**, so merging to `main` does not deploy anything. Tell the human that production must be deployed manually.
+- Merging to `main` deploys production automatically (Vercel is connected to GitHub). No manual deploy step is needed.
 - **Dependencies on the API:** list any included PR that needs a newer API release, and confirm the API release is already in production.
 - **Environment variables:** new or changed variables mentioned in the included PRs.
 
