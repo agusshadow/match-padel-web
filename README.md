@@ -4,12 +4,12 @@ Monorepo (Turborepo + npm workspaces) with the two frontends for Match Padel. Th
 
 ## Apps
 
-| App | Description | Production | Dev |
+| App | Description | Production | `develop` branch |
 |---|---|---|---|
-| `apps/app` | Player PWA (mobile-first) | https://match-padel-app.vercel.app | https://match-padel-app-dev.vercel.app |
-| `apps/admin` | Admin panel for staff (desktop-first) | https://match-padel-admin.vercel.app | https://match-padel-admin-dev.vercel.app |
+| `apps/app` | Player PWA (mobile-first) | https://match-padel-app.vercel.app | https://match-padel-app-git-develop-agusshadows-projects.vercel.app |
+| `apps/admin` | Admin panel for staff (desktop-first) | https://match-padel-admin.vercel.app | https://match-padel-admin-git-develop-agusshadows-projects.vercel.app |
 
-The Vercel projects are **not connected to GitHub yet**: deploys are manual, and the dev URLs are fixed aliases (`vercel alias set`). Production points at the production API and Supabase; the dev environment points at `match-padel-api-dev` and the `match-padel-dev` Supabase project.
+**Vercel is connected to GitHub**: every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (linked from the Vercel bot's comment on the PR).
 
 ## Packages
 
