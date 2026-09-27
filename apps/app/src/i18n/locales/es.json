@@ -4,8 +4,17 @@
     "register": "Registrarse",
     "email": "Email",
     "password": "Contraseña",
-    "fullName": "Nombre completo",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
     "username": "Usuario",
+    "skillLevel": "Nivel de juego",
+    "skillBeginner": "Principiante",
+    "skillIntermediate": "Intermedio",
+    "skillAdvanced": "Avanzado",
+    "preferredHand": "Lado preferido",
+    "handDrive": "Drive",
+    "handBackhand": "Revés",
+    "phone": "Teléfono (opcional)",
     "logout": "Cerrar sesión"
   },
   "common": {
