@@ -25,7 +25,7 @@ Required whenever the diff touches `apps/app` or `apps/admin` — any file under
 - Images never live in the PR branch, and never touch `develop`/`main` history: they are pushed straight to the `assets` orphan branch (created once, never merged, never opened as a PR — see its own `README.md`).
 - Path convention: `pr-<number>/<app>-<screen-slug>-{before|after}.png`. `<app>` is `app` or `admin`; `<screen-slug>` is the kebab-case route/feature name. `-before` only for visual-fix/redesign PRs where the prior state matters (captured against the `develop` Vercel alias, e.g. `match-padel-app-git-develop-....vercel.app`), otherwise only `-after`.
 - Embedded in the PR body as `![<app> <screen-slug> <before|after>](https://raw.githubusercontent.com/<owner>/<repo>/assets/pr-<number>/<file>)` so they render inline on GitHub.
-- Captured against the PR's own Vercel preview (from the bot's comment) once it's ready, or a local server as a fallback. See `.claude/skills/implement/SKILL.md` step 7 for the full capture-and-publish sequence and who does each part (the orchestrating session takes the screenshot; `pr-agent` only pushes files and edits the PR body).
+- Captured against the PR's own Vercel preview (from the bot's comment) once it's ready, or a local server as a fallback, using the headless Chrome binary cached on this machine (never the Browser pane — it can't write a file to disk). See `.claude/skills/implement/SKILL.md` step 7 for the full capture-and-publish sequence and who does each part (the orchestrating session takes the screenshot; `pr-agent` only pushes files and edits the PR body).
 
 ## Merge method (done by the human, never by an agent)
 | PR | Base | Method |

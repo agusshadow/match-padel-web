@@ -41,7 +41,14 @@ Invoke `reviewer`. If the verdict is **Changes required**, pass the Blocking and
 1. Invoke `pr-agent` to create the branch, commits and open the PR against `develop` (its step 4a). `pr-agent` has no browser tool — everything below that needs one is driven by **you (the main session)**, not a subagent.
 2. If the diff does not touch `apps/app` or `apps/admin`, the PR body already says `Not applicable` for Screenshots — skip to step 8.
 3. Otherwise, wait for the Vercel bot's preview comment on the PR (poll `gh pr view <number> --json comments`, timeout ~5 minutes). If it doesn't land in time, fall back to a local dev server for the affected app(s).
-4. For each affected screen, resize the Browser pane to the right viewport (mobile for `apps/app`, desktop for `apps/admin`), navigate to the preview (or local) URL, take the screenshot, save it to the scratchpad following the `pr-format` skill's path convention. For a visual-fix/redesign PR, also capture the "before" state against the `develop` Vercel alias.
+4. For each affected screen, capture a real PNG to disk with the headless Chrome binary already cached on this machine at `~/.cache/puppeteer/chrome/*/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing` (found once via `find ~/.cache/puppeteer -iname "Google Chrome for Testing.app"`; the path embeds a version, don't hardcode it). Do **not** use the Browser pane for this: it never gives you a file on disk, only an inline image. Run it via Bash:
+   ```bash
+   "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+     --window-size=390,844 \
+     --screenshot="<scratchpad>/<app>-<screen-slug>-after.png" \
+     "<preview-or-local-url><route>"
+   ```
+   Viewport: `390,844` for `apps/app` (mobile), a desktop size (e.g. `1440,900`) for `apps/admin`. Save to the scratchpad following the `pr-format` skill's path convention. For a visual-fix/redesign PR, also capture the "before" state against the `develop` Vercel alias. A route behind auth (e.g. a page only reachable with a logged-in session) usually can't be captured this way without real credentials — skip it and say so in the PR rather than faking a session.
 5. Hand the resulting files to `pr-agent` for step 4c: it publishes them to the `assets` branch and edits the PR body to embed them.
 
 ## 8. Summary to the user
