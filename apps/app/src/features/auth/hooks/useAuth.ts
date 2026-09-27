@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi, type CompleteProfilePayload, type LoginPayload, type RegisterPayload } from '../api/auth.api'
 import { useAuthStore } from '../store/auth.store'
 import { supabase } from '../../../lib/supabase'
+import { isProfileIncomplete } from '../lib/isProfileIncomplete'
 import { useEffect } from 'react'
 
 export function useAuthInit() {
@@ -49,23 +50,62 @@ export function useLogin() {
       // registering.
       navigate(data.user.onboarding_completed_at ? '/' : '/onboarding')
     },
+    onError: (error: any, variables) => {
+      // Unconfirmed account trying to log in — send them to finish
+      // verification instead of showing a misleading "wrong password".
+      // Note: this API's error envelope is flat ({ error: 'CODE', message })
+      // rather than the target { error: { code, message } } shape — see
+      // match-padel-api's CLAUDE.md "Real state vs. target" table.
+      if (error?.response?.data?.error === 'EMAIL_NOT_CONFIRMED') {
+        navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`)
+      }
+    },
   })
 }
 
 export function useRegister() {
-  const { setUser } = useAuthStore()
   const navigate = useNavigate()
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => authApi.register(payload),
-    onSuccess: async (data) => {
-      // Sync tokens with the Supabase JS client (same reason as useLogin)
-      await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      })
-      setUser(data.user)
-      navigate('/onboarding')
+    onSuccess: (_data, variables) => {
+      // No session yet — the account stays unconfirmed until the code from
+      // the "Confirm signup" email is verified (see useVerifyEmail below).
+      navigate(`/verify-email?email=${encodeURIComponent(variables.email)}`)
+    },
+  })
+}
+
+export function useVerifyEmail() {
+  const { setUser } = useAuthStore()
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: async ({ email, code }: { email: string; code: string }) => {
+      // Confirms the email and mints a session in one step, directly against
+      // Supabase (anon key) — no backend endpoint involved. supabase-js
+      // persists the resulting session on this client automatically, which
+      // is what the axios interceptor reads on the next request.
+      const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' })
+      if (error) throw error
+      return authApi.me()
+    },
+    onSuccess: (user) => {
+      setUser(user)
+      if (isProfileIncomplete(user)) {
+        navigate('/complete-profile')
+      } else {
+        navigate(user.onboarding_completed_at ? '/' : '/onboarding')
+      }
+    },
+  })
+}
+
+export function useResendVerificationCode() {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const { error } = await supabase.auth.resend({ type: 'signup', email })
+      if (error) throw error
     },
   })
 }

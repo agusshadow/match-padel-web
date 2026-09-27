@@ -3,6 +3,7 @@ import { useAuthStore } from './features/auth/store/auth.store'
 import { ProtectedRoute } from './shared/components/ProtectedRoute'
 import { AuthPage } from './features/auth/components/AuthPage'
 import { CompleteProfilePage } from './features/auth/components/CompleteProfilePage'
+import { VerifyEmailPage } from './features/auth/components/VerifyEmailPage'
 import { HomePage } from './features/home/components/HomePage'
 import { MatchesPage } from './features/matches/components/MatchesPage'
 import { MatchDetailPage } from './features/matches/components/MatchDetailPage'
@@ -29,6 +30,10 @@ export function App() {
       <Route
         path="/auth"
         element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+      />
+      <Route
+        path="/verify-email"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <VerifyEmailPage />}
       />
 
       {/* Protected */}

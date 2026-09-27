@@ -13,6 +13,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | Path | Page component | Access | Feature folder | API endpoints called |
 |------|----------------|--------|----------------|----------------------|
 | `/auth` | `AuthPage` | public (redirects to `/` if already authenticated) | `auth` | `POST /auth/login`, `POST /auth/register`; also offers "Continuar con Google" via `supabase.auth.signInWithOAuth` directly (not through the API) |
+| `/verify-email` | `VerifyEmailPage` | public (redirects to `/` if already authenticated); reads `?email=` from the URL, redirects to `/auth` if missing | `auth` | None — confirms directly against Supabase with `supabase.auth.verifyOtp({ type: 'signup' })` (anon key), then `GET /auth/me` once confirmed. `POST /auth/register` sends users here instead of returning a session; `POST /auth/login` also redirects here on a `403 EMAIL_NOT_CONFIRMED` response |
 | `/complete-profile` | `CompleteProfilePage` | protected | `auth` | `PUT /users/me` |
 | `/` | `HomePage` | protected, bottom nav | `home` | `GET /reservations` (limit 3), `GET /matches` |
 | `/matches` | `MatchesPage` | protected, bottom nav | `matches` | `GET /matches` |
