@@ -3,10 +3,13 @@ import type { Tables } from '../../../../../packages/types/src/supabase'
 import type { ApiResponse } from '../../../../../packages/types/src/api'
 
 // TODO(#45): packages/types/src/supabase.ts wasn't regenerated after the
-// first_name/last_name/skill_level/preferred_hand migration. Remove this
-// intersection once it is, and use Tables<'users'> directly again.
-type User = Tables<'users'> &
-  Pick<RegisterPayload, 'first_name' | 'last_name' | 'skill_level' | 'preferred_hand'>
+// first_name/last_name/skill_level/preferred_hand/onboarding_completed_at
+// migrations. Remove this intersection once it is, and use Tables<'users'>
+// directly again.
+export type User = Tables<'users'> &
+  Pick<RegisterPayload, 'first_name' | 'last_name' | 'skill_level' | 'preferred_hand'> & {
+    onboarding_completed_at: string | null
+  }
 
 export interface LoginPayload {
   email: string

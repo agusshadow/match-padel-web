@@ -16,6 +16,7 @@ import { TournamentsPage } from './features/tournaments/components/TournamentsPa
 import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
 import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
+import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
 export function App() {
@@ -41,6 +42,7 @@ export function App() {
         </Route>
 
         {/* Full-screen pages (no bottom nav) */}
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/matches/new" element={<NewMatchPage />} />
         <Route path="/matches/join" element={<JoinMatchPage />} />
         <Route path="/matches/:id" element={<MatchDetailPage />} />
