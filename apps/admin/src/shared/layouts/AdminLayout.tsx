@@ -1,14 +1,15 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Building2, CalendarDays, Users, Swords, Trophy, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/auth.store'
 import { supabase } from '@/lib/supabase'
 
 const NAV_ITEMS = [
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/clubs', icon: '🏟️', label: 'Clubes' },
-  { to: '/reservations', icon: '📅', label: 'Reservas' },
-  { to: '/users', icon: '👥', label: 'Usuarios' },
-  { to: '/matches', icon: '⚡', label: 'Partidos' },
-  { to: '/tournaments', icon: '🏆', label: 'Torneos' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/clubs', icon: Building2, label: 'Clubes' },
+  { to: '/reservations', icon: CalendarDays, label: 'Reservas' },
+  { to: '/users', icon: Users, label: 'Usuarios' },
+  { to: '/matches', icon: Swords, label: 'Partidos' },
+  { to: '/tournaments', icon: Trophy, label: 'Torneos' },
 ]
 
 export function AdminLayout() {
@@ -28,7 +29,7 @@ export function AdminLayout() {
         {/* Brand */}
         <div className="px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎾</span>
+            <img src="/logo-app.svg" alt="Match Padel" className="w-7 h-7" />
             <div>
               <p className="text-sm font-bold text-gray-900 leading-tight">Match Padel</p>
               <p className="text-xs text-gray-400">Admin</p>
@@ -50,7 +51,7 @@ export function AdminLayout() {
                 }`
               }
             >
-              <span className="text-base">{item.icon}</span>
+              <item.icon className="w-4 h-4" />
               {item.label}
             </NavLink>
           ))}
@@ -62,7 +63,7 @@ export function AdminLayout() {
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
-            <span className="text-base">🚪</span>
+            <LogOut className="w-4 h-4" />
             Cerrar sesión
           </button>
         </div>

@@ -1,65 +1,67 @@
-# Convenciones — match-padel-web
+# Conventions — match-padel-web
 
-## Nomenclatura
+## Naming
 
-| Elemento               | Convención       | Ejemplo                              |
+| Element                | Convention       | Example                              |
 |------------------------|------------------|--------------------------------------|
-| Archivos de componente | PascalCase       | `ReservationCard.tsx`                |
-| Archivos de hook       | camelCase        | `useReservations.ts`                 |
-| Archivos de store      | camelCase        | `reservationStore.ts`                |
-| Archivos de api        | camelCase        | `reservationsApi.ts`                 |
-| Archivos de utils      | camelCase        | `formatDate.ts`                      |
-| Componentes React      | PascalCase       | `function ReservationCard()`         |
-| Hooks custom           | camelCase, `use` | `function useReservations()`         |
-| Stores Zustand         | camelCase, `use` | `const useReservationStore = create` |
-| Variables / funciones  | camelCase        | `const reservationDate`              |
-| Constantes             | UPPER_SNAKE      | `MAX_PLAYERS_PER_MATCH = 4`          |
+| Component files        | PascalCase       | `ReservationCard.tsx`                |
+| Hook files             | camelCase        | `useReservations.ts`                 |
+| Store files            | camelCase (`auth.store.ts` also exists) | `reservationStore.ts`  |
+| API files              | `<entity>.api.ts` | `reservations.api.ts`               |
+| Utils files            | camelCase        | `formatDate.ts`                      |
+| React components       | PascalCase       | `function ReservationCard()`         |
+| Custom hooks           | camelCase, `use` | `function useReservations()`         |
+| Zustand stores         | camelCase, `use` | `const useReservationStore = create` |
+| Variables / functions  | camelCase        | `const reservationDate`              |
+| Constants              | UPPER_SNAKE      | `MAX_PLAYERS_PER_MATCH = 4`          |
 | Props interfaces       | PascalCase       | `interface ReservationCardProps`     |
 | Query keys             | array literal    | `['reservations', clubId]`           |
 
 ---
 
-## Estructura de una feature
+## Feature structure
 
-Toda funcionalidad nueva vive en `src/features/<nombre>/`. La estructura es obligatoria:
+Every new piece of functionality lives in `src/features/<name>/`. The structure is mandatory:
 
 ```
 features/reservations/
 ├── api/
-│   └── reservationsApi.ts      → Funciones que llaman a la API
+│   └── reservations.api.ts     → Functions that call the API
 ├── components/
 │   ├── ReservationCard.tsx
 │   ├── ReservationList.tsx
 │   └── CreateReservationForm.tsx
 ├── hooks/
-│   └── useReservations.ts      → useQuery / useMutation de esta feature
-├── store/                      → Solo si hay estado de UI complejo
+│   └── useReservations.ts      → useQuery / useMutation for this feature
+├── store/                      → Only if there is complex UI state
 │   └── reservationStore.ts
-└── index.ts                    → ÚNICO punto de exportación pública
+└── index.ts                    → ONLY public export point
 ```
 
-### `index.ts` — el barrel
+### `index.ts` — the barrel
 
-Todo lo que la feature exporta al resto de la app:
+Everything the feature exports to the rest of the app:
 
 ```ts
 // features/reservations/index.ts
 export { ReservationCard } from './components/ReservationCard'
 export { ReservationList } from './components/ReservationList'
 export { useReservations } from './hooks/useReservations'
-export type { Reservation } from './api/reservationsApi'
+export type { Reservation } from './api/reservations.api'
 ```
 
-Lo que NO está en `index.ts` es **privado** a la feature.
+Anything NOT in `index.ts` is **private** to the feature.
+
+> Today most features name the API layer `services/` (`<entity>Service.ts`), only `auth` has an `index.ts`, and `apps/admin` has flat page files per feature. Follow the structure above for new code; see 'Real state vs. target' in CLAUDE.md and [screens.md](./screens.md).
 
 ---
 
-## Tipos TypeScript
+## TypeScript types
 
-### Regla absoluta: nunca declarar interfaces de entidades a mano
+### Absolute rule: never declare entity interfaces by hand
 
 ```ts
-// ❌ PROHIBIDO
+// ❌ FORBIDDEN
 interface Reservation {
   id: string
   court_id: string
@@ -67,17 +69,22 @@ interface Reservation {
   start_time: string
 }
 
-// ✅ CORRECTO: importar desde el paquete generado
-import type { Database } from '@match-padel/types/supabase'
-type Reservation = Database['public']['Tables']['reservations']['Row']
+// ✅ CORRECT: import from the generated package (only the `.` entry point exists)
+import type { Tables } from '@match-padel/types'
+type Reservation = Tables<'court_reservations'>
 
-// ✅ CORRECTO: para respuestas de la API REST
-import type { ReservationResponse } from '@match-padel/types/api'
+// ✅ CORRECT: for REST API responses (envelope types exist today)
+import type { ApiResponse } from '@match-padel/types'
+
+// Per-endpoint types such as `ReservationResponse` (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
+// (packages/types/src/api.ts is hand-written today and only has ApiResponse / ApiError)
 ```
 
-### Props de componentes
+Today the apps import these types through relative paths (`../../../../packages/types/src/supabase`) and some services declare their own interfaces (`Club`, `Court`, `Tournament`, ...). Do not copy either pattern.
 
-Las props SÍ se declaran manualmente (no son entidades de DB):
+### Component props
+
+Props ARE declared manually (they are not DB entities):
 
 ```ts
 interface ReservationCardProps {
@@ -91,25 +98,25 @@ export function ReservationCard({ reservation, onCancel, isLoading }: Reservatio
 
 ---
 
-## React Query — patrones
+## React Query — patterns
 
-### useQuery para lectura
+### useQuery for reads
 
 ```ts
 // features/reservations/hooks/useReservations.ts
 import { useQuery } from '@tanstack/react-query'
-import { getReservations } from '../api/reservationsApi'
+import { getReservations } from '../api/reservations.api'
 
 export function useReservations(clubId: string) {
   return useQuery({
     queryKey: ['reservations', clubId],
     queryFn: () => getReservations(clubId),
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 ```
 
-### useMutation para escritura
+### useMutation for writes
 
 ```ts
 export function useCancelReservation() {
@@ -118,58 +125,60 @@ export function useCancelReservation() {
   return useMutation({
     mutationFn: (reservationId: string) => cancelReservation(reservationId),
     onSuccess: (_, reservationId) => {
-      // Refrescar la lista después de cancelar
+      // Refresh the list after cancelling
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
     },
   })
 }
 ```
 
-### Query keys — convenio
+### Query keys — convention
 
 ```ts
-// Siempre array, del más general al más específico
-['reservations']                    // lista general
-['reservations', clubId]            // lista filtrada por club
-['reservations', clubId, 'active']  // sublista con estado
-['reservation', reservationId]      // entidad individual
+// Always an array, from most general to most specific
+['reservations']                    // general list
+['reservations', clubId]            // list filtered by club
+['reservations', clubId, 'active']  // sublist with status
+['reservation', reservationId]      // single entity
 ```
 
 ---
 
-## Componentes
+## Components
 
-### Siempre desde `@match-padel/ui`
+### Always from `@match-padel/ui`
+
+> `packages/ui` has `Avatar`, `Badge`, `BottomNav`, `Button`, `Card`, `EmptyState`, `Input`, `Modal` and `Spinner`, but `packages/ui/src/index.ts` only exports `cn` today: exporting them from the barrel (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). Until then the pages use plain Tailwind elements.
 
 ```ts
-// ✅ CORRECTO
+// ✅ CORRECT
 import { Button, Card, Input } from '@match-padel/ui'
 
-// ❌ PROHIBIDO: nunca importar desde shadcn directamente en apps/
+// ❌ FORBIDDEN: never import from shadcn directly in apps/
 import { Button } from '@/components/ui/button'
 ```
 
-### Componentes de feature vs. componentes globales
+### Feature components vs. global components
 
 ```ts
-// Componente de feature: solo lo usa esa feature
+// Feature component: only used by that feature
 // apps/app/src/features/reservations/components/ReservationCard.tsx
 
-// Componente global: lo usan múltiples features
-// apps/app/src/components/EmptyState.tsx
-// apps/app/src/components/LoadingSpinner.tsx
+// Global component: used by multiple features
 // apps/app/src/components/PageHeader.tsx
 ```
 
-### Patrón de loading / error en componentes
+Cross-app pieces (`EmptyState`, `Spinner`, ...) belong in `packages/ui`. The `src/components/` folder does not exist yet in either app (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md); app-level pieces live today in `src/shared/components/` (`ProtectedRoute.tsx` in apps/app) and `src/shared/layouts/`.
+
+### Loading / error pattern in components
 
 ```tsx
 export function ReservationList({ clubId }: Props) {
   const { data, isLoading, error } = useReservations(clubId)
 
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return <Spinner />
   if (error) return <ErrorMessage message={error.message} />
-  if (!data?.length) return <EmptyState message="No hay reservas" />
+  if (!data?.length) return <EmptyState title={t('reservations.noUpcoming')} />
 
   return (
     <div className="flex flex-col gap-3">
@@ -181,11 +190,13 @@ export function ReservationList({ clubId }: Props) {
 }
 ```
 
+`Spinner` and `EmptyState` (props `icon`, `title`, `description`, `action`) exist in `packages/ui`; `ErrorMessage` (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md).
+
 ---
 
-## Formularios
+## Forms
 
-Siempre React Hook Form + Zod:
+Always React Hook Form + Zod (`AuthPage` in `apps/app` is the only form using it today):
 
 ```tsx
 import { useForm } from 'react-hook-form'
@@ -209,7 +220,7 @@ export function CreateReservationForm() {
 
   return (
     <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
-      {/* campos */}
+      {/* fields */}
     </form>
   )
 }
@@ -217,43 +228,55 @@ export function CreateReservationForm() {
 
 ---
 
-## Internacionalización (i18n)
+## Internationalization (i18n)
 
-**Siempre** usar `t()` para textos visibles al usuario. Nunca strings hardcodeados en español o inglés en JSX.
+**Always** use `t()` for user-visible text. Never hardcoded strings in Spanish or English in JSX.
+
+> **Current state:** two i18n setups coexist in `apps/app`. `src/i18n.ts` (Spanish only, flat keys such as `'auth.login'`) is the one actually loaded, because `main.tsx` imports `./i18n` and that resolves to the file before the `i18n/` folder. `src/i18n/index.ts` with `locales/es.json` and `en.json` (nested keys, English included) is the target layout described below but is **not loaded yet**. Until they are consolidated, add each new key to `src/i18n.ts` and mirror it in the JSON files, so the later migration is mechanical.
 
 ```tsx
 import { useTranslation } from 'react-i18next'
 
 export function ReservationCard() {
-  const { t } = useTranslation('reservations')
+  const { t } = useTranslation()
 
-  return <h2>{t('card.title')}</h2>
+  return <h2>{t('reservations.card.title')}</h2>
 }
 ```
 
-Archivos de traducción en `src/locales/`:
+i18n is only set up in `apps/app`. Translation files live in `src/i18n/locales/es.json` and `en.json`, in a single default namespace with one top-level key per domain (`auth`, `common`, `home`, `reservations`, `matches`, `clubs`, `profile`, `nav`):
 
 ```json
-// locales/es/reservations.json
+// src/i18n/locales/es.json
 {
-  "card": {
-    "title": "Reserva de cancha",
-    "cancel": "Cancelar reserva"
+  "reservations": {
+    "card": {
+      "title": "Reserva de cancha",
+      "cancel": "Cancelar reserva"
+    }
   }
 }
 ```
 
+There are no per-domain namespaces or files: use `useTranslation()` without arguments and `t('reservations.card.title')`. Spanish is the base and fallback language.
+
+> Two i18n setups coexist in `apps/app`: `src/i18n/index.ts` (loads the two JSON files) and a stale `src/i18n.ts` (Spanish only, flat keys). `main.tsx` imports `./i18n`, and a file takes precedence over a directory index in Vite/TypeScript resolution, so the stale `src/i18n.ts` is most likely the one that runs today. See 'Real state vs. target' in CLAUDE.md.
+
 ---
 
-## Axios — patrones
+## Axios — patterns
 
-El cliente Axios ya tiene configurado el interceptor de auth y el unwrapping de `response.data.data`. Las funciones de `api/` solo consumen el resultado:
+The shared instance is `api`, exported from each app's `src/lib/axios.ts`. Both apps have the auth (Bearer token) request interceptor; `apps/app` also has a 401 handler that refreshes the session. The target is that the response interceptor unwraps `response.data.data` and throws `response.data.error` on failure (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md).
+
+**Until the interceptor is added, the instance returns the raw Axios response**, and every existing service unwraps it itself (`api.get(...).then((r) => r.data.data)`). Follow that pattern in new code; do not change the interceptor as a side effect of another task.
+
+Target shape of an `api/` function (once the interceptor unwraps):
 
 ```ts
-// features/reservations/api/reservationsApi.ts
+// features/reservations/api/reservations.api.ts
 import { api } from '@/lib/axios'
 
-// La respuesta ya está unwrapped por el interceptor
+// The response is already unwrapped by the interceptor
 export async function getReservations(clubId: string): Promise<Reservation[]> {
   return api.get(`/clubs/${clubId}/reservations`)
 }
@@ -265,18 +288,19 @@ export async function cancelReservation(reservationId: string): Promise<void> {
 
 ---
 
-## Gestión de errores
+## Error handling
 
-Los errores de red/API los maneja React Query automáticamente. Para mostrarlos en UI:
+Network/API errors are handled by React Query automatically. To show them in the UI:
 
 ```tsx
 const { error } = useReservations(clubId)
 
-// error.message viene del envelope del backend: error.message
+// target: error.message comes from the backend envelope (interceptor throws response.data.error);
+// today it is the raw AxiosError message
 if (error) return <ErrorMessage message={error.message} />
 ```
 
-Para errores de formulario, Zod los muestra via React Hook Form:
+For form errors, Zod displays them via React Hook Form:
 
 ```tsx
 {errors.date && <p className="text-destructive text-sm">{errors.date.message}</p>}
@@ -286,33 +310,47 @@ Para errores de formulario, Zod los muestra via React Hook Form:
 
 ## Routing
 
+Routes are declared in each app's `src/App.tsx` (React Router v6; there is no `router.tsx`). Today the page components are imported eagerly, with no `lazy()`/`Suspense`:
+
+```tsx
+// apps/app/src/App.tsx (real)
+<Route element={<ProtectedRoute />}>
+  <Route element={<AppLayout />}>
+    <Route path="/reservations" element={<ReservationsPage />} />
+  </Route>
+  <Route path="/reservations/new" element={<NewReservationPage />} />
+</Route>
+```
+
 ```ts
-// apps/app: React Router con lazy loading por feature
+// Target — not implemented yet: lazy loading per feature
 const Reservations = lazy(() => import('@/features/reservations'))
 const Matches = lazy(() => import('@/features/matches'))
 
-// apps/admin: misma estructura, pero con /:clubId en rutas de club
+// Target — not implemented yet: apps/admin with /:clubId in club routes
 <Route path="/clubs/:clubId/reservations" element={<AdminReservations />} />
 ```
 
+See [screens.md](./screens.md) for the full list of routes.
+
 ---
 
-## Importaciones — orden convencional
+## Imports — conventional order
 
 ```ts
-// 1. React y librerías externas
+// 1. React and external libraries
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-// 2. Paquetes internos del monorepo
+// 2. Internal monorepo packages
 import { Button, Card } from '@match-padel/ui'
-import type { Database } from '@match-padel/types/supabase'
+import type { Tables } from '@match-padel/types'
 
-// 3. Features (solo via barrel)
+// 3. Features (only via barrel)
 import { useReservations } from '@/features/reservations'
 
-// 4. Componentes globales
-import { LoadingSpinner } from '@/components/LoadingSpinner'
+// 4. Global components
+import { PageHeader } from '@/components/PageHeader'
 
 // 5. Lib / utils
 import { formatDate } from '@/lib/formatDate'
@@ -323,10 +361,10 @@ import { api } from '@/lib/axios'
 
 ## CSS / Tailwind
 
-- Clases Tailwind directas en JSX (no CSS modules, no styled-components)
-- Usar `cn()` de `@match-padel/ui` para clases condicionales
-- Los colores vienen de CSS variables del design system (`bg-primary`, `text-destructive`, etc.)
-- No hardcodear colores: nunca `bg-blue-500`, siempre `bg-primary`
+- Tailwind classes directly in JSX (no CSS modules, no styled-components)
+- Use `cn()` from `@match-padel/ui` for conditional classes
+- Colors come from the design system's CSS variables (`bg-primary`, `text-destructive`, etc.)
+- Do not hardcode colors: never `bg-blue-500`, always `bg-primary` (`apps/admin` still uses hardcoded `gray`/`green`/`red` classes today; do not copy that)
 
 ```tsx
 import { cn } from '@match-padel/ui'

@@ -1,15 +1,29 @@
 import { useNavigate } from 'react-router-dom'
+import {
+  ChevronLeft,
+  Bell,
+  BellOff,
+  Swords,
+  Zap,
+  XCircle,
+  ClipboardList,
+  CheckCircle2,
+  CalendarCheck,
+  CalendarX,
+  TrendingUp,
+  type LucideIcon,
+} from 'lucide-react'
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '../hooks/useNotifications'
 
-const NOTIFICATION_ICONS: Record<string, string> = {
-  match_invite: '🎾',
-  match_started: '⚡',
-  match_cancelled: '❌',
-  score_submitted: '📋',
-  score_accepted: '✅',
-  reservation_confirmed: '📅',
-  reservation_cancelled: '🚫',
-  elo_updated: '📈',
+const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
+  match_invite: Swords,
+  match_started: Zap,
+  match_cancelled: XCircle,
+  score_submitted: ClipboardList,
+  score_accepted: CheckCircle2,
+  reservation_confirmed: CalendarCheck,
+  reservation_cancelled: CalendarX,
+  elo_updated: TrendingUp,
 }
 
 function timeAgo(dateStr: string) {
@@ -51,7 +65,7 @@ export function NotificationsPage() {
       <div className="sticky top-0 bg-background border-b border-border px-4 py-3 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-muted-foreground">
-            ←
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-bold text-foreground">Notificaciones</h1>
           {unread > 0 && (
@@ -76,7 +90,7 @@ export function NotificationsPage() {
           <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
         ) : notifications.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-4xl mb-3">🔔</p>
+            <BellOff className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
             <p className="text-foreground font-medium">Sin notificaciones</p>
             <p className="text-muted-foreground text-sm mt-1">
               Te avisaremos cuando haya novedades
@@ -84,7 +98,9 @@ export function NotificationsPage() {
           </div>
         ) : (
           <div className="divide-y divide-border">
-            {notifications.map((n) => (
+            {notifications.map((n) => {
+              const NotificationIcon = NOTIFICATION_ICONS[n.type] ?? Bell
+              return (
               <button
                 key={n.id}
                 onClick={() => handleNotificationClick(n)}
@@ -93,10 +109,10 @@ export function NotificationsPage() {
                 }`}
               >
                 {/* Icon */}
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg ${
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                   !n.is_read ? 'bg-primary/10' : 'bg-muted'
                 }`}>
-                  {NOTIFICATION_ICONS[n.type] ?? '🔔'}
+                  <NotificationIcon className="w-5 h-5 text-foreground" />
                 </div>
 
                 {/* Content */}
@@ -119,7 +135,8 @@ export function NotificationsPage() {
                   <div className="flex-shrink-0 w-2 h-2 rounded-full bg-primary mt-2" />
                 )}
               </button>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

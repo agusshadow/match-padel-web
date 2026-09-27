@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Swords, CalendarPlus, Trophy, LogIn } from 'lucide-react'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { useMyReservations } from '../../reservations/hooks/useReservations'
 import { ReservationCard } from '../../reservations/components/ReservationCard'
@@ -41,7 +42,7 @@ export function HomePage() {
       <div className="pt-2">
         <p className="text-sm text-muted-foreground">{t('home.welcome')},</p>
         <h1 className="text-2xl font-bold text-foreground">
-          {user?.full_name ?? 'Jugador'} 👋
+          {user?.full_name ?? 'Jugador'}
         </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
           ELO: <span className="font-semibold text-primary">{user?.elo ?? 1000}</span>
@@ -54,28 +55,28 @@ export function HomePage() {
           to="/matches"
           className="flex flex-col items-center justify-center gap-2 p-5 bg-primary text-primary-foreground rounded-2xl font-semibold text-sm shadow-sm hover:bg-primary/90 transition-colors"
         >
-          <span className="text-2xl">🎾</span>
+          <Swords className="w-6 h-6" />
           {t('home.findMatch')}
         </Link>
         <Link
           to="/reservations/new"
           className="flex flex-col items-center justify-center gap-2 p-5 bg-card border border-border text-foreground rounded-2xl font-semibold text-sm hover:bg-accent transition-colors"
         >
-          <span className="text-2xl">📅</span>
+          <CalendarPlus className="w-6 h-6" />
           {t('home.bookCourt')}
         </Link>
         <Link
           to="/tournaments"
           className="flex flex-col items-center justify-center gap-2 p-4 bg-card border border-border text-foreground rounded-2xl font-semibold text-sm hover:bg-accent transition-colors"
         >
-          <span className="text-xl">🏆</span>
+          <Trophy className="w-5 h-5" />
           Torneos
         </Link>
         <Link
           to="/matches/join"
           className="flex flex-col items-center justify-center gap-2 p-4 bg-card border border-border text-foreground rounded-2xl font-semibold text-sm hover:bg-accent transition-colors"
         >
-          <span className="text-xl">🔗</span>
+          <LogIn className="w-5 h-5" />
           Unirse
         </Link>
       </div>

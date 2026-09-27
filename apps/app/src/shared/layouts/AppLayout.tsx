@@ -34,7 +34,10 @@ export function AppLayout() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Top bar with notification bell */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 h-12 flex items-center justify-between">
-        <span className="text-sm font-bold text-foreground">🎾 Match Padel</span>
+        <span className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+          <img src="/logo-app.svg" alt="" className="w-5 h-5" />
+          Match Padel
+        </span>
         <NotificationBell />
       </div>
 

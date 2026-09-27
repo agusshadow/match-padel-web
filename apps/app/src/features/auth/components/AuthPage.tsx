@@ -41,9 +41,7 @@ export function AuthPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <span className="text-3xl">🎾</span>
-          </div>
+          <img src="/logo-app.svg" alt="Match Padel" className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-foreground">Match Padel</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {mode === 'login' ? 'Iniciá sesión para continuar' : 'Creá tu cuenta gratis'}

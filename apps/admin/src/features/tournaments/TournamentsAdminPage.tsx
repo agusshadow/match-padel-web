@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Trophy } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -50,7 +51,7 @@ export function TournamentsAdminPage() {
           <div className="p-8 text-center text-gray-400 text-sm">Cargando torneos...</div>
         ) : !tournaments?.length ? (
           <div className="p-12 text-center">
-            <p className="text-3xl mb-2">🏆</p>
+            <Trophy className="w-8 h-8 mx-auto mb-2 text-gray-400" />
             <p className="text-gray-500 text-sm">No hay torneos aún</p>
           </div>
         ) : (
