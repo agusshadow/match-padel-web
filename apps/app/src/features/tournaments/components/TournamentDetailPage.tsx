@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { ChevronLeft, Coins, Zap, Trophy } from 'lucide-react'
 import { useTournament, useRegisterTeam, useWithdrawTeam, useStartTournament } from '../hooks/useTournaments'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { TournamentTeam } from '../services/tournamentService'
@@ -81,7 +82,9 @@ export function TournamentDetailPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground text-lg">←</button>
+        <button onClick={() => navigate(-1)} className="text-muted-foreground">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
         <h1 className="font-bold text-foreground truncate flex-1">{tournament.name}</h1>
       </div>
 
@@ -131,7 +134,9 @@ export function TournamentDetailPage() {
           {tournament.prize_pool != null && tournament.prize_pool > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
               <p className="text-xs text-muted-foreground mb-0.5">Premio total</p>
-              <p className="text-sm font-medium text-foreground">💰 ${tournament.prize_pool.toLocaleString('es-AR')}</p>
+              <p className="text-sm font-medium text-foreground flex items-center gap-1">
+                <Coins className="w-4 h-4" /> ${tournament.prize_pool.toLocaleString('es-AR')}
+              </p>
             </div>
           )}
           {tournament.entry_fee != null && tournament.entry_fee > 0 && (
@@ -148,7 +153,13 @@ export function TournamentDetailPage() {
             disabled={startTournament.isPending}
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl disabled:opacity-60"
           >
-            {startTournament.isPending ? 'Iniciando...' : '⚡ Iniciar Torneo'}
+            {startTournament.isPending ? (
+              'Iniciando...'
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                <Zap className="w-4 h-4" /> Iniciar Torneo
+              </span>
+            )}
           </button>
         )}
 
@@ -265,7 +276,9 @@ export function TournamentDetailPage() {
                     <p className="text-sm font-medium text-foreground text-right">{m.team2.name ?? 'Equipo 2'}</p>
                   </div>
                   {m.winner_team && (
-                    <p className="text-xs text-green-500 mt-1">🏆 {m.winner_team.name}</p>
+                    <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
+                      <Trophy className="w-3.5 h-3.5" /> {m.winner_team.name}
+                    </p>
                   )}
                 </div>
               ))}

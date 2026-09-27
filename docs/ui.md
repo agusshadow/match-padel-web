@@ -314,13 +314,17 @@ export function ReservationCardSkeleton() {
 
 ## Icons
 
-Use `lucide-react` (declared as a dependency of `packages/ui`; `apps/app` imports it too, relying on npm hoisting):
+**Emoji are never used as icons, in either app.** Import from `lucide-react` directly in the file that needs it — that is the established convention (both apps declare it as their own dependency; `packages/ui` also depends on it but does not currently re-export any icons):
 
 ```tsx
 import { Calendar, MapPin, Users, ChevronRight } from 'lucide-react'
 
 <Calendar className="h-4 w-4 text-muted-foreground" />
 ```
+
+A brand mark (the app logo shown in a header or an auth screen) uses the real logo asset (`/logo-app.svg`, in each app's `public/`), never an emoji or a generic icon standing in for it.
+
+The only place an emoji may appear is inside real user-authored content (e.g. text someone typed), never as a UI icon, a button, a status marker, or a list bullet. If you are reaching for an emoji to represent a concept (a trophy, a calendar, a warning), that concept has a `lucide-react` icon — use it instead.
 
 Standard sizes:
 - `h-3 w-3` — micro, in badges

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarPlus, Loader2 } from 'lucide-react'
+import { CalendarPlus, CalendarX, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useMyReservations } from '../hooks/useReservations'
 import { ReservationCard } from './ReservationCard'
@@ -91,7 +91,7 @@ export function ReservationsPage() {
 
       {!isLoading && !isError && displayed.length === 0 && (
         <div className="bg-card border border-border rounded-xl p-8 text-center mt-4">
-          <div className="text-4xl mb-3">📅</div>
+          <CalendarX className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
           {activeTab === 'upcoming' ? (
             <>
               <p className="font-semibold text-foreground">Sin reservas próximas</p>
