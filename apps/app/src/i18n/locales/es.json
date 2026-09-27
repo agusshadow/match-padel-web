@@ -15,6 +15,10 @@
     "handDrive": "Drive",
     "handBackhand": "Revés",
     "phone": "Teléfono (opcional)",
+    "continueWithGoogle": "Continuar con Google",
+    "orContinueWith": "o continuá con",
+    "completeProfileTitle": "Completá tu perfil",
+    "completeProfileBody": "Nos falta un par de datos para terminar de armar tu perfil de jugador.",
     "logout": "Cerrar sesión"
   },
   "onboarding": {

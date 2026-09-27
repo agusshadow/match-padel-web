@@ -33,6 +33,15 @@ export interface AuthResponse {
   refresh_token: string
 }
 
+export interface CompleteProfilePayload {
+  first_name: string
+  last_name: string
+  username: string
+  skill_level: 'beginner' | 'intermediate' | 'advanced'
+  preferred_hand: 'drive' | 'backhand'
+  phone?: string
+}
+
 export const authApi = {
   register: (payload: RegisterPayload) =>
     api.post<ApiResponse<AuthResponse>>('/auth/register', payload).then((r) => r.data.data),
@@ -43,4 +52,7 @@ export const authApi = {
   logout: () => api.post('/auth/logout').then((r) => r.data),
 
   me: () => api.get<ApiResponse<User>>('/auth/me').then((r) => r.data.data),
+
+  completeProfile: (payload: CompleteProfilePayload) =>
+    api.put<ApiResponse<User>>('/users/me', payload).then((r) => r.data.data),
 }

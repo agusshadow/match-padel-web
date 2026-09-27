@@ -8,11 +8,12 @@ All API paths below are relative to `VITE_API_URL` (which includes `/api/v1`). A
 
 ## `apps/app` — player PWA
 
-Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `ProtectedRoute` (`src/shared/components/ProtectedRoute.tsx`), which runs `useAuthInit()`, redirects to `/auth` when not authenticated, and redirects to `/onboarding` when authenticated but `user.onboarding_completed_at` is falsy (except when already on `/onboarding`). Routes marked "bottom nav" also render inside `AppLayout` (`src/shared/layouts/AppLayout.tsx`).
+Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `ProtectedRoute` (`src/shared/components/ProtectedRoute.tsx`), which runs `useAuthInit()`, redirects to `/auth` when not authenticated, redirects to `/complete-profile` when `isProfileIncomplete(user)` (e.g. a first-time Google sign-in that never went through the registration form), and redirects to `/onboarding` when authenticated but `user.onboarding_completed_at` is falsy (except when already on `/onboarding` or `/complete-profile`). Routes marked "bottom nav" also render inside `AppLayout` (`src/shared/layouts/AppLayout.tsx`).
 
 | Path | Page component | Access | Feature folder | API endpoints called |
 |------|----------------|--------|----------------|----------------------|
-| `/auth` | `AuthPage` | public (redirects to `/` if already authenticated) | `auth` | `POST /auth/login`, `POST /auth/register` |
+| `/auth` | `AuthPage` | public (redirects to `/` if already authenticated) | `auth` | `POST /auth/login`, `POST /auth/register`; also offers "Continuar con Google" via `supabase.auth.signInWithOAuth` directly (not through the API) |
+| `/complete-profile` | `CompleteProfilePage` | protected | `auth` | `PUT /users/me` |
 | `/` | `HomePage` | protected, bottom nav | `home` | `GET /reservations` (limit 3), `GET /matches` |
 | `/matches` | `MatchesPage` | protected, bottom nav | `matches` | `GET /matches` |
 | `/reservations` | `ReservationsPage` | protected, bottom nav | `reservations` | `GET /reservations` (limit 50); from `ReservationCard`: `DELETE /reservations/:id`, `POST /payments/preference` |

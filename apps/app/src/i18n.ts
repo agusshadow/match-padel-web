@@ -24,6 +24,11 @@ i18n.use(initReactI18next).init({
         'auth.handDrive': 'Drive',
         'auth.handBackhand': 'Revés',
         'auth.phone': 'Teléfono (opcional)',
+        'auth.continueWithGoogle': 'Continuar con Google',
+        'auth.orContinueWith': 'o continuá con',
+        'auth.completeProfileTitle': 'Completá tu perfil',
+        'auth.completeProfileBody':
+          'Nos falta un par de datos para terminar de armar tu perfil de jugador.',
         'onboarding.skip': 'Saltear',
         'onboarding.next': 'Siguiente',
         'onboarding.start': 'Empezar',
