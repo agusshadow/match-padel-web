@@ -75,6 +75,7 @@
     "noReservations": "No tenés reservas",
     "cancel": "Cancelar reserva",
     "detail": "Detalle de reserva",
+    "notFound": "No se encontró la reserva.",
     "club": "Club",
     "court": "Cancha",
     "date": "Fecha",
