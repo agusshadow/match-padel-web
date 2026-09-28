@@ -20,6 +20,7 @@ import { TournamentsPage } from './features/tournaments/components/TournamentsPa
 import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
 import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
+import { ReservationDetailPage } from './features/reservations/components/ReservationDetailPage'
 import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
@@ -60,6 +61,7 @@ export function App() {
         <Route path="/reservations/new" element={<NewReservationPage />} />
         <Route path="/clubs/:id" element={<ClubDetailPage />} />
         <Route path="/reservations/:id" element={<PaymentResultPage />} />
+        <Route path="/reservations/:id/detail" element={<ReservationDetailPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/tournaments/new" element={<CreateTournamentPage />} />
         <Route path="/tournaments/:id" element={<TournamentDetailPage />} />

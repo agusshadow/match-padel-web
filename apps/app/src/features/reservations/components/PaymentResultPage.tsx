@@ -3,19 +3,29 @@ import { useSearchParams, useParams, Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { PartyPopper, XCircle, Hourglass, ClipboardList } from 'lucide-react'
-import { RESERVATIONS_KEY } from '../hooks/useReservations'
+import { RESERVATIONS_KEY, useReservationById } from '../hooks/useReservations'
 
 export function PaymentResultPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const [params] = useSearchParams()
   const queryClient = useQueryClient()
-  const payment = params.get('payment') // 'success' | 'failure' | 'pending'
+  const urlPayment = params.get('payment') // 'success' | 'failure' | 'pending' — MercadoPago's own redirect param
+
+  // Card #34 (R25): MercadoPago's redirect param reflects what MP told the browser at
+  // checkout time, not what our webhook actually confirmed. Fetch the reservation's real
+  // status from the API and use that once it loads, falling back to the URL param only
+  // while it's loading (or if the fetch fails) so the screen isn't blank.
+  const { data: reservation, isLoading } = useReservationById(id ?? '')
 
   useEffect(() => {
     // Invalidate reservations so the card reflects the new status
     queryClient.invalidateQueries({ queryKey: [RESERVATIONS_KEY] })
   }, [queryClient])
+
+  const payment = !isLoading && reservation
+    ? { confirmed: 'success', cancelled: 'failure', pending: 'pending', completed: 'success' }[reservation.status]
+    : urlPayment
 
   const config = {
     success: {
@@ -64,7 +74,7 @@ export function PaymentResultPage() {
 
         <div className="flex flex-col gap-3">
           <Link
-            to={`/reservations/${id}`}
+            to={`/reservations/${id}/detail`}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
           >
             {t('reservations.viewReservation')}

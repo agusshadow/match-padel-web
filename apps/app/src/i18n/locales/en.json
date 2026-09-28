@@ -75,6 +75,7 @@
     "noReservations": "You have no reservations",
     "cancel": "Cancel reservation",
     "detail": "Reservation detail",
+    "notFound": "Reservation not found.",
     "club": "Club",
     "court": "Court",
     "date": "Date",
