@@ -32,7 +32,10 @@ export function DashboardPage() {
         supabase.from('courts').select('*', { count: 'exact', head: true }),
         supabase.from('court_reservations').select('*', { count: 'exact', head: true }),
         supabase.from('matches').select('*', { count: 'exact', head: true }),
-        supabase.from('users').select('*', { count: 'exact', head: true }),
+        // Note: 'id' (not '*') — the anon/authenticated roles only have column-level
+        // SELECT grants on `users` (see match-padel-api docs/schema.sql, cards #10/#11),
+        // and PostgREST expands '*' to every column regardless of `head: true`.
+        supabase.from('users').select('id', { count: 'exact', head: true }),
         supabase.from('court_reservations').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
       ])
       return {

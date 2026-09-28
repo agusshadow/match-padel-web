@@ -1,17 +1,11 @@
 import { Copy, Check } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { MatchWithPlayers } from '../services/matchService'
 
 interface MatchCardProps {
   match: MatchWithPlayers
   onClick?: () => void
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  waiting: 'Esperando',
-  in_progress: 'En curso',
-  completed: 'Finalizado',
-  cancelled: 'Cancelado',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,13 +15,8 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  friendly: 'Amistoso',
-  ranked: 'Rankeado',
-  tournament: 'Torneo',
-}
-
 function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0] }) {
+  const { t } = useTranslation()
   const initials = player?.users?.full_name
     ?.split(' ')
     .map((n) => n[0])
@@ -41,7 +30,7 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0] 
         <div className="w-9 h-9 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center">
           <span className="text-xs text-muted-foreground">?</span>
         </div>
-        <span className="text-[10px] text-muted-foreground">Libre</span>
+        <span className="text-[10px] text-muted-foreground">{t('matches.emptySlot')}</span>
       </div>
     )
   }
@@ -51,7 +40,7 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0] 
       {player.users?.avatar_url ? (
         <img
           src={player.users.avatar_url}
-          alt={player.users.full_name}
+          alt={player.users.full_name ?? ''}
           className="w-9 h-9 rounded-full object-cover"
         />
       ) : (
@@ -60,14 +49,28 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0] 
         </div>
       )}
       <span className="text-[10px] text-foreground font-medium truncate max-w-[56px]">
-        {player.users?.username ?? 'Usuario'}
+        {player.users?.username ?? t('matches.defaultUsername')}
       </span>
     </div>
   )
 }
 
 export function MatchCard({ match, onClick }: MatchCardProps) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
+
+  const STATUS_LABELS: Record<string, string> = {
+    waiting: t('matches.status.waiting'),
+    in_progress: t('matches.status.in_progress'),
+    completed: t('matches.status.completed'),
+    cancelled: t('matches.status.cancelled'),
+  }
+
+  const TYPE_LABELS: Record<string, string> = {
+    friendly: t('matches.type.friendly'),
+    ranked: t('matches.type.ranked'),
+    tournament: t('matches.type.tournament'),
+  }
 
   const team1Players = match.match_players?.filter((p) => p.team === 1) ?? []
   const team2Players = match.match_players?.filter((p) => p.team === 2) ?? []
@@ -106,7 +109,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
           <span className="text-xs text-muted-foreground">{TYPE_LABELS[match.type]}</span>
           {match.is_ranked && (
             <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-              Rank
+              {t('matches.rankedBadge')}
             </span>
           )}
         </div>
@@ -131,12 +134,12 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
               <p className="text-xs font-bold text-foreground">{scoreDisplay}</p>
               {match.winner_team && (
                 <p className="text-[10px] text-muted-foreground">
-                  Equipo {match.winner_team} gana
+                  {t('matches.teamWins', { team: match.winner_team })}
                 </p>
               )}
             </div>
           ) : (
-            <span className="text-sm font-bold text-muted-foreground">vs</span>
+            <span className="text-sm font-bold text-muted-foreground">{t('matches.vs')}</span>
           )}
         </div>
 
@@ -152,7 +155,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
       {match.status === 'waiting' && match.lobby_url && (
         <div className="flex items-center justify-between bg-muted rounded-lg px-3 py-2">
           <div>
-            <p className="text-[10px] text-muted-foreground">Código de lobby</p>
+            <p className="text-[10px] text-muted-foreground">{t('matches.lobbyCode')}</p>
             <p className="text-sm font-mono font-bold text-foreground">{match.lobby_url}</p>
           </div>
           <button
@@ -160,7 +163,7 @@ export function MatchCard({ match, onClick }: MatchCardProps) {
             className="flex items-center gap-1 text-xs text-primary font-medium"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
-            {copied ? 'Copiado' : 'Copiar'}
+            {copied ? t('common.copied') : t('common.copy')}
           </button>
         </div>
       )}

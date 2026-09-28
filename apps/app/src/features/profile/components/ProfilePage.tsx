@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LogOut, Trophy, Swords, Star, Percent, ChevronRight, Edit } from 'lucide-react'
 import { useLogout } from '../../auth/hooks/useAuth'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { useMyStats } from '../hooks/useProfile'
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const logout = useLogout()
@@ -20,46 +22,46 @@ export function ProfilePage() {
   const statItems = [
     {
       icon: Swords,
-      label: 'Partidos',
+      label: t('profile.matches'),
       value: statsLoading ? '...' : String(stats?.total_matches ?? 0),
     },
     {
       icon: Trophy,
-      label: 'Victorias',
+      label: t('profile.wins'),
       value: statsLoading ? '...' : String(stats?.wins ?? 0),
     },
     {
       icon: Star,
-      label: 'Derrotas',
+      label: t('profile.losses'),
       value: statsLoading ? '...' : String(stats?.losses ?? 0),
     },
     {
       icon: Percent,
-      label: 'Win rate',
+      label: t('profile.winRate'),
       value: statsLoading ? '...' : `${stats?.win_rate ?? 0}%`,
     },
   ]
 
   const menuItems = [
-    { label: 'Editar perfil', action: () => navigate('/profile/edit') },
-    { label: 'Mis logros', action: () => {} },
-    { label: 'Historial ELO', action: () => {} },
-    { label: 'Notificaciones', action: () => {} },
-    { label: 'Ayuda', action: () => {} },
+    { label: t('profile.edit'), action: () => navigate('/profile/edit') },
+    { label: t('profile.myAchievements'), action: () => {} },
+    { label: t('profile.eloHistory'), action: () => {} },
+    { label: t('notifications.title'), action: () => {} },
+    { label: t('profile.help'), action: () => {} },
   ]
 
   return (
     <div className="p-4 space-y-6 pb-24">
       {/* Header */}
       <div className="pt-2 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Perfil</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('profile.title')}</h1>
         <button
           onClick={() => logout.mutate()}
           disabled={logout.isPending}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-destructive transition-colors"
         >
           <LogOut size={16} />
-          Salir
+          {t('auth.logout')}
         </button>
       </div>
 
@@ -69,7 +71,7 @@ export function ProfilePage() {
           {user?.avatar_url ? (
             <img
               src={user.avatar_url}
-              alt={user.full_name}
+              alt={user.full_name ?? ''}
               className="w-20 h-20 rounded-full object-cover"
             />
           ) : (
@@ -84,7 +86,7 @@ export function ProfilePage() {
           <div className="flex items-center gap-1.5 mt-1">
             <Star size={14} className="text-yellow-500 fill-yellow-500" />
             <span className="text-sm font-semibold text-foreground">{user?.elo ?? 1000}</span>
-            <span className="text-xs text-muted-foreground">ELO</span>
+            <span className="text-xs text-muted-foreground">{t('profile.elo')}</span>
           </div>
         </div>
         <button

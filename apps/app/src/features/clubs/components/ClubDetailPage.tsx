@@ -1,16 +1,22 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft, Loader2, Building2, MapPin } from 'lucide-react'
 import { useClubById } from '../hooks/useClubes'
 import type { Court } from '../services/clubService'
 
-function surfaceLabel(surface: string): string {
-  return surface === 'indoor' ? 'Cubierta' : surface === 'outdoor' ? 'Descubierta' : 'Panorámica'
-}
-
 export function ClubDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: club, isLoading } = useClubById(id ?? null)
+
+  function surfaceLabel(surface: string): string {
+    return surface === 'indoor'
+      ? t('clubs.surface.indoor')
+      : surface === 'outdoor'
+        ? t('clubs.surface.outdoor')
+        : t('clubs.surface.panoramic')
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,7 +29,7 @@ export function ClubDetailPage() {
           >
             <ChevronLeft size={22} />
           </button>
-          <h1 className="font-semibold text-foreground truncate">{club?.name ?? 'Club'}</h1>
+          <h1 className="font-semibold text-foreground truncate">{club?.name ?? t('clubs.defaultName')}</h1>
         </div>
       </div>
 
@@ -34,7 +40,7 @@ export function ClubDetailPage() {
       )}
 
       {!isLoading && !club && (
-        <p className="text-center text-muted-foreground py-16 text-sm">No se encontró el club.</p>
+        <p className="text-center text-muted-foreground py-16 text-sm">{t('clubs.notFound')}</p>
       )}
 
       {club && (
@@ -66,7 +72,7 @@ export function ClubDetailPage() {
             )}
 
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-2">Canchas</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-2">{t('clubs.courts')}</h3>
               <div className="space-y-2">
                 {club.courts.map((court: Court) => (
                   <div
@@ -75,7 +81,8 @@ export function ClubDetailPage() {
                   >
                     <p className="font-medium text-sm text-foreground">{court.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {surfaceLabel(court.surface)} · ${court.price_per_hour.toLocaleString('es-AR')}/hora
+                      {surfaceLabel(court.surface)} · ${court.price_per_hour.toLocaleString('es-AR')}
+                      {t('clubs.perHour')}
                     </p>
                   </div>
                 ))}
@@ -86,7 +93,7 @@ export function ClubDetailPage() {
               onClick={() => navigate(`/reservations/new?clubId=${club.id}`)}
               className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
             >
-              Reservar cancha
+              {t('home.bookCourt')}
             </button>
           </div>
         </div>

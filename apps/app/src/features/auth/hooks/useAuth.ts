@@ -128,7 +128,17 @@ export function useLogout() {
   const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: () => authApi.logout(),
+    mutationFn: async () => {
+      // Card #29 (R20): this used to only clear the local Zustand state, leaving
+      // the Supabase JS session (set in useLogin via setSession) valid in
+      // storage — reloading the page would silently restore it. Revoke the
+      // real session too, and don't let a failed API call skip that.
+      try {
+        await authApi.logout()
+      } finally {
+        await supabase.auth.signOut()
+      }
+    },
     onSuccess: () => {
       logout()
       navigate('/auth')
