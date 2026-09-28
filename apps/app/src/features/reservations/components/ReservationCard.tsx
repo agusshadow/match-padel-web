@@ -1,5 +1,6 @@
 import { CalendarDays, Clock, MapPin, Loader2, CreditCard, Building2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Reservation } from '../services/reservationService'
 import { useCancelReservation, useCreatePaymentPreference } from '../hooks/useReservations'
 
@@ -7,26 +8,11 @@ interface ReservationCardProps {
   reservation: Reservation
 }
 
-const STATUS_CONFIG = {
-  pending: {
-    label: 'Pendiente',
-    className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  },
-  confirmed: {
-    label: 'Confirmada',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
-  cancelled: {
-    label: 'Cancelada',
-    className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  },
-  completed: {
-    label: 'Completada',
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
+const STATUS_CLASSNAMES = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
 } as const
 
 const DAYS_ES = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']
@@ -58,17 +44,33 @@ function isCancellable(reservation: Reservation): boolean {
 }
 
 export function ReservationCard({ reservation }: ReservationCardProps) {
+  const { t } = useTranslation()
   const cancelMutation = useCancelReservation()
   const payMutation = useCreatePaymentPreference()
   const [payError, setPayError] = useState<string | null>(null)
+
+  const STATUS_CONFIG = {
+    pending: { label: t('reservations.status.pending'), className: STATUS_CLASSNAMES.pending },
+    confirmed: { label: t('reservations.status.confirmed'), className: STATUS_CLASSNAMES.confirmed },
+    cancelled: { label: t('reservations.status.cancelled'), className: STATUS_CLASSNAMES.cancelled },
+    completed: { label: t('reservations.status.completed'), className: STATUS_CLASSNAMES.completed },
+  } as const
+
   const status =
     STATUS_CONFIG[reservation.status as keyof typeof STATUS_CONFIG] ??
     STATUS_CONFIG.pending
   const court = reservation.court
   const club = court?.club
 
+  const surfaceLabel = (surface: string) =>
+    surface === 'indoor'
+      ? t('clubs.surface.indoor')
+      : surface === 'outdoor'
+        ? t('clubs.surface.outdoor')
+        : t('clubs.surface.panoramic')
+
   const handleCancel = () => {
-    if (!confirm('¿Cancelar esta reserva?')) return
+    if (!confirm(t('reservations.confirmCancel'))) return
     cancelMutation.mutate(reservation.id)
   }
 
@@ -81,7 +83,7 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
         window.location.href = url
       },
       onError: () => {
-        setPayError('No se pudo iniciar el pago. Intenta de nuevo.')
+        setPayError(t('reservations.paymentStartError'))
       },
     })
   }
@@ -104,11 +106,11 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
           )}
           <div className="min-w-0">
             <p className="font-semibold text-foreground text-sm truncate">
-              {club?.name ?? 'Club'}
+              {club?.name ?? t('clubs.defaultName')}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {court?.name ?? 'Cancha'}
-              {court?.surface ? ` · ${court.surface === 'indoor' ? 'Cubierta' : court.surface === 'outdoor' ? 'Descubierta' : 'Panorámica'}` : ''}
+              {court?.name ?? t('reservations.defaultCourtName')}
+              {court?.surface ? ` · ${surfaceLabel(court.surface)}` : ''}
             </p>
           </div>
         </div>
@@ -160,7 +162,7 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
               ) : (
                 <CreditCard size={12} />
               )}
-              Pagar
+              {t('reservations.pay')}
             </button>
           )}
 
@@ -173,7 +175,7 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
               {cancelMutation.isPending && (
                 <Loader2 size={12} className="animate-spin" />
               )}
-              Cancelar
+              {t('common.cancel')}
             </button>
           )}
         </div>
@@ -183,7 +185,7 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
         <p className="text-xs text-destructive">
           {payError ??
             (cancelMutation.error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Error al procesar'}
+            t('reservations.processingError')}
         </p>
       )}
     </div>

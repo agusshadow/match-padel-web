@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet'
 import L from 'leaflet'
 import { Map, List, Search, Loader2, Building2, ArrowRight } from 'lucide-react'
@@ -26,6 +27,7 @@ const markerIcon = new L.Icon({
 const DEFAULT_CENTER: [number, number] = [-34.6037, -58.3816]
 
 export function ClubesPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [view, setView] = useState<'map' | 'list'>('map')
   const [search, setSearch] = useState('')
@@ -66,7 +68,7 @@ export function ClubesPage() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Buscar club por nombre o ciudad..."
+              placeholder={t('clubs.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-background border border-input rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -77,7 +79,7 @@ export function ClubesPage() {
           <div className="flex bg-muted rounded-lg p-1 flex-shrink-0">
             <button
               onClick={() => setView('map')}
-              aria-label="Ver mapa"
+              aria-label={t('clubs.viewMap')}
               className={`p-2 rounded-md transition-colors ${
                 view === 'map' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
               }`}
@@ -86,7 +88,7 @@ export function ClubesPage() {
             </button>
             <button
               onClick={() => setView('list')}
-              aria-label="Ver lista"
+              aria-label={t('clubs.viewList')}
               className={`p-2 rounded-md transition-colors ${
                 view === 'list' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
               }`}
@@ -105,7 +107,7 @@ export function ClubesPage() {
 
       {!isLoading && clubs.length === 0 && (
         <p className="text-center text-muted-foreground py-8 text-sm px-4">
-          No se encontraron clubes{search ? ` para "${search}"` : ''}.
+          {search ? t('clubs.noResultsFor', { search }) : t('clubs.noResults')}
         </p>
       )}
 
@@ -131,7 +133,7 @@ export function ClubesPage() {
                 radius={8}
                 pathOptions={{ color: '#fff', weight: 2, fillColor: '#2563eb', fillOpacity: 1 }}
               >
-                <Popup>Tu ubicación</Popup>
+                <Popup>{t('clubs.yourLocation')}</Popup>
               </CircleMarker>
             )}
             {clubsWithLocation.map((club) => (
@@ -146,7 +148,7 @@ export function ClubesPage() {
                       onClick={() => navigate(`/clubs/${club.id}`)}
                       className="text-xs font-medium text-primary underline"
                     >
-                      Ver club
+                      {t('clubs.viewClub')}
                     </button>
                   </div>
                 </Popup>
@@ -181,7 +183,7 @@ export function ClubesPage() {
                   {club.address}, {club.city}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {club.courts_count} {club.courts_count === 1 ? 'cancha' : 'canchas'}
+                  {t('clubs.courtsCount', { count: club.courts_count })}
                   {location.status === 'granted' && club.lat != null && club.lng != null && (
                     <> · {distanceKm(location.coords, [club.lat, club.lng]).toFixed(1)} km</>
                   )}
