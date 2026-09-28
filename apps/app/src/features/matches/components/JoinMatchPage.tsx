@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft } from 'lucide-react'
 import { useJoinMatch } from '../hooks/useMatches'
 
 export function JoinMatchPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const joinMatch = useJoinMatch()
   const [lobbyCode, setLobbyCode] = useState('')
@@ -20,21 +22,19 @@ export function JoinMatchPage() {
         <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-muted transition-colors">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-foreground">Unirse a partido</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('matches.joinMatch')}</h1>
       </div>
 
       <div className="flex-1 p-4 space-y-6">
-        <p className="text-muted-foreground text-sm">
-          Ingresá el código de lobby que te compartió el organizador del partido.
-        </p>
+        <p className="text-muted-foreground text-sm">{t('matches.joinMatchBody')}</p>
 
         <div>
-          <label className="text-sm font-medium text-foreground block mb-2">Código de lobby</label>
+          <label className="text-sm font-medium text-foreground block mb-2">{t('matches.lobbyCode')}</label>
           <input
             type="text"
             value={lobbyCode}
             onChange={(e) => setLobbyCode(e.target.value.toUpperCase())}
-            placeholder="Ej: AB12C3"
+            placeholder={t('matches.lobbyCodePlaceholder')}
             maxLength={8}
             className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-center font-mono text-xl font-bold tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-primary"
             onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
@@ -42,9 +42,7 @@ export function JoinMatchPage() {
         </div>
 
         {joinMatch.isError && (
-          <p className="text-sm text-destructive text-center">
-            Código inválido o partido no disponible.
-          </p>
+          <p className="text-sm text-destructive text-center">{t('matches.invalidLobbyCode')}</p>
         )}
       </div>
 
@@ -54,7 +52,7 @@ export function JoinMatchPage() {
           disabled={!lobbyCode.trim() || joinMatch.isPending}
           className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-60 transition-colors"
         >
-          {joinMatch.isPending ? 'Uniéndose...' : 'Unirse al partido'}
+          {joinMatch.isPending ? t('matches.joining') : t('matches.joinTheMatch')}
         </button>
       </div>
     </div>

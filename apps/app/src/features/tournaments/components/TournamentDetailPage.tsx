@@ -1,21 +1,30 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft, Coins, Zap, Trophy } from 'lucide-react'
 import { useTournament, useRegisterTeam, useWithdrawTeam, useStartTournament } from '../hooks/useTournaments'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { TournamentTeam } from '../services/tournamentService'
 
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Abierto',
-  in_progress: 'En curso',
-  completed: 'Finalizado',
-  cancelled: 'Cancelado',
-}
-
 export function TournamentDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
+
+  const STATUS_LABELS: Record<string, string> = {
+    open: t('tournaments.status.open'),
+    in_progress: t('tournaments.status.in_progress'),
+    completed: t('tournaments.status.completed'),
+    cancelled: t('tournaments.status.cancelled'),
+  }
+
+  const FORMAT_LABELS: Record<string, string> = {
+    round_robin: t('tournaments.format.round_robin'),
+    single_elimination: t('tournaments.format.single_elimination'),
+    double_elimination: t('tournaments.format.doubleEliminationLong'),
+    americano: t('tournaments.format.americano'),
+  }
   const { data: tournament, isLoading } = useTournament(id)
   const registerTeam = useRegisterTeam(id!)
   const withdrawTeam = useWithdrawTeam(id!)
@@ -28,7 +37,7 @@ export function TournamentDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Cargando torneo...</p>
+        <p className="text-muted-foreground text-sm">{t('tournaments.loadingTournament')}</p>
       </div>
     )
   }
@@ -53,27 +62,27 @@ export function TournamentDetailPage() {
       setPartnerId('')
       setTeamName('')
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error al inscribirse'
+      const msg = e instanceof Error ? e.message : t('tournaments.registerError')
       alert(msg)
     }
   }
 
   async function handleWithdraw() {
-    if (!confirm('¿Retirarse del torneo?')) return
+    if (!confirm(t('tournaments.confirmWithdraw'))) return
     try {
       await withdrawTeam.mutateAsync()
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error'
+      const msg = e instanceof Error ? e.message : t('common.error')
       alert(msg)
     }
   }
 
   async function handleStart() {
-    if (!confirm('¿Iniciar el torneo? No se podrán inscribir más equipos.')) return
+    if (!confirm(t('tournaments.confirmStart'))) return
     try {
       await startTournament.mutateAsync()
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error'
+      const msg = e instanceof Error ? e.message : t('common.error')
       alert(msg)
     }
   }
@@ -96,10 +105,7 @@ export function TournamentDetailPage() {
               {STATUS_LABELS[tournament.status]}
             </span>
             <span className="text-xs text-muted-foreground">
-              {tournament.format === 'round_robin' ? 'Round Robin'
-                : tournament.format === 'single_elimination' ? 'Eliminación'
-                : tournament.format === 'double_elimination' ? 'Doble Eliminación'
-                : 'Americano'}
+              {FORMAT_LABELS[tournament.format]}
             </span>
           </div>
           {tournament.description && (
@@ -107,14 +113,14 @@ export function TournamentDetailPage() {
           )}
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p className="text-xs text-muted-foreground">Fecha inicio</p>
+              <p className="text-xs text-muted-foreground">{t('tournaments.startDate')}</p>
               <p className="font-medium text-foreground">
                 {new Date(tournament.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
               </p>
             </div>
             {tournament.end_date && (
               <div>
-                <p className="text-xs text-muted-foreground">Fecha fin</p>
+                <p className="text-xs text-muted-foreground">{t('tournaments.endDate')}</p>
                 <p className="font-medium text-foreground">
                   {new Date(tournament.end_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
                 </p>
@@ -122,26 +128,26 @@ export function TournamentDetailPage() {
             )}
             {tournament.club && (
               <div>
-                <p className="text-xs text-muted-foreground">Club</p>
+                <p className="text-xs text-muted-foreground">{t('reservations.club')}</p>
                 <p className="font-medium text-foreground">{tournament.club.name}</p>
               </div>
             )}
             <div>
-              <p className="text-xs text-muted-foreground">Equipos</p>
+              <p className="text-xs text-muted-foreground">{t('tournaments.teams')}</p>
               <p className="font-medium text-foreground">{teams.length}/{tournament.max_teams}</p>
             </div>
           </div>
           {tournament.prize_pool != null && tournament.prize_pool > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-0.5">Premio total</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t('tournaments.totalPrize')}</p>
               <p className="text-sm font-medium text-foreground flex items-center gap-1">
-                <Coins className="w-4 h-4" /> ${tournament.prize_pool.toLocaleString('es-AR')}
+                <Coins className="w-4 h-4" /> {t('tournaments.amount', { fee: tournament.prize_pool.toLocaleString('es-AR') })}
               </p>
             </div>
           )}
           {tournament.entry_fee != null && tournament.entry_fee > 0 && (
             <p className="text-xs text-muted-foreground">
-              Cuota de entrada: ${tournament.entry_fee.toLocaleString('es-AR')}
+              {t('tournaments.entryFeeAmount', { fee: tournament.entry_fee.toLocaleString('es-AR') })}
             </p>
           )}
         </div>
@@ -154,10 +160,10 @@ export function TournamentDetailPage() {
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl disabled:opacity-60"
           >
             {startTournament.isPending ? (
-              'Iniciando...'
+              t('tournaments.starting')
             ) : (
               <span className="inline-flex items-center gap-1.5">
-                <Zap className="w-4 h-4" /> Iniciar Torneo
+                <Zap className="w-4 h-4" /> {t('tournaments.startTournament')}
               </span>
             )}
           </button>
@@ -169,7 +175,7 @@ export function TournamentDetailPage() {
             onClick={() => setShowRegister(true)}
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl"
           >
-            Inscribir Equipo
+            {t('tournaments.registerTeam')}
           </button>
         )}
 
@@ -179,31 +185,31 @@ export function TournamentDetailPage() {
             disabled={withdrawTeam.isPending}
             className="w-full py-3 border border-red-500 text-red-500 font-semibold rounded-xl disabled:opacity-60"
           >
-            {withdrawTeam.isPending ? 'Retirando...' : 'Retirar mi equipo'}
+            {withdrawTeam.isPending ? t('tournaments.withdrawing') : t('tournaments.withdrawMyTeam')}
           </button>
         )}
 
         {/* Register form */}
         {showRegister && (
           <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-            <p className="font-semibold text-foreground">Inscribir equipo</p>
+            <p className="font-semibold text-foreground">{t('tournaments.registerTeam')}</p>
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">ID del compañero *</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t('tournaments.partnerIdRequired')}</label>
               <input
                 type="text"
                 value={partnerId}
                 onChange={(e) => setPartnerId(e.target.value)}
-                placeholder="UUID del compañero"
+                placeholder={t('tournaments.partnerIdPlaceholder')}
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground block mb-1">Nombre del equipo (opcional)</label>
+              <label className="text-xs text-muted-foreground block mb-1">{t('tournaments.teamNameOptional')}</label>
               <input
                 type="text"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                placeholder="Los Cracks"
+                placeholder={t('tournaments.teamNamePlaceholder')}
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
@@ -212,14 +218,14 @@ export function TournamentDetailPage() {
                 onClick={() => setShowRegister(false)}
                 className="flex-1 py-2 border border-border text-foreground font-medium rounded-lg text-sm"
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleRegister}
                 disabled={!partnerId.trim() || registerTeam.isPending}
                 className="flex-1 py-2 bg-primary text-primary-foreground font-medium rounded-lg text-sm disabled:opacity-60"
               >
-                {registerTeam.isPending ? 'Inscribiendo...' : 'Inscribir'}
+                {registerTeam.isPending ? t('tournaments.registering') : t('tournaments.register')}
               </button>
             </div>
           </div>
@@ -227,9 +233,9 @@ export function TournamentDetailPage() {
 
         {/* Teams list */}
         <div>
-          <h2 className="font-semibold text-foreground mb-3">Equipos ({teams.length})</h2>
+          <h2 className="font-semibold text-foreground mb-3">{t('tournaments.teamsWithCount', { count: teams.length })}</h2>
           {teams.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">Aún no hay equipos inscritos</p>
+            <p className="text-sm text-muted-foreground text-center py-6">{t('tournaments.noTeamsYet')}</p>
           ) : (
             <div className="space-y-2">
               {teams.map((team: TournamentTeam) => (
@@ -244,11 +250,11 @@ export function TournamentDetailPage() {
                       {team.name ?? `${team.player1.username} & ${team.player2.username}`}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      ELO: {team.player1.elo} · {team.player2.elo}
+                      {t('tournaments.eloShort', { elo1: team.player1.elo, elo2: team.player2.elo })}
                     </p>
                   </div>
                   {myTeam?.id === team.id && (
-                    <span className="text-xs font-medium text-primary">Mi equipo</span>
+                    <span className="text-xs font-medium text-primary">{t('tournaments.myTeam')}</span>
                   )}
                 </div>
               ))}
@@ -259,21 +265,21 @@ export function TournamentDetailPage() {
         {/* Matches list */}
         {matches.length > 0 && (
           <div>
-            <h2 className="font-semibold text-foreground mb-3">Partidos</h2>
+            <h2 className="font-semibold text-foreground mb-3">{t('matches.title')}</h2>
             <div className="space-y-2">
               {matches.map((m) => (
                 <div key={m.id} className="bg-card border border-border rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Ronda {m.round}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('tournaments.round', { number: m.round })}</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-foreground">{m.team1.name ?? 'Equipo 1'}</p>
+                    <p className="text-sm font-medium text-foreground">{m.team1.name ?? t('matches.team1')}</p>
                     {m.score_team1 !== null && m.score_team2 !== null ? (
                       <span className="text-sm font-bold text-foreground px-2">
                         {m.score_team1} – {m.score_team2}
                       </span>
                     ) : (
-                      <span className="text-xs text-muted-foreground px-2">vs</span>
+                      <span className="text-xs text-muted-foreground px-2">{t('matches.vs')}</span>
                     )}
-                    <p className="text-sm font-medium text-foreground text-right">{m.team2.name ?? 'Equipo 2'}</p>
+                    <p className="text-sm font-medium text-foreground text-right">{m.team2.name ?? t('matches.team2')}</p>
                   </div>
                   {m.winner_team && (
                     <p className="text-xs text-green-500 mt-1 flex items-center gap-1">

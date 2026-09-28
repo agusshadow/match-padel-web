@@ -1,10 +1,12 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { useUpdateProfile } from '../hooks/useProfile'
 
 export function EditProfilePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const updateProfile = useUpdateProfile()
@@ -25,7 +27,7 @@ export function EditProfilePage() {
     setError('')
 
     if (!fullName.trim() || fullName.trim().length < 2) {
-      setError('El nombre debe tener al menos 2 caracteres')
+      setError(t('profile.nameMinLength'))
       return
     }
 
@@ -36,7 +38,7 @@ export function EditProfilePage() {
       })
       navigate('/profile')
     } catch {
-      setError('Error al guardar los cambios. Intentá de nuevo.')
+      setError(t('profile.saveError'))
     }
   }
 
@@ -52,7 +54,7 @@ export function EditProfilePage() {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-foreground">Editar perfil</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('profile.edit')}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
@@ -68,7 +70,7 @@ export function EditProfilePage() {
           {/* Full name */}
           <div>
             <label htmlFor="full_name" className="text-sm font-medium text-foreground block mb-1.5">
-              Nombre completo
+              {t('profile.fullName')}
             </label>
             <input
               id="full_name"
@@ -76,7 +78,7 @@ export function EditProfilePage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Tu nombre completo"
+              placeholder={t('profile.fullNamePlaceholder')}
               required
               minLength={2}
             />
@@ -85,8 +87,8 @@ export function EditProfilePage() {
           {/* Phone */}
           <div>
             <label htmlFor="phone" className="text-sm font-medium text-foreground block mb-1.5">
-              Teléfono{' '}
-              <span className="text-muted-foreground font-normal">(opcional)</span>
+              {t('auth.phoneLabel')}{' '}
+              <span className="text-muted-foreground font-normal">({t('profile.optional')})</span>
             </label>
             <input
               id="phone"
@@ -94,7 +96,7 @@ export function EditProfilePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="+54 11 1234-5678"
+              placeholder={t('profile.phonePlaceholder')}
             />
           </div>
 
@@ -110,7 +112,7 @@ export function EditProfilePage() {
             disabled={updateProfile.isPending || !isDirty}
             className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-60 transition-colors"
           >
-            {updateProfile.isPending ? 'Guardando...' : 'Guardar cambios'}
+            {updateProfile.isPending ? t('matches.saving') : t('profile.saveChanges')}
           </button>
         </div>
       </form>

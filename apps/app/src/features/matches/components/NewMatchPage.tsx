@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Swords, Trophy } from 'lucide-react'
 import { useCreateMatch } from '../hooks/useMatches'
 
 export function NewMatchPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const createMatch = useCreateMatch()
   const [type, setType] = useState<'friendly' | 'ranked'>('friendly')
@@ -18,8 +20,8 @@ export function NewMatchPage() {
   }
 
   const typeOptions = [
-    { value: 'friendly', label: 'Amistoso', icon: Swords, desc: 'Partido sin clasificación' },
-    { value: 'ranked', label: 'Rankeado', icon: Trophy, desc: 'Afecta tu ELO' },
+    { value: 'friendly', label: t('matches.type.friendly'), icon: Swords, desc: t('matches.friendlyDesc') },
+    { value: 'ranked', label: t('matches.type.ranked'), icon: Trophy, desc: t('matches.rankedDesc') },
   ] as const
 
   return (
@@ -32,13 +34,13 @@ export function NewMatchPage() {
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-foreground">Nuevo partido</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('matches.new')}</h1>
       </div>
 
       <div className="flex-1 p-4 space-y-6">
         {/* Type selection */}
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">Tipo de partido</p>
+          <p className="text-sm font-medium text-muted-foreground mb-3">{t('matches.matchType')}</p>
           <div className="grid grid-cols-2 gap-3">
             {typeOptions.map(({ value, label, icon: Icon, desc }) => (
               <button
@@ -70,8 +72,8 @@ export function NewMatchPage() {
         {type === 'friendly' && (
           <div className="flex items-center justify-between bg-card border border-border rounded-xl p-4">
             <div>
-              <p className="font-medium text-foreground text-sm">Partido rankeado</p>
-              <p className="text-xs text-muted-foreground">El resultado afectará tu ELO</p>
+              <p className="font-medium text-foreground text-sm">{t('matches.rankedMatch')}</p>
+              <p className="text-xs text-muted-foreground">{t('matches.rankedMatchBody')}</p>
             </div>
             <button
               onClick={() => setIsRanked((v) => !v)}
@@ -90,8 +92,8 @@ export function NewMatchPage() {
 
         {/* Info */}
         <div className="bg-muted rounded-xl p-4 text-sm text-muted-foreground space-y-1">
-          <p>Al crear el partido recibirás un código de lobby para compartir con los demás jugadores.</p>
-          <p>El partido comienza cuando se unan 4 jugadores.</p>
+          <p>{t('matches.createInfoLobby')}</p>
+          <p>{t('matches.createInfoStart')}</p>
         </div>
       </div>
 
@@ -102,12 +104,10 @@ export function NewMatchPage() {
           disabled={createMatch.isPending}
           className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-60 transition-colors"
         >
-          {createMatch.isPending ? 'Creando...' : 'Crear partido'}
+          {createMatch.isPending ? t('matches.creating') : t('matches.new')}
         </button>
         {createMatch.isError && (
-          <p className="text-center text-sm text-destructive mt-2">
-            Error al crear el partido. Intentá de nuevo.
-          </p>
+          <p className="text-center text-sm text-destructive mt-2">{t('matches.createError')}</p>
         )}
       </div>
     </div>

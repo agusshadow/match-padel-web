@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft } from 'lucide-react'
 import { useCreateTournament } from '../hooks/useTournaments'
 
 export function CreateTournamentPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const createTournament = useCreateTournament()
 
@@ -28,7 +30,7 @@ export function CreateTournamentPage() {
     setError('')
 
     if (!form.name.trim() || !form.start_date) {
-      setError('Nombre y fecha de inicio son obligatorios')
+      setError(t('tournaments.nameAndStartRequired'))
       return
     }
 
@@ -46,7 +48,7 @@ export function CreateTournamentPage() {
       const tournament = await createTournament.mutateAsync(payload)
       navigate(`/tournaments/${tournament.id}`)
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error al crear torneo'
+      const msg = e instanceof Error ? e.message : t('tournaments.createError')
       setError(msg)
     }
   }
@@ -57,7 +59,7 @@ export function CreateTournamentPage() {
         <button onClick={() => navigate(-1)} className="text-muted-foreground">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h1 className="font-bold text-foreground">Crear Torneo</h1>
+        <h1 className="font-bold text-foreground">{t('tournaments.createTournament')}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="px-4 py-5 space-y-4 pb-8">
@@ -68,35 +70,35 @@ export function CreateTournamentPage() {
         )}
 
         <div>
-          <label className="text-sm font-medium text-foreground block mb-1">Nombre *</label>
+          <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.nameRequired')}</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => set('name', e.target.value)}
-            placeholder="Torneo de Verano 2025"
+            placeholder={t('tournaments.namePlaceholder')}
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-foreground block mb-1">Descripción</label>
+          <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.description')}</label>
           <textarea
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
             rows={2}
-            placeholder="Detalles del torneo..."
+            placeholder={t('tournaments.descriptionPlaceholder')}
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
           />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-foreground block mb-2">Formato</label>
+          <label className="text-sm font-medium text-foreground block mb-2">{t('tournaments.format_')}</label>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { value: 'round_robin', label: 'Round Robin' },
-              { value: 'single_elimination', label: 'Eliminación' },
-              { value: 'double_elimination', label: 'Doble Elim.' },
-              { value: 'americano', label: 'Americano' },
+              { value: 'round_robin', label: t('tournaments.format.round_robin') },
+              { value: 'single_elimination', label: t('tournaments.format.single_elimination') },
+              { value: 'double_elimination', label: t('tournaments.format.double_elimination') },
+              { value: 'americano', label: t('tournaments.format.americano') },
             ].map((opt) => (
               <button
                 key={opt.value}
@@ -115,21 +117,21 @@ export function CreateTournamentPage() {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-foreground block mb-1">Máximo de equipos</label>
+          <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.maxTeams')}</label>
           <select
             value={form.max_teams}
             onChange={(e) => set('max_teams', parseInt(e.target.value))}
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             {[4, 8, 12, 16, 24, 32, 48, 64].map((n) => (
-              <option key={n} value={n}>{n} equipos</option>
+              <option key={n} value={n}>{t('tournaments.teamsOption', { count: n })}</option>
             ))}
           </select>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Fecha inicio *</label>
+            <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.startDateRequired')}</label>
             <input
               type="datetime-local"
               value={form.start_date}
@@ -138,7 +140,7 @@ export function CreateTournamentPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Fecha fin</label>
+            <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.endDate')}</label>
             <input
               type="datetime-local"
               value={form.end_date}
@@ -150,7 +152,7 @@ export function CreateTournamentPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Cuota de entrada ($)</label>
+            <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.entryFeeLabel')}</label>
             <input
               type="number"
               value={form.entry_fee}
@@ -162,7 +164,7 @@ export function CreateTournamentPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Premio total ($)</label>
+            <label className="text-sm font-medium text-foreground block mb-1">{t('tournaments.prizePoolLabel')}</label>
             <input
               type="number"
               value={form.prize_pool}
@@ -180,7 +182,7 @@ export function CreateTournamentPage() {
           disabled={createTournament.isPending}
           className="w-full py-3.5 bg-primary text-primary-foreground font-semibold rounded-xl disabled:opacity-60 text-base mt-2"
         >
-          {createTournament.isPending ? 'Creando...' : 'Crear Torneo'}
+          {createTournament.isPending ? t('matches.creating') : t('tournaments.createTournament')}
         </button>
       </form>
     </div>

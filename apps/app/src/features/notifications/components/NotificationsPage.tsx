@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
   ChevronLeft,
   Bell,
@@ -26,19 +28,20 @@ const NOTIFICATION_ICONS: Record<string, LucideIcon> = {
   elo_updated: TrendingUp,
 }
 
-function timeAgo(dateStr: string) {
+function timeAgo(dateStr: string, t: TFunction) {
   const now = Date.now()
   const diff = now - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return 'ahora'
-  if (mins < 60) return `${mins}m`
+  if (mins < 1) return t('notifications.timeAgo.now')
+  if (mins < 60) return t('notifications.timeAgo.minutes', { count: mins })
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h`
+  if (hours < 24) return t('notifications.timeAgo.hours', { count: hours })
   const days = Math.floor(hours / 24)
-  return `${days}d`
+  return t('notifications.timeAgo.days', { count: days })
 }
 
 export function NotificationsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data, isLoading } = useNotifications()
   const markAsRead = useMarkAsRead()
@@ -67,7 +70,7 @@ export function NotificationsPage() {
           <button onClick={() => navigate(-1)} className="text-muted-foreground">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Notificaciones</h1>
+          <h1 className="text-lg font-bold text-foreground">{t('notifications.title')}</h1>
           {unread > 0 && (
             <span className="text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5 font-medium">
               {unread}
@@ -79,7 +82,7 @@ export function NotificationsPage() {
             onClick={() => markAllAsRead.mutate()}
             className="text-xs text-primary font-medium"
           >
-            Marcar todo
+            {t('notifications.markAllRead')}
           </button>
         )}
       </div>
@@ -87,14 +90,12 @@ export function NotificationsPage() {
       {/* Content */}
       <div>
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Cargando...</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">{t('common.loading')}</div>
         ) : notifications.length === 0 ? (
           <div className="p-12 text-center">
             <BellOff className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-foreground font-medium">Sin notificaciones</p>
-            <p className="text-muted-foreground text-sm mt-1">
-              Te avisaremos cuando haya novedades
-            </p>
+            <p className="text-foreground font-medium">{t('notifications.noNotifications')}</p>
+            <p className="text-muted-foreground text-sm mt-1">{t('notifications.noNotificationsBody')}</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -122,7 +123,7 @@ export function NotificationsPage() {
                       {n.title}
                     </p>
                     <span className="text-xs text-muted-foreground flex-shrink-0">
-                      {timeAgo(n.created_at)}
+                      {timeAgo(n.created_at, t)}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-0.5 leading-tight">

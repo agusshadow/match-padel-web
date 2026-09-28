@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Copy, Check, Plus, Minus } from 'lucide-react'
 import { useMatch, useSubmitScore, useAcceptScore, useCancelMatch } from '../hooks/useMatches'
 import { useAuthStore } from '../../auth/store/auth.store'
 import type { MatchWithPlayers } from '../services/matchService'
 
 function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0]; label?: string }) {
+  const { t } = useTranslation()
   const initials = player?.users?.full_name
     ?.split(' ')
     .map((n) => n[0])
@@ -19,7 +21,7 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0];
         <div className="w-14 h-14 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center">
           <span className="text-xl text-muted-foreground">?</span>
         </div>
-        <span className="text-xs text-muted-foreground">Libre</span>
+        <span className="text-xs text-muted-foreground">{t('matches.emptySlot')}</span>
       </div>
     )
   }
@@ -38,8 +40,10 @@ function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0];
         </div>
       )}
       <div className="text-center">
-        <p className="text-xs font-semibold text-foreground">{player.users?.username ?? 'Usuario'}</p>
-        <p className="text-[10px] text-muted-foreground">ELO {player.users?.elo ?? 1000}</p>
+        <p className="text-xs font-semibold text-foreground">
+          {player.users?.username ?? t('matches.defaultUsername')}
+        </p>
+        <p className="text-[10px] text-muted-foreground">{t('matches.eloLabel', { elo: player.users?.elo ?? 1000 })}</p>
       </div>
     </div>
   )
@@ -54,6 +58,7 @@ function SetScoreInput({
   setSets: (s: number[][]) => void
   disabled?: boolean
 }) {
+  const { t } = useTranslation()
   const addSet = () => setSets([...sets, [0, 0]])
   const removeSet = () => sets.length > 1 && setSets(sets.slice(0, -1))
 
@@ -65,7 +70,7 @@ function SetScoreInput({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-foreground">Sets</p>
+        <p className="text-sm font-medium text-foreground">{t('matches.sets')}</p>
         <div className="flex items-center gap-2">
           <button onClick={removeSet} disabled={sets.length <= 1 || disabled} className="p-1 rounded-full bg-muted hover:bg-muted/80 disabled:opacity-40">
             <Minus size={14} />
@@ -79,7 +84,7 @@ function SetScoreInput({
 
       {sets.map((set, si) => (
         <div key={si} className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground w-10">Set {si + 1}</span>
+          <span className="text-xs text-muted-foreground w-10">{t('matches.setLabel', { number: si + 1 })}</span>
           <input
             type="number"
             min={0}
@@ -105,13 +110,6 @@ function SetScoreInput({
   )
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  waiting: 'Esperando jugadores',
-  in_progress: 'En curso',
-  completed: 'Finalizado',
-  cancelled: 'Cancelado',
-}
-
 const STATUS_COLORS: Record<string, string> = {
   waiting: 'bg-yellow-100 text-yellow-800',
   in_progress: 'bg-blue-100 text-blue-800',
@@ -120,9 +118,17 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export function MatchDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuthStore()
+
+  const STATUS_LABELS: Record<string, string> = {
+    waiting: t('matches.status.waitingPlayers'),
+    in_progress: t('matches.status.in_progress'),
+    completed: t('matches.status.completed'),
+    cancelled: t('matches.status.cancelled'),
+  }
 
   const { data: match, isLoading, error } = useMatch(id)
   const submitScore = useSubmitScore()
@@ -144,9 +150,9 @@ export function MatchDetailPage() {
   if (error || !match) {
     return (
       <div className="min-h-screen bg-background p-4 flex flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">Partido no encontrado.</p>
+        <p className="text-muted-foreground">{t('matches.matchNotFound')}</p>
         <button onClick={() => navigate('/matches')} className="text-primary font-medium">
-          Volver a partidos
+          {t('matches.backToMatches')}
         </button>
       </div>
     )
@@ -187,7 +193,7 @@ export function MatchDetailPage() {
   }
 
   const handleCancel = async () => {
-    if (window.confirm('¿Cancelar el partido?')) {
+    if (window.confirm(t('matches.confirmCancel'))) {
       await cancelMatch.mutateAsync(match.id)
       navigate('/matches')
     }
@@ -206,7 +212,7 @@ export function MatchDetailPage() {
           <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-muted transition-colors">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-xl font-bold text-foreground">Detalle del partido</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('matches.matchDetail')}</h1>
         </div>
         <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_COLORS[match.status]}`}>
           {STATUS_LABELS[match.status]}
@@ -219,7 +225,7 @@ export function MatchDetailPage() {
           <div className="flex items-center gap-4">
             {/* Team 1 */}
             <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground text-center mb-3">Equipo 1</p>
+              <p className="text-xs font-medium text-muted-foreground text-center mb-3">{t('matches.team1')}</p>
               <div className="flex justify-center gap-4">
                 {team1Slots.map((p, i) => (
                   <PlayerSlot key={p?.id ?? `t1-${i}`} player={p} />
@@ -229,17 +235,17 @@ export function MatchDetailPage() {
 
             {/* VS */}
             <div className="shrink-0 flex flex-col items-center gap-1">
-              <span className="text-xl font-bold text-muted-foreground">vs</span>
+              <span className="text-xl font-bold text-muted-foreground">{t('matches.vs')}</span>
               {match.is_ranked && (
                 <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-medium">
-                  Rankeado
+                  {t('matches.type.ranked')}
                 </span>
               )}
             </div>
 
             {/* Team 2 */}
             <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground text-center mb-3">Equipo 2</p>
+              <p className="text-xs font-medium text-muted-foreground text-center mb-3">{t('matches.team2')}</p>
               <div className="flex justify-center gap-4">
                 {team2Slots.map((p, i) => (
                   <PlayerSlot key={p?.id ?? `t2-${i}`} player={p} />
@@ -252,18 +258,18 @@ export function MatchDetailPage() {
         {/* Score (completed) */}
         {completedScore && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <p className="text-sm font-medium text-muted-foreground mb-2">Resultado</p>
+            <p className="text-sm font-medium text-muted-foreground mb-2">{t('matches.result')}</p>
             <div className="flex justify-center gap-4">
               {completedScore.map((s, i) => (
                 <div key={i} className="text-center">
-                  <p className="text-[10px] text-muted-foreground">Set {i + 1}</p>
+                  <p className="text-[10px] text-muted-foreground">{t('matches.setLabel', { number: i + 1 })}</p>
                   <p className="text-lg font-bold text-foreground">{s}</p>
                 </div>
               ))}
             </div>
             {match.winner_team && (
               <p className="text-center text-sm font-semibold text-primary mt-2">
-                Ganó el Equipo {match.winner_team}
+                {t('matches.teamWon', { team: match.winner_team })}
               </p>
             )}
           </div>
@@ -272,10 +278,8 @@ export function MatchDetailPage() {
         {/* Lobby URL */}
         {match.status === 'waiting' && match.lobby_url && (
           <div className="bg-card border border-border rounded-xl p-4">
-            <p className="text-sm font-medium text-foreground mb-1">Compartir partido</p>
-            <p className="text-xs text-muted-foreground mb-3">
-              Compartí el código con los jugadores para que se unan
-            </p>
+            <p className="text-sm font-medium text-foreground mb-1">{t('matches.shareMatch')}</p>
+            <p className="text-xs text-muted-foreground mb-3">{t('matches.shareMatchBody')}</p>
             <div className="flex items-center justify-between bg-muted rounded-lg px-4 py-3">
               <span className="font-mono text-lg font-bold tracking-widest text-foreground">
                 {match.lobby_url}
@@ -285,7 +289,7 @@ export function MatchDetailPage() {
                 className="flex items-center gap-1.5 text-sm text-primary font-medium"
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
-                {copied ? 'Copiado!' : 'Copiar'}
+                {copied ? t('matches.copiedExclaim') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -294,11 +298,11 @@ export function MatchDetailPage() {
         {/* Score form */}
         {showScoreForm && (
           <div className="bg-card border border-border rounded-xl p-4 space-y-4">
-            <p className="font-medium text-foreground">Cargar resultado</p>
+            <p className="font-medium text-foreground">{t('matches.submitScore')}</p>
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>Equipo 1</span>
+              <span>{t('matches.team1')}</span>
               <span className="mx-auto" />
-              <span>Equipo 2</span>
+              <span>{t('matches.team2')}</span>
             </div>
             <SetScoreInput sets={sets} setSets={setSets} disabled={submitScore.isPending} />
             <div className="flex gap-3 pt-2">
@@ -306,14 +310,14 @@ export function MatchDetailPage() {
                 onClick={() => setShowScoreForm(false)}
                 className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted"
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleSubmitScore}
                 disabled={submitScore.isPending}
                 className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-60"
               >
-                {submitScore.isPending ? 'Guardando...' : 'Guardar resultado'}
+                {submitScore.isPending ? t('matches.saving') : t('matches.saveScore')}
               </button>
             </div>
           </div>
@@ -323,10 +327,10 @@ export function MatchDetailPage() {
         {match.score_status === 'pending' && match.status !== 'cancelled' && (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
             <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
-              Resultado pendiente de aprobación
+              {t('matches.scorePendingApproval')}
             </p>
             <p className="text-xs text-yellow-700 dark:text-yellow-500 mt-0.5">
-              El equipo contrario debe aceptar el resultado.
+              {t('matches.scorePendingApprovalBody')}
             </p>
           </div>
         )}
@@ -339,7 +343,7 @@ export function MatchDetailPage() {
             onClick={() => setShowScoreForm(true)}
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl"
           >
-            Cargar resultado
+            {t('matches.submitScore')}
           </button>
         )}
 
@@ -349,7 +353,7 @@ export function MatchDetailPage() {
             disabled={acceptScore.isPending}
             className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl disabled:opacity-60"
           >
-            {acceptScore.isPending ? 'Aceptando...' : 'Aceptar resultado'}
+            {acceptScore.isPending ? t('matches.accepting') : t('matches.acceptScore')}
           </button>
         )}
 
@@ -359,7 +363,7 @@ export function MatchDetailPage() {
             disabled={cancelMatch.isPending}
             className="w-full py-3 border border-destructive text-destructive font-medium rounded-xl disabled:opacity-60"
           >
-            {cancelMatch.isPending ? 'Cancelando...' : 'Cancelar partido'}
+            {cancelMatch.isPending ? t('matches.cancelling') : t('matches.cancelMatch')}
           </button>
         )}
       </div>

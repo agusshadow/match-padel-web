@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Calendar, Trophy, Coins } from 'lucide-react'
 import { useTournaments } from '../hooks/useTournaments'
 import { Tournament } from '../services/tournamentService'
-
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Abierto',
-  in_progress: 'En curso',
-  completed: 'Finalizado',
-  cancelled: 'Cancelado',
-}
 
 const STATUS_COLORS: Record<string, string> = {
   open: 'bg-green-500/10 text-green-600 dark:text-green-400',
@@ -18,9 +12,24 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-red-500/10 text-red-500',
 }
 
-function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) {
-  const teams = t.teams_count ?? 0
-  const pct = Math.round((teams / t.max_teams) * 100)
+function TournamentCard({ t: tournament, onClick }: { t: Tournament; onClick: () => void }) {
+  const { t } = useTranslation()
+  const teams = tournament.teams_count ?? 0
+  const pct = Math.round((teams / tournament.max_teams) * 100)
+
+  const STATUS_LABELS: Record<string, string> = {
+    open: t('tournaments.status.open'),
+    in_progress: t('tournaments.status.in_progress'),
+    completed: t('tournaments.status.completed'),
+    cancelled: t('tournaments.status.cancelled'),
+  }
+
+  const FORMAT_LABELS: Record<string, string> = {
+    round_robin: t('tournaments.format.round_robin'),
+    single_elimination: t('tournaments.format.single_elimination'),
+    double_elimination: t('tournaments.format.double_elimination'),
+    americano: t('tournaments.format.americano'),
+  }
 
   return (
     <button
@@ -29,31 +38,28 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-foreground leading-tight truncate">{t.name}</p>
-          {t.club && (
-            <p className="text-xs text-muted-foreground mt-0.5">{t.club.name} · {t.club.city}</p>
+          <p className="font-semibold text-foreground leading-tight truncate">{tournament.name}</p>
+          {tournament.club && (
+            <p className="text-xs text-muted-foreground mt-0.5">{tournament.club.name} · {tournament.club.city}</p>
           )}
         </div>
-        <span className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[t.status]}`}>
-          {STATUS_LABELS[t.status]}
+        <span className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[tournament.status]}`}>
+          {STATUS_LABELS[tournament.status]}
         </span>
       </div>
 
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <Calendar className="w-3.5 h-3.5" />
-          {new Date(t.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+          {new Date(tournament.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
         </span>
         <span className="inline-flex items-center gap-1">
           <Trophy className="w-3.5 h-3.5" />
-          {t.format === 'round_robin' ? 'Round Robin'
-          : t.format === 'single_elimination' ? 'Eliminación'
-          : t.format === 'double_elimination' ? 'Doble Elim.'
-          : 'Americano'}
+          {FORMAT_LABELS[tournament.format]}
         </span>
-        {t.prize_pool != null && t.prize_pool > 0 && (
+        {tournament.prize_pool != null && tournament.prize_pool > 0 && (
           <span className="inline-flex items-center gap-1">
-            <Coins className="w-3.5 h-3.5" /> Premio
+            <Coins className="w-3.5 h-3.5" /> {t('tournaments.prize')}
           </span>
         )}
       </div>
@@ -61,7 +67,7 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
       {/* Capacity bar */}
       <div>
         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-          <span>{teams}/{t.max_teams} equipos</span>
+          <span>{t('tournaments.teamsCount', { count: teams, max: tournament.max_teams })}</span>
           <span>{pct}%</span>
         </div>
         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -72,24 +78,25 @@ function TournamentCard({ t, onClick }: { t: Tournament; onClick: () => void }) 
         </div>
       </div>
 
-      {t.entry_fee != null && t.entry_fee > 0 && (
+      {tournament.entry_fee != null && tournament.entry_fee > 0 && (
         <p className="text-xs text-muted-foreground">
-          Entrada: ${t.entry_fee.toLocaleString('es-AR')}
+          {t('tournaments.entryFee', { fee: tournament.entry_fee.toLocaleString('es-AR') })}
         </p>
       )}
     </button>
   )
 }
 
-const FILTERS = [
-  { label: 'Todos', value: '' },
-  { label: 'Abiertos', value: 'open' },
-  { label: 'En curso', value: 'in_progress' },
-  { label: 'Finalizados', value: 'completed' },
-]
-
 export function TournamentsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const FILTERS = [
+    { label: t('tournaments.filterAll'), value: '' },
+    { label: t('tournaments.filterOpen'), value: 'open' },
+    { label: t('tournaments.status.in_progress'), value: 'in_progress' },
+    { label: t('tournaments.filterCompleted'), value: 'completed' },
+  ]
   const [filter, setFilter] = useState('')
   const { data, isLoading } = useTournaments(filter || undefined)
 
@@ -99,12 +106,12 @@ export function TournamentsPage() {
     <div className="min-h-screen bg-background">
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-bold text-foreground">Torneos</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('tournaments.title')}</h1>
           <button
             onClick={() => navigate('/tournaments/new')}
             className="text-sm font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"
           >
-            + Crear
+            + {t('common.create')}
           </button>
         </div>
 
@@ -128,12 +135,12 @@ export function TournamentsPage() {
 
       <div className="px-4 pb-6">
         {isLoading ? (
-          <div className="py-12 text-center text-muted-foreground text-sm">Cargando torneos...</div>
+          <div className="py-12 text-center text-muted-foreground text-sm">{t('tournaments.loading')}</div>
         ) : tournaments.length === 0 ? (
           <div className="py-12 text-center">
             <Trophy className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="font-medium text-foreground">No hay torneos</p>
-            <p className="text-sm text-muted-foreground mt-1">Crea el primero</p>
+            <p className="font-medium text-foreground">{t('tournaments.noTournaments')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('tournaments.createFirst')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">

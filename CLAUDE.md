@@ -152,7 +152,7 @@ This document describes the **target architecture**. The existing code does not 
 | Imports | Always through the feature's `index.ts` | There are 15 direct imports into `features/*/components` |
 | Types | From `@match-padel/types` | No file imports the package alias; the few places that use the types import `packages/types/src/*` by long relative paths. `packages/types` has `supabase.ts` and a hand-written 20-line `api.ts` |
 | Base components | `@match-padel/ui` | Nothing imports it, and `packages/ui/src/index.ts` exports only `cn`, so no component is importable yet (9 components exist in `packages/ui/src/components`) |
-| i18n in `apps/app` | Every text through `t('key')` | Only 5 of 21 `.tsx` files use `useTranslation` |
+| i18n in `apps/app` | Every text through `t('key')` | Met — unified on `src/i18n/index.ts` + `locales/{es,en}.json` (card #32); every screen's UI text goes through `t('key')` |
 | Admin | `/:clubId/...` routes, `/platform/*`, sidebar by `club_staff` role | 6 flat routes (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), no per-route role guards (the login rejects users whose `users.role` is not `club_staff`/`super_admin`); login only, no registration |
 | HTTP | Axios only, all data through the API | No `fetch(` calls. But `apps/admin` bypasses the API: it queries and writes Supabase tables directly, and its `lib/axios.ts` is unused |
 | Tests | Vitest + RTL, 50% in `src/features/` | No framework and no tests |
