@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { authApi, type CompleteProfilePayload, type LoginPayload, type RegisterPayload } from '../api/auth.api'
 import { useAuthStore } from '../store/auth.store'
 import { supabase } from '../../../lib/supabase'
@@ -17,7 +18,16 @@ export function useAuthInit() {
       }
       authApi.me()
         .then(setUser)
-        .catch(() => logout())
+        .catch((err) => {
+          // Card #27 (R18): a network error (offline, DNS, timeout — no
+          // response at all) is not the same as an invalid/expired session.
+          // Logging the user out here used to make "opened the app offline"
+          // indistinguishable from "got signed out" — keep whatever session
+          // state was already persisted and let the OfflineBanner explain it
+          // instead.
+          if (axios.isAxiosError(err) && !err.response) return
+          logout()
+        })
         .finally(() => setLoading(false))
     })
 

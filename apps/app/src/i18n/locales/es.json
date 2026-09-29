@@ -51,6 +51,7 @@
     "back": "Volver",
     "seeAll": "Ver todo",
     "noResults": "Sin resultados",
+    "offline": "Sin conexión a internet",
     "create": "Crear",
     "copy": "Copiar",
     "copied": "Copiado"
@@ -214,7 +215,9 @@
     "fullNamePlaceholder": "Tu nombre completo",
     "optional": "opcional",
     "phonePlaceholder": "+54 11 1234-5678",
-    "saveChanges": "Guardar cambios"
+    "saveChanges": "Guardar cambios",
+    "changePhoto": "Cambiar foto de perfil",
+    "avatarUploadError": "No se pudo subir la foto. Probá con otra imagen (JPEG, PNG o WebP, hasta 5MB)."
   },
   "nav": {
     "home": "Inicio",
@@ -286,6 +289,11 @@
     "eloShort": "ELO: {{elo1}} · {{elo2}}",
     "myTeam": "Mi equipo",
     "round": "Ronda {{number}}"
+  },
+  "achievements": {
+    "empty": "Todavía no hay logros disponibles.",
+    "locked": "Sin desbloquear",
+    "eloHistoryEmpty": "Todavía no tenés cambios de ELO registrados."
   },
   "notifications": {
     "title": "Notificaciones",
