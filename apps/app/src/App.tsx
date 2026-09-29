@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './features/auth/store/auth.store'
 import { ProtectedRoute } from './shared/components/ProtectedRoute'
+import { OfflineBanner } from './shared/components/OfflineBanner'
 import { AuthPage } from './features/auth/components/AuthPage'
 import { CompleteProfilePage } from './features/auth/components/CompleteProfilePage'
 import { VerifyEmailPage } from './features/auth/components/VerifyEmailPage'
@@ -28,47 +29,50 @@ export function App() {
   const { isAuthenticated } = useAuthStore()
 
   return (
-    <Routes>
-      {/* Public */}
-      <Route
-        path="/auth"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
-      />
-      <Route
-        path="/verify-email"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <VerifyEmailPage />}
-      />
+    <>
+      <OfflineBanner />
+      <Routes>
+        {/* Public */}
+        <Route
+          path="/auth"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />}
+        />
+        <Route
+          path="/verify-email"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <VerifyEmailPage />}
+        />
 
-      {/* Protected */}
-      <Route element={<ProtectedRoute />}>
-        {/* Pages with bottom nav */}
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/matches" element={<MatchesPage />} />
-          <Route path="/clubs" element={<ClubesPage />} />
-          <Route path="/reservations" element={<ReservationsPage />} />
-          <Route path="/tournaments" element={<TournamentsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+        {/* Protected */}
+        <Route element={<ProtectedRoute />}>
+          {/* Pages with bottom nav */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/matches" element={<MatchesPage />} />
+            <Route path="/clubs" element={<ClubesPage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
+            <Route path="/tournaments" element={<TournamentsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+
+          {/* Full-screen pages (no bottom nav) */}
+          <Route path="/complete-profile" element={<CompleteProfilePage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/matches/new" element={<NewMatchPage />} />
+          <Route path="/matches/join" element={<JoinMatchPage />} />
+          <Route path="/matches/:id" element={<MatchDetailPage />} />
+          <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/reservations/new" element={<NewReservationPage />} />
+          <Route path="/clubs/:id" element={<ClubDetailPage />} />
+          <Route path="/reservations/:id" element={<PaymentResultPage />} />
+          <Route path="/reservations/:id/detail" element={<ReservationDetailPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/tournaments/new" element={<CreateTournamentPage />} />
+          <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
         </Route>
 
-        {/* Full-screen pages (no bottom nav) */}
-        <Route path="/complete-profile" element={<CompleteProfilePage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/matches/new" element={<NewMatchPage />} />
-        <Route path="/matches/join" element={<JoinMatchPage />} />
-        <Route path="/matches/:id" element={<MatchDetailPage />} />
-        <Route path="/profile/edit" element={<EditProfilePage />} />
-        <Route path="/reservations/new" element={<NewReservationPage />} />
-        <Route path="/clubs/:id" element={<ClubDetailPage />} />
-        <Route path="/reservations/:id" element={<PaymentResultPage />} />
-        <Route path="/reservations/:id/detail" element={<ReservationDetailPage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
-        <Route path="/tournaments/new" element={<CreateTournamentPage />} />
-        <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
-      </Route>
-
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }
