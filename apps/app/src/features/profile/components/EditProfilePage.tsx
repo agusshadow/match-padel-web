@@ -1,19 +1,22 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Camera, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../../auth/store/auth.store'
-import { useUpdateProfile } from '../hooks/useProfile'
+import { useUpdateProfile, useUploadAvatar } from '../hooks/useProfile'
 
 export function EditProfilePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const updateProfile = useUpdateProfile()
+  const uploadAvatar = useUploadAvatar()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [fullName, setFullName] = useState(user?.full_name ?? '')
   const [phone, setPhone] = useState(user?.phone ?? '')
   const [error, setError] = useState('')
+  const [avatarError, setAvatarError] = useState('')
 
   useEffect(() => {
     if (user) {
@@ -44,6 +47,19 @@ export function EditProfilePage() {
 
   const isDirty = fullName !== (user?.full_name ?? '') || phone !== (user?.phone ?? '')
 
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow picking the same file again later
+    if (!file) return
+
+    setAvatarError('')
+    try {
+      await uploadAvatar.mutateAsync(file)
+    } catch {
+      setAvatarError(t('profile.avatarUploadError'))
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -59,12 +75,43 @@ export function EditProfilePage() {
 
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
         <div className="flex-1 p-4 space-y-5">
-          {/* Avatar placeholder */}
+          {/* Avatar */}
           <div className="flex flex-col items-center gap-2 py-4">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary">
-              {fullName?.[0]?.toUpperCase() ?? user?.username?.[0]?.toUpperCase() ?? '?'}
+            <div className="relative">
+              {user?.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.full_name ?? ''}
+                  className="w-24 h-24 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary">
+                  {fullName?.[0]?.toUpperCase() ?? user?.username?.[0]?.toUpperCase() ?? '?'}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadAvatar.isPending}
+                aria-label={t('profile.changePhoto')}
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-background hover:bg-primary/90 disabled:opacity-60 transition-colors"
+              >
+                {uploadAvatar.isPending ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Camera size={14} />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
             </div>
             <p className="text-xs text-muted-foreground">@{user?.username}</p>
+            {avatarError && <p className="text-xs text-destructive">{avatarError}</p>}
           </div>
 
           {/* Full name */}

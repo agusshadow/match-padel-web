@@ -35,6 +35,16 @@ export const profileService = {
       .put<{ success: boolean; data: User }>('/users/me', payload)
       .then((r) => r.data.data),
 
+  // Card #53: axios sets the multipart boundary itself when the body is a
+  // FormData instance — never set Content-Type manually here.
+  uploadAvatar: (file: File) => {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    return api
+      .post<{ success: boolean; data: User }>('/users/me/avatar', formData)
+      .then((r) => r.data.data)
+  },
+
   getUserByUsername: (username: string) =>
     api
       .get<{ success: boolean; data: PublicUser }>(`/users/${username}`)

@@ -215,7 +215,9 @@
     "fullNamePlaceholder": "Tu nombre completo",
     "optional": "opcional",
     "phonePlaceholder": "+54 11 1234-5678",
-    "saveChanges": "Guardar cambios"
+    "saveChanges": "Guardar cambios",
+    "changePhoto": "Cambiar foto de perfil",
+    "avatarUploadError": "No se pudo subir la foto. Probá con otra imagen (JPEG, PNG o WebP, hasta 5MB)."
   },
   "nav": {
     "home": "Inicio",
