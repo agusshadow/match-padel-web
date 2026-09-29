@@ -25,7 +25,9 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/matches/new` | `NewMatchPage` | protected | `matches` | `POST /matches` |
 | `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` |
 | `/matches/:id` | `MatchDetailPage` | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `PUT /matches/:id/score/accept`, `DELETE /matches/:id` |
-| `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me` |
+| `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me`, `POST /users/me/avatar` |
+| `/profile/achievements` | `AchievementsPage` | protected | `achievements` | `GET /achievements`, `GET /achievements/me` |
+| `/profile/elo-history` | `EloHistoryPage` | protected | `profile` | `GET /users/me/elo-history` |
 | `/reservations/new` | `NewReservationPage` (3-step wizard: club → day/time slot → court → confirm; time is chosen before the court, not after — see Trello card #47). Reads `?clubId=` — if present, the club is preselected and step 1 is skipped (arriving from `/clubs/:id`'s "Reservar cancha") | protected | `reservations` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id` (when `?clubId=` is present), `GET /clubs/:id/availability?date=` (combined slot availability across the club's courts, with per-court pricing), `POST /reservations` |
 | `/clubs/:id` | `ClubDetailPage` | protected | `clubs` | `GET /clubs/:id` (cover photo, name, description, address, courts). "Reservar cancha" navigates to `/reservations/new?clubId=:id` |
 | `/reservations/:id` | `PaymentResultPage` (reads `?payment=success\|failure\|pending`, MercadoPago's `back_urls` target) — its shown state now comes from the reservation's real status (`GET /reservations/:id`), falling back to the URL param only while that loads | protected | `reservations` | `GET /reservations/:id` (invalidates the reservations queries) |

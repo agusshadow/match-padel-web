@@ -34,6 +34,15 @@ export function useUpdateProfile() {
   })
 }
 
+export function useMyEloHistory() {
+  const { isAuthenticated } = useAuthStore()
+  return useQuery({
+    queryKey: ['profile', 'me', 'elo-history'],
+    queryFn: () => profileService.getMyEloHistory(),
+    enabled: isAuthenticated,
+  })
+}
+
 export function useUploadAvatar() {
   const queryClient = useQueryClient()
   const { setUser } = useAuthStore()

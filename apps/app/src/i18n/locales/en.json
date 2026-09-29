@@ -290,6 +290,11 @@
     "myTeam": "My team",
     "round": "Round {{number}}"
   },
+  "achievements": {
+    "empty": "No achievements available yet.",
+    "locked": "Locked",
+    "eloHistoryEmpty": "No ELO changes recorded yet."
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",

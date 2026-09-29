@@ -22,6 +22,8 @@ import { TournamentDetailPage } from './features/tournaments/components/Tourname
 import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
 import { ReservationDetailPage } from './features/reservations/components/ReservationDetailPage'
+import { EloHistoryPage } from './features/profile/components/EloHistoryPage'
+import { AchievementsPage } from './features/achievements/components/AchievementsPage'
 import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
@@ -61,6 +63,8 @@ export function App() {
           <Route path="/matches/join" element={<JoinMatchPage />} />
           <Route path="/matches/:id" element={<MatchDetailPage />} />
           <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/profile/achievements" element={<AchievementsPage />} />
+          <Route path="/profile/elo-history" element={<EloHistoryPage />} />
           <Route path="/reservations/new" element={<NewReservationPage />} />
           <Route path="/clubs/:id" element={<ClubDetailPage />} />
           <Route path="/reservations/:id" element={<PaymentResultPage />} />
