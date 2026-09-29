@@ -34,6 +34,19 @@ export function useUpdateProfile() {
   })
 }
 
+export function useUploadAvatar() {
+  const queryClient = useQueryClient()
+  const { setUser } = useAuthStore()
+
+  return useMutation({
+    mutationFn: (file: File) => profileService.uploadAvatar(file),
+    onSuccess: (updatedUser) => {
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] })
+      setUser(updatedUser)
+    },
+  })
+}
+
 export function usePublicProfile(username: string | undefined) {
   return useQuery({
     queryKey: ['profile', username],

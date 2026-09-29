@@ -215,7 +215,9 @@
     "fullNamePlaceholder": "Your full name",
     "optional": "optional",
     "phonePlaceholder": "+1 555 123-4567",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "changePhoto": "Change profile picture",
+    "avatarUploadError": "Couldn't upload the photo. Try another image (JPEG, PNG or WebP, up to 5MB)."
   },
   "nav": {
     "home": "Home",
