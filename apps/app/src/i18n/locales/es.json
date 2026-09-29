@@ -290,6 +290,11 @@
     "myTeam": "Mi equipo",
     "round": "Ronda {{number}}"
   },
+  "achievements": {
+    "empty": "Todavía no hay logros disponibles.",
+    "locked": "Sin desbloquear",
+    "eloHistoryEmpty": "Todavía no tenés cambios de ELO registrados."
+  },
   "notifications": {
     "title": "Notificaciones",
     "markAllRead": "Marcar todo",

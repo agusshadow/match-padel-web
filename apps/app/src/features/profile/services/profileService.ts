@@ -19,6 +19,15 @@ export interface UpdateProfilePayload {
 
 type PublicUser = Pick<User, 'id' | 'username' | 'full_name' | 'avatar_url' | 'elo' | 'created_at' | 'role'>
 
+export interface EloHistoryEntry {
+  id: string
+  match_id: string
+  elo_before: number
+  elo_after: number
+  delta: number
+  created_at: string
+}
+
 export const profileService = {
   getMe: () =>
     api
@@ -44,6 +53,11 @@ export const profileService = {
       .post<{ success: boolean; data: User }>('/users/me/avatar', formData)
       .then((r) => r.data.data)
   },
+
+  getMyEloHistory: () =>
+    api
+      .get<{ success: boolean; data: EloHistoryEntry[] }>('/users/me/elo-history')
+      .then((r) => r.data.data),
 
   getUserByUsername: (username: string) =>
     api
