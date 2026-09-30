@@ -63,3 +63,11 @@ export function usePublicProfile(username: string | undefined) {
     enabled: !!username,
   })
 }
+
+// Card #60
+export function useLeaderboard(page: number) {
+  return useQuery({
+    queryKey: ['leaderboard', page],
+    queryFn: () => profileService.getLeaderboard(page, 20),
+  })
+}

@@ -219,6 +219,8 @@
     "winRate": "Win rate",
     "myAchievements": "Mis logros",
     "eloHistory": "Historial ELO",
+    "leaderboard": "Ranking de ELO",
+    "you": "vos",
     "help": "Ayuda",
     "nameMinLength": "El nombre debe tener al menos 2 caracteres",
     "saveError": "Error al guardar los cambios. Intentá de nuevo.",

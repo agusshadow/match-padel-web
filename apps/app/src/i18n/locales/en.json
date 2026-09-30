@@ -219,6 +219,8 @@
     "winRate": "Win rate",
     "myAchievements": "My achievements",
     "eloHistory": "ELO history",
+    "leaderboard": "ELO leaderboard",
+    "you": "you",
     "help": "Help",
     "nameMinLength": "Name must be at least 2 characters",
     "saveError": "Failed to save changes. Try again.",
