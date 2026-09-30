@@ -28,6 +28,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me`, `POST /users/me/avatar` |
 | `/profile/achievements` | `AchievementsPage` | protected | `achievements` | `GET /achievements`, `GET /achievements/me` |
 | `/profile/challenges` | `ChallengesPage` (card #62) — grouped by cadence (daily/weekly/monthly/one-time), progress bar per challenge | protected | `challenges` | `GET /challenges/me` |
+| `/marketplace` | `MarketplacePage` (card #63) — cosmetics catalog grouped by type, buy with currency or equip an owned item; "Comprar monedas" redirects to MercadoPago checkout for the currency pack | protected | `marketplace` | `GET /marketplace/cosmetics`, `GET /marketplace/cosmetics/me`, `GET /marketplace/equipped`, `GET /marketplace/balance`, `POST /marketplace/cosmetics/:id/purchase`, `POST /marketplace/cosmetics/:id/equip`, `POST /marketplace/currency/purchase` |
 | `/profile/elo-history` | `EloHistoryPage` | protected | `profile` | `GET /users/me/elo-history` |
 | `/profile/leaderboard` | `LeaderboardPage` (card #60) — players ranked by ELO, paginated, taps through to `/players/:username` | protected | `profile` | `GET /users/leaderboard` |
 | `/players/:username` | `PublicProfilePage` (card #60) — avatar, name, ELO; uses the previously-unused `usePublicProfile` hook | protected | `profile` | `GET /users/:username` |

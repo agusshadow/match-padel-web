@@ -320,6 +320,19 @@
       "one_time": "One-time"
     }
   },
+  "marketplace": {
+    "title": "Store",
+    "currency": "coins",
+    "buyCurrency": "Buy coins",
+    "empty": "No items available yet.",
+    "equip": "Equip",
+    "equipped": "Equipped",
+    "type": {
+      "palette_skin": "Paddles",
+      "avatar": "Avatars",
+      "emblem": "Emblems"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
