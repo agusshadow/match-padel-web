@@ -5,6 +5,7 @@ import { ArrowLeft, Copy, Check, Plus, Minus } from 'lucide-react'
 import { useMatch, useSubmitScore, useCancelMatch } from '../hooks/useMatches'
 import { useAuthStore } from '../../auth/store/auth.store'
 import type { MatchWithPlayers } from '../services/matchService'
+import { MatchChat } from './MatchChat'
 
 function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0]; label?: string }) {
   const { t } = useTranslation()
@@ -349,6 +350,9 @@ export function MatchDetailPage() {
             <p className="text-xs text-destructive/80 mt-0.5">{t('matches.scoreDisputedBody')}</p>
           </div>
         )}
+
+        {/* Card #59: chat between this match's 4 players */}
+        {myTeam && <MatchChat matchId={match.id} />}
       </div>
 
       {/* Action bar */}
