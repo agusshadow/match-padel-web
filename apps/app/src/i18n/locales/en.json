@@ -170,6 +170,11 @@
     "rankedMatchBody": "The result will affect your ELO",
     "createInfoLobby": "When you create the match you'll get a lobby code to share with the other players.",
     "createInfoStart": "The match starts once 4 players have joined.",
+    "createInfoSplitPayment": "The court price is split 4 ways. The match is confirmed once all 4 players have paid their share.",
+    "paymentSplitTitle": "Payment summary",
+    "totalCourtPrice": "Total court price",
+    "yourShare": "Your share (1/4)",
+    "createAndPay": "Create and pay ${{amount}}",
     "creating": "Creating...",
     "createError": "Failed to create the match. Try again."
   },
