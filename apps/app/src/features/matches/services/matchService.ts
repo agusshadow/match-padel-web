@@ -70,11 +70,6 @@ export const matchService = {
       .put<{ success: boolean; data: Match }>(`/matches/${id}/score`, score)
       .then((r) => r.data.data),
 
-  acceptScore: (id: string) =>
-    api
-      .put<{ success: boolean; data: Match }>(`/matches/${id}/score/accept`)
-      .then((r) => r.data.data),
-
   cancelMatch: (id: string) =>
     api
       .delete<{ success: boolean; data: Match }>(`/matches/${id}`)

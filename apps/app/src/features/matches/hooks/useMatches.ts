@@ -48,17 +48,6 @@ export function useSubmitScore() {
   })
 }
 
-export function useAcceptScore() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => matchService.acceptScore(id),
-    onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['matches', id] })
-      queryClient.invalidateQueries({ queryKey: ['matches', 'my'] })
-    },
-  })
-}
-
 export function useCancelMatch() {
   const queryClient = useQueryClient()
   return useMutation({
