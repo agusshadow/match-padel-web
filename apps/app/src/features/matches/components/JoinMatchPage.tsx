@@ -12,8 +12,9 @@ export function JoinMatchPage() {
 
   const handleJoin = async () => {
     if (!lobbyCode.trim()) return
-    const match = await joinMatch.mutateAsync(lobbyCode.trim().toUpperCase())
-    navigate(`/matches/${match.id}`)
+    const payment = await joinMatch.mutateAsync(lobbyCode.trim().toUpperCase())
+    const url = import.meta.env.PROD ? payment.init_point : payment.sandbox_init_point
+    window.location.href = url
   }
 
   return (

@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Copy, Check, Plus, Minus } from 'lucide-react'
-import { useMatch, useSubmitScore, useAcceptScore, useCancelMatch } from '../hooks/useMatches'
+import { useMatch, useSubmitScore, useCancelMatch } from '../hooks/useMatches'
 import { useAuthStore } from '../../auth/store/auth.store'
 import type { MatchWithPlayers } from '../services/matchService'
+import { MatchChat } from './MatchChat'
 
 function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0]; label?: string }) {
   const { t } = useTranslation()
@@ -132,7 +133,6 @@ export function MatchDetailPage() {
 
   const { data: match, isLoading, error } = useMatch(id)
   const submitScore = useSubmitScore()
-  const acceptScore = useAcceptScore()
   const cancelMatch = useCancelMatch()
 
   const [showScoreForm, setShowScoreForm] = useState(false)
@@ -165,8 +165,14 @@ export function MatchDetailPage() {
 
   const myTeam = match.match_players?.find((p) => p.user_id === user?.id)?.team
   const isCreator = match.created_by === user?.id
-  const canSubmitScore = myTeam && (match.status === 'in_progress' || match.status === 'waiting') && match.score_status !== 'accepted'
-  const canAcceptScore = myTeam && match.score_status === 'pending' && match.status !== 'cancelled'
+  // Card #58: either team can (re)submit their claimed result any time before
+  // it's confirmed or permanently disputed — there's no separate "accept"
+  // step anymore, the match confirms automatically once both teams agree.
+  const canSubmitScore =
+    myTeam &&
+    (match.status === 'in_progress' || match.status === 'waiting') &&
+    match.score_status !== 'accepted' &&
+    match.score_status !== 'disputed'
   const canCancel = isCreator && match.status !== 'completed' && match.status !== 'cancelled'
 
   const handleCopyLobby = () => {
@@ -186,10 +192,6 @@ export function MatchDetailPage() {
       },
     })
     setShowScoreForm(false)
-  }
-
-  const handleAcceptScore = async () => {
-    await acceptScore.mutateAsync(match.id)
   }
 
   const handleCancel = async () => {
@@ -323,17 +325,34 @@ export function MatchDetailPage() {
           </div>
         )}
 
-        {/* Pending score notice */}
-        {match.score_status === 'pending' && match.status !== 'cancelled' && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
-            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
-              {t('matches.scorePendingApproval')}
-            </p>
-            <p className="text-xs text-yellow-700 dark:text-yellow-500 mt-0.5">
-              {t('matches.scorePendingApprovalBody')}
-            </p>
+        {/* Card #58: waiting-for-the-other-team / mismatch-try-again notice */}
+        {match.score_status === 'pending' &&
+          match.status !== 'cancelled' &&
+          (match.pending_score_team1 || match.pending_score_team2 || match.score_dispute_attempts > 0) && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
+                {match.pending_score_team1 && match.pending_score_team2
+                  ? t('matches.scoreMismatch')
+                  : t('matches.scorePendingApproval')}
+              </p>
+              <p className="text-xs text-yellow-700 dark:text-yellow-500 mt-0.5">
+                {match.pending_score_team1 && match.pending_score_team2
+                  ? t('matches.scoreMismatchBody', { attempts: match.score_dispute_attempts, max: 3 })
+                  : t('matches.scorePendingApprovalBody')}
+              </p>
+            </div>
+          )}
+
+        {/* Card #58: permanently disputed — no ELO, no stats, nobody can resubmit */}
+        {match.score_status === 'disputed' && (
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4">
+            <p className="text-sm font-medium text-destructive">{t('matches.scoreDisputed')}</p>
+            <p className="text-xs text-destructive/80 mt-0.5">{t('matches.scoreDisputedBody')}</p>
           </div>
         )}
+
+        {/* Card #59: chat between this match's 4 players */}
+        {myTeam && <MatchChat matchId={match.id} />}
       </div>
 
       {/* Action bar */}
@@ -344,16 +363,6 @@ export function MatchDetailPage() {
             className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl"
           >
             {t('matches.submitScore')}
-          </button>
-        )}
-
-        {canAcceptScore && (
-          <button
-            onClick={handleAcceptScore}
-            disabled={acceptScore.isPending}
-            className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl disabled:opacity-60"
-          >
-            {acceptScore.isPending ? t('matches.accepting') : t('matches.acceptScore')}
           </button>
         )}
 

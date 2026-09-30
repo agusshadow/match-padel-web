@@ -23,7 +23,11 @@ import { CreateTournamentPage } from './features/tournaments/components/CreateTo
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
 import { ReservationDetailPage } from './features/reservations/components/ReservationDetailPage'
 import { EloHistoryPage } from './features/profile/components/EloHistoryPage'
+import { LeaderboardPage } from './features/profile/components/LeaderboardPage'
+import { PublicProfilePage } from './features/profile/components/PublicProfilePage'
 import { AchievementsPage } from './features/achievements/components/AchievementsPage'
+import { ChallengesPage } from './features/challenges/components/ChallengesPage'
+import { MarketplacePage } from './features/marketplace/components/MarketplacePage'
 import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
@@ -64,7 +68,11 @@ export function App() {
           <Route path="/matches/:id" element={<MatchDetailPage />} />
           <Route path="/profile/edit" element={<EditProfilePage />} />
           <Route path="/profile/achievements" element={<AchievementsPage />} />
+          <Route path="/profile/challenges" element={<ChallengesPage />} />
+          <Route path="/marketplace" element={<MarketplacePage />} />
           <Route path="/profile/elo-history" element={<EloHistoryPage />} />
+          <Route path="/profile/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/players/:username" element={<PublicProfilePage />} />
           <Route path="/reservations/new" element={<NewReservationPage />} />
           <Route path="/clubs/:id" element={<ClubDetailPage />} />
           <Route path="/reservations/:id" element={<PaymentResultPage />} />

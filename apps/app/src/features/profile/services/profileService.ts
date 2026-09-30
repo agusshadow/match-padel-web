@@ -17,7 +17,7 @@ export interface UpdateProfilePayload {
   avatar_url?: string
 }
 
-type PublicUser = Pick<User, 'id' | 'username' | 'full_name' | 'avatar_url' | 'elo' | 'created_at' | 'role'>
+export type PublicUser = Pick<User, 'id' | 'username' | 'full_name' | 'avatar_url' | 'elo' | 'xp' | 'level' | 'created_at' | 'role'>
 
 export interface EloHistoryEntry {
   id: string
@@ -63,4 +63,14 @@ export const profileService = {
     api
       .get<{ success: boolean; data: PublicUser }>(`/users/${username}`)
       .then((r) => r.data.data),
+
+  // Card #60
+  getLeaderboard: (page = 1, limit = 20) =>
+    api
+      .get<{
+        success: boolean
+        data: PublicUser[]
+        meta: { page: number; limit: number; total: number; totalPages: number }
+      }>('/users/leaderboard', { params: { page, limit } })
+      .then((r) => r.data),
 }

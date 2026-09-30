@@ -421,8 +421,12 @@ export type Database = {
           id: string
           is_ranked: boolean
           lobby_url: string | null
+          pending_score_team1: Json | null
+          pending_score_team2: Json | null
           reservation_id: string | null
+          score_dispute_attempts: number
           score_status: Database["public"]["Enums"]["score_status"]
+          score_submitted_by: string | null
           score_team1: number[] | null
           score_team2: number[] | null
           status: Database["public"]["Enums"]["match_status"]
@@ -438,8 +442,12 @@ export type Database = {
           id?: string
           is_ranked?: boolean
           lobby_url?: string | null
+          pending_score_team1?: Json | null
+          pending_score_team2?: Json | null
           reservation_id?: string | null
+          score_dispute_attempts?: number
           score_status?: Database["public"]["Enums"]["score_status"]
+          score_submitted_by?: string | null
           score_team1?: number[] | null
           score_team2?: number[] | null
           status?: Database["public"]["Enums"]["match_status"]
@@ -455,8 +463,12 @@ export type Database = {
           id?: string
           is_ranked?: boolean
           lobby_url?: string | null
+          pending_score_team1?: Json | null
+          pending_score_team2?: Json | null
           reservation_id?: string | null
+          score_dispute_attempts?: number
           score_status?: Database["public"]["Enums"]["score_status"]
+          score_submitted_by?: string | null
           score_team1?: number[] | null
           score_team2?: number[] | null
           status?: Database["public"]["Enums"]["match_status"]
@@ -485,6 +497,13 @@ export type Database = {
             columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "court_reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_score_submitted_by_fkey"
+            columns: ["score_submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -870,6 +889,38 @@ export type Database = {
           },
         ]
       }
+      user_stats: {
+        Row: {
+          losses: number
+          total_matches: number
+          updated_at: string
+          user_id: string
+          wins: number
+        }
+        Insert: {
+          losses?: number
+          total_matches?: number
+          updated_at?: string
+          user_id: string
+          wins?: number
+        }
+        Update: {
+          losses?: number
+          total_matches?: number
+          updated_at?: string
+          user_id?: string
+          wins?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatar_url: string | null
@@ -881,6 +932,11 @@ export type Database = {
           id: string
           is_active: boolean
           last_name: string
+          level: number
+          points_balance: number
+          equipped_palette_cosmetic_id: string | null
+          equipped_avatar_cosmetic_id: string | null
+          equipped_emblem_cosmetic_id: string | null
           onboarding_completed_at: string | null
           phone: string | null
           preferred_hand: Database["public"]["Enums"]["preferred_hand"] | null
@@ -888,6 +944,7 @@ export type Database = {
           skill_level: Database["public"]["Enums"]["skill_level"] | null
           updated_at: string
           username: string
+          xp: number
         }
         Insert: {
           avatar_url?: string | null
@@ -899,6 +956,11 @@ export type Database = {
           id: string
           is_active?: boolean
           last_name: string
+          level?: number
+          points_balance?: number
+          equipped_palette_cosmetic_id?: string | null
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
@@ -906,6 +968,7 @@ export type Database = {
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username: string
+          xp?: number
         }
         Update: {
           avatar_url?: string | null
@@ -917,6 +980,11 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_name?: string
+          level?: number
+          points_balance?: number
+          equipped_palette_cosmetic_id?: string | null
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
@@ -924,6 +992,7 @@ export type Database = {
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username?: string
+          xp?: number
         }
         Relationships: []
       }
@@ -932,7 +1001,75 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_match_score: {
+        Args: {
+          p_apply_elo: boolean
+          p_match_id: string
+          p_winner_team: number
+        }
+        Returns: {
+          club_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_ranked: boolean
+          lobby_url: string | null
+          pending_score_team1: Json | null
+          pending_score_team2: Json | null
+          reservation_id: string | null
+          score_dispute_attempts: number
+          score_status: Database["public"]["Enums"]["score_status"]
+          score_submitted_by: string | null
+          score_team1: number[] | null
+          score_team2: number[] | null
+          status: Database["public"]["Enums"]["match_status"]
+          tournament_id: string | null
+          type: Database["public"]["Enums"]["match_type"]
+          updated_at: string
+          winner_team: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "matches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      award_match_xp: {
+        Args: { p_match_id: string; p_winner_team: number }
+        Returns: undefined
+      }
+      level_for_xp: { Args: { p_xp: number }; Returns: number }
+      submit_match_score_draft: {
+        Args: { p_draft: Json; p_match_id: string; p_team: number }
+        Returns: {
+          club_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_ranked: boolean
+          lobby_url: string | null
+          pending_score_team1: Json | null
+          pending_score_team2: Json | null
+          reservation_id: string | null
+          score_dispute_attempts: number
+          score_status: Database["public"]["Enums"]["score_status"]
+          score_submitted_by: string | null
+          score_team1: number[] | null
+          score_team2: number[] | null
+          status: Database["public"]["Enums"]["match_status"]
+          tournament_id: string | null
+          type: Database["public"]["Enums"]["match_type"]
+          updated_at: string
+          winner_team: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "matches"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       court_surface: "indoor" | "outdoor" | "panoramic"
@@ -944,6 +1081,11 @@ export type Database = {
         | "tournament_update"
         | "reservation_reminder"
         | "system"
+        | "match_started"
+        | "match_cancelled"
+        | "score_accepted"
+        | "reservation_confirmed"
+        | "reservation_cancelled"
       payment_status:
         | "pending"
         | "approved"
@@ -1103,6 +1245,11 @@ export const Constants = {
         "tournament_update",
         "reservation_reminder",
         "system",
+        "match_started",
+        "match_cancelled",
+        "score_accepted",
+        "reservation_confirmed",
+        "reservation_cancelled",
       ],
       payment_status: [
         "pending",

@@ -19,7 +19,24 @@ export interface MatchWithPlayers extends Match {
 export interface CreateMatchPayload {
   type: 'friendly' | 'ranked' | 'tournament'
   is_ranked: boolean
-  club_id?: string
+  court_id: string
+  start_time: string
+  end_time: string
+}
+
+// Card #57: a match's court is split 4 ways — creating or joining a match no
+// longer hands back the match itself, just a MercadoPago checkout link for
+// the caller's 1/4 share. The caller only becomes a match_players row once
+// the webhook confirms that payment.
+export interface CheckoutPreference {
+  preference_id: string
+  init_point: string
+  sandbox_init_point: string
+}
+
+export interface CreateMatchResponse {
+  match: Match
+  payment: CheckoutPreference
 }
 
 export interface ScorePayload {
@@ -40,22 +57,17 @@ export const matchService = {
 
   createMatch: (payload: CreateMatchPayload) =>
     api
-      .post<{ success: boolean; data: Match }>('/matches', payload)
+      .post<{ success: boolean; data: CreateMatchResponse }>('/matches', payload)
       .then((r) => r.data.data),
 
   joinByLobbyUrl: (lobbyUrl: string) =>
     api
-      .post<{ success: boolean; data: MatchWithPlayers }>(`/matches/join/${lobbyUrl}`)
+      .post<{ success: boolean; data: CheckoutPreference }>(`/matches/join/${lobbyUrl}`)
       .then((r) => r.data.data),
 
   submitScore: (id: string, score: ScorePayload) =>
     api
       .put<{ success: boolean; data: Match }>(`/matches/${id}/score`, score)
-      .then((r) => r.data.data),
-
-  acceptScore: (id: string) =>
-    api
-      .put<{ success: boolean; data: Match }>(`/matches/${id}/score/accept`)
       .then((r) => r.data.data),
 
   cancelMatch: (id: string) =>
