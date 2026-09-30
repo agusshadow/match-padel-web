@@ -27,6 +27,7 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/matches/:id` | `MatchDetailPage` — card #58: either team (re)submits its claimed result via `PUT /matches/:id/score`; confirms automatically once both teams agree, no separate accept step anymore. Card #59: renders `MatchChat` (polls every 5s while open, no realtime transport) for participants only | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `DELETE /matches/:id`, `GET/POST /matches/:id/chat` |
 | `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me`, `POST /users/me/avatar` |
 | `/profile/achievements` | `AchievementsPage` | protected | `achievements` | `GET /achievements`, `GET /achievements/me` |
+| `/profile/challenges` | `ChallengesPage` (card #62) — grouped by cadence (daily/weekly/monthly/one-time), progress bar per challenge | protected | `challenges` | `GET /challenges/me` |
 | `/profile/elo-history` | `EloHistoryPage` | protected | `profile` | `GET /users/me/elo-history` |
 | `/profile/leaderboard` | `LeaderboardPage` (card #60) — players ranked by ELO, paginated, taps through to `/players/:username` | protected | `profile` | `GET /users/leaderboard` |
 | `/players/:username` | `PublicProfilePage` (card #60) — avatar, name, ELO; uses the previously-unused `usePublicProfile` hook | protected | `profile` | `GET /users/:username` |

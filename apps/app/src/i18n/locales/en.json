@@ -309,6 +309,17 @@
     "locked": "Locked",
     "eloHistoryEmpty": "No ELO changes recorded yet."
   },
+  "challenges": {
+    "title": "Challenges",
+    "empty": "You don't have any challenges assigned yet.",
+    "reward": "Reward: {{xp}} XP",
+    "cadence": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "one_time": "One-time"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",

@@ -309,6 +309,17 @@
     "locked": "Sin desbloquear",
     "eloHistoryEmpty": "Todavía no tenés cambios de ELO registrados."
   },
+  "challenges": {
+    "title": "Desafíos",
+    "empty": "Todavía no tenés desafíos asignados.",
+    "reward": "Recompensa: {{xp}} XP",
+    "cadence": {
+      "daily": "Diarios",
+      "weekly": "Semanales",
+      "monthly": "Mensuales",
+      "one_time": "Únicos"
+    }
+  },
   "notifications": {
     "title": "Notificaciones",
     "markAllRead": "Marcar todo",
