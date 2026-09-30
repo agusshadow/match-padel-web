@@ -46,6 +46,7 @@ export function ProfilePage() {
     { label: t('profile.edit'), action: () => navigate('/profile/edit') },
     { label: t('profile.myAchievements'), action: () => navigate('/profile/achievements') },
     { label: t('profile.eloHistory'), action: () => navigate('/profile/elo-history') },
+    { label: t('profile.leaderboard'), action: () => navigate('/profile/leaderboard') },
     { label: t('notifications.title'), action: () => {} },
     { label: t('profile.help'), action: () => {} },
   ]
