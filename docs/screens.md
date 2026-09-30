@@ -22,8 +22,8 @@ Routes are declared in `apps/app/src/App.tsx`. Protected routes are nested in `P
 | `/tournaments` | `TournamentsPage` | protected, bottom nav | `tournaments` | `GET /tournaments` |
 | `/profile` | `ProfilePage` | protected, bottom nav | `profile` | `GET /users/me/stats`, `POST /auth/logout` |
 | `/onboarding` | `OnboardingPage` | protected | `onboarding` | `PUT /users/me` |
-| `/matches/new` | `NewMatchPage` | protected | `matches` | `POST /matches` |
-| `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` |
+| `/matches/new` | `NewMatchPage` (3-step wizard: club → day/time slot → court, then match type + 1/4 payment summary — same club/slot/court pattern as `/reservations/new`, kept as its own local Zustand store instead of sharing `reservationStore` across features) | protected | `matches` (uses `clubs`) | `GET /clubs`, `GET /clubs/:id/availability?date=`, `POST /matches` (now takes `court_id`/`start_time`/`end_time`; returns `{ match, payment }` — redirects to `payment.init_point`/`sandbox_init_point` instead of the match) |
+| `/matches/join` | `JoinMatchPage` | protected | `matches` | `POST /matches/join/:lobbyUrl` (returns a checkout link, not the match — redirects to `init_point`/`sandbox_init_point`) |
 | `/matches/:id` | `MatchDetailPage` | protected | `matches` | `GET /matches/:id`, `PUT /matches/:id/score`, `PUT /matches/:id/score/accept`, `DELETE /matches/:id` |
 | `/profile/edit` | `EditProfilePage` | protected | `profile` | `PUT /users/me`, `POST /users/me/avatar` |
 | `/profile/achievements` | `AchievementsPage` | protected | `achievements` | `GET /achievements`, `GET /achievements/me` |

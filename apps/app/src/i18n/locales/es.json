@@ -170,6 +170,11 @@
     "rankedMatchBody": "El resultado afectará tu ELO",
     "createInfoLobby": "Al crear el partido recibirás un código de lobby para compartir con los demás jugadores.",
     "createInfoStart": "El partido comienza cuando se unan 4 jugadores.",
+    "createInfoSplitPayment": "El precio de la cancha se divide en 4. El partido se confirma cuando los 4 jugadores hayan pagado su parte.",
+    "paymentSplitTitle": "Resumen del pago",
+    "totalCourtPrice": "Precio total de la cancha",
+    "yourShare": "Tu parte (1/4)",
+    "createAndPay": "Crear y pagar ${{amount}}",
     "creating": "Creando...",
     "createError": "Error al crear el partido. Intentá de nuevo."
   },
