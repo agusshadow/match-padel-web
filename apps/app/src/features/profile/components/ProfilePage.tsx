@@ -45,6 +45,7 @@ export function ProfilePage() {
   const menuItems = [
     { label: t('profile.edit'), action: () => navigate('/profile/edit') },
     { label: t('profile.myAchievements'), action: () => navigate('/profile/achievements') },
+    { label: t('challenges.title'), action: () => navigate('/profile/challenges') },
     { label: t('profile.eloHistory'), action: () => navigate('/profile/elo-history') },
     { label: t('profile.leaderboard'), action: () => navigate('/profile/leaderboard') },
     { label: t('notifications.title'), action: () => {} },
