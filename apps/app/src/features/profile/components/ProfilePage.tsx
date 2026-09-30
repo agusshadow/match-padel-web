@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { LogOut, Trophy, Swords, Star, Percent, ChevronRight, Edit } from 'lucide-react'
+import { LogOut, Trophy, Swords, Star, Percent, ChevronRight, Edit, Zap } from 'lucide-react'
 import { useLogout } from '../../auth/hooks/useAuth'
 import { useAuthStore } from '../../auth/store/auth.store'
 import { useMyStats } from '../hooks/useProfile'
@@ -84,10 +84,18 @@ export function ProfilePage() {
         <div className="flex-1">
           <p className="font-bold text-foreground text-xl leading-tight">{user?.full_name}</p>
           <p className="text-sm text-muted-foreground">@{user?.username}</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <Star size={14} className="text-yellow-500 fill-yellow-500" />
-            <span className="text-sm font-semibold text-foreground">{user?.elo ?? 1000}</span>
-            <span className="text-xs text-muted-foreground">{t('profile.elo')}</span>
+          <div className="flex items-center gap-3 mt-1">
+            <div className="flex items-center gap-1.5">
+              <Star size={14} className="text-yellow-500 fill-yellow-500" />
+              <span className="text-sm font-semibold text-foreground">{user?.elo ?? 1000}</span>
+              <span className="text-xs text-muted-foreground">{t('profile.elo')}</span>
+            </div>
+            {/* Card #61: level is a separate axis from ELO — engagement, not skill */}
+            <div className="flex items-center gap-1.5">
+              <Zap size={14} className="text-primary fill-primary" />
+              <span className="text-sm font-semibold text-foreground">{user?.level ?? 1}</span>
+              <span className="text-xs text-muted-foreground">{t('profile.level')}</span>
+            </div>
           </div>
         </div>
         <button

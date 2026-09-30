@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Star } from 'lucide-react'
+import { ArrowLeft, Star, Zap } from 'lucide-react'
 import { usePublicProfile } from '../hooks/useProfile'
 
 // Card #60: the destination when tapping a player in the leaderboard.
@@ -44,10 +44,17 @@ export function PublicProfilePage() {
               <p className="font-bold text-foreground text-xl">{user.full_name}</p>
               <p className="text-sm text-muted-foreground">@{user.username}</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-card border border-border rounded-full px-4 py-1.5">
-              <Star size={14} className="text-yellow-500 fill-yellow-500" />
-              <span className="text-sm font-semibold text-foreground">{user.elo}</span>
-              <span className="text-xs text-muted-foreground">{t('profile.elo')}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-card border border-border rounded-full px-4 py-1.5">
+                <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                <span className="text-sm font-semibold text-foreground">{user.elo}</span>
+                <span className="text-xs text-muted-foreground">{t('profile.elo')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-card border border-border rounded-full px-4 py-1.5">
+                <Zap size={14} className="text-primary fill-primary" />
+                <span className="text-sm font-semibold text-foreground">{user.level}</span>
+                <span className="text-xs text-muted-foreground">{t('profile.level')}</span>
+              </div>
             </div>
           </div>
         )}
