@@ -320,6 +320,19 @@
       "one_time": "Únicos"
     }
   },
+  "marketplace": {
+    "title": "Tienda",
+    "currency": "monedas",
+    "buyCurrency": "Comprar monedas",
+    "empty": "Todavía no hay artículos disponibles.",
+    "equip": "Equipar",
+    "equipped": "Equipado",
+    "type": {
+      "palette_skin": "Paletas",
+      "avatar": "Avatares",
+      "emblem": "Emblemas"
+    }
+  },
   "notifications": {
     "title": "Notificaciones",
     "markAllRead": "Marcar todo",

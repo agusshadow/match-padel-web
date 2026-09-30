@@ -933,6 +933,10 @@ export type Database = {
           is_active: boolean
           last_name: string
           level: number
+          points_balance: number
+          equipped_palette_cosmetic_id: string | null
+          equipped_avatar_cosmetic_id: string | null
+          equipped_emblem_cosmetic_id: string | null
           onboarding_completed_at: string | null
           phone: string | null
           preferred_hand: Database["public"]["Enums"]["preferred_hand"] | null
@@ -953,6 +957,10 @@ export type Database = {
           is_active?: boolean
           last_name: string
           level?: number
+          points_balance?: number
+          equipped_palette_cosmetic_id?: string | null
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
@@ -973,6 +981,10 @@ export type Database = {
           is_active?: boolean
           last_name?: string
           level?: number
+          points_balance?: number
+          equipped_palette_cosmetic_id?: string | null
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null

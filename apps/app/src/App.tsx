@@ -27,6 +27,7 @@ import { LeaderboardPage } from './features/profile/components/LeaderboardPage'
 import { PublicProfilePage } from './features/profile/components/PublicProfilePage'
 import { AchievementsPage } from './features/achievements/components/AchievementsPage'
 import { ChallengesPage } from './features/challenges/components/ChallengesPage'
+import { MarketplacePage } from './features/marketplace/components/MarketplacePage'
 import { OnboardingPage } from './features/onboarding'
 import { AppLayout } from './shared/layouts/AppLayout'
 
@@ -68,6 +69,7 @@ export function App() {
           <Route path="/profile/edit" element={<EditProfilePage />} />
           <Route path="/profile/achievements" element={<AchievementsPage />} />
           <Route path="/profile/challenges" element={<ChallengesPage />} />
+          <Route path="/marketplace" element={<MarketplacePage />} />
           <Route path="/profile/elo-history" element={<EloHistoryPage />} />
           <Route path="/profile/leaderboard" element={<LeaderboardPage />} />
           <Route path="/players/:username" element={<PublicProfilePage />} />
