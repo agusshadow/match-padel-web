@@ -17,7 +17,7 @@ export interface UpdateProfilePayload {
   avatar_url?: string
 }
 
-export type PublicUser = Pick<User, 'id' | 'username' | 'full_name' | 'avatar_url' | 'elo' | 'created_at' | 'role'>
+export type PublicUser = Pick<User, 'id' | 'username' | 'full_name' | 'avatar_url' | 'elo' | 'xp' | 'level' | 'created_at' | 'role'>
 
 export interface EloHistoryEntry {
   id: string

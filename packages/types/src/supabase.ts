@@ -932,6 +932,7 @@ export type Database = {
           id: string
           is_active: boolean
           last_name: string
+          level: number
           onboarding_completed_at: string | null
           phone: string | null
           preferred_hand: Database["public"]["Enums"]["preferred_hand"] | null
@@ -939,6 +940,7 @@ export type Database = {
           skill_level: Database["public"]["Enums"]["skill_level"] | null
           updated_at: string
           username: string
+          xp: number
         }
         Insert: {
           avatar_url?: string | null
@@ -950,6 +952,7 @@ export type Database = {
           id: string
           is_active?: boolean
           last_name: string
+          level?: number
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
@@ -957,6 +960,7 @@ export type Database = {
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username: string
+          xp?: number
         }
         Update: {
           avatar_url?: string | null
@@ -968,6 +972,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_name?: string
+          level?: number
           onboarding_completed_at?: string | null
           phone?: string | null
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
@@ -975,6 +980,7 @@ export type Database = {
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
           updated_at?: string
           username?: string
+          xp?: number
         }
         Relationships: []
       }
@@ -1017,6 +1023,11 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      award_match_xp: {
+        Args: { p_match_id: string; p_winner_team: number }
+        Returns: undefined
+      }
+      level_for_xp: { Args: { p_xp: number }; Returns: number }
       submit_match_score_draft: {
         Args: { p_draft: Json; p_match_id: string; p_team: number }
         Returns: {
