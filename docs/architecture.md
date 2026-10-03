@@ -314,3 +314,13 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 | admin   | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
 
 Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.
+
+### Environments and Vercel variables
+
+| Build | `VITE_API_URL` | Supabase |
+|-------|----------------|----------|
+| `main` (Production) | `https://match-padel-api.onrender.com/api/v1` | `match-padel` (`ebdnlrwzhthqflsbdzvu`) |
+| `develop` (Preview, variables scoped to the branch) | `https://match-padel-api-dev.onrender.com/api/v1` | `match-padel-dev` (`vrnonxpxksaruvsvbplt`) |
+| Any other branch / PR preview (Preview variables with no branch scope) | `https://match-padel-api-dev.onrender.com/api/v1` | `match-padel-dev` (`vrnonxpxksaruvsvbplt`) |
+
+Production builds use the Production-only `VITE_API_URL` plus the two Supabase variables scoped to "Production and Development" (production Supabase). Preview builds never see those Supabase variables: those two Supabase variables were scoped down on 03/10/2026, and the unscoped Preview set was added, on both Vercel projects. Variables live in Vercel (Project Settings > Environment Variables); a change only applies to the next build.
