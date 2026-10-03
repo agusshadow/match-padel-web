@@ -314,3 +314,13 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 | admin   | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
 
 Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.
+
+### Environments and Vercel variables
+
+| Build | `VITE_API_URL` | Supabase |
+|-------|----------------|----------|
+| `main` (Production) | `https://match-padel-api.onrender.com/api/v1` | `match-padel` (`ebdnlrwzhthqflsbdzvu`) |
+| `develop` (Preview, variables scoped to the branch) | `https://match-padel-api-dev.onrender.com/api/v1` | `match-padel-dev` (`vrnonxpxksaruvsvbplt`) |
+| Any other branch / PR preview (unscoped variables) | `https://match-padel-api-preview.vercel.app/api/v1` (does not exist) | `match-padel` production (via the "All Environments" variables) |
+
+The values in the table were read from `match-padel-app`; `match-padel-admin` has the same set of variables but its unscoped values were not checked. The third row is a known gap, not a design choice: PR previews cannot reach an API and, if they could, would authenticate against production. Variables live in Vercel (Project Settings > Environment Variables) for both projects; a change only applies to the next build.
