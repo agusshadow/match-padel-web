@@ -4,7 +4,7 @@ import { DashboardPage } from '@/features/dashboard'
 import { ClubsPage } from '@/features/clubs'
 import { UsersPage } from '@/features/users'
 import { AuditLogPage } from '@/features/audit-log'
-import { RequestsPage } from '@/features/requests'
+import { ApplicationDetailPage, RequestsPage } from '@/features/requests'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireSuperadmin } from '@/shared/components/RequireSuperadmin'
 import { HomeRedirect } from '@/shared/components/HomeRedirect'
@@ -25,6 +25,7 @@ export default function App() {
               <Route path="audit-log" element={<AuditLogPage />} />
             </Route>
             <Route path="requests" element={<RequestsPage />} />
+            <Route path="requests/:clubId" element={<ApplicationDetailPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
