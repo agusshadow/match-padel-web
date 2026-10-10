@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { clubService } from '../services/clubService'
+import type { ClubAvailabilitySlot, WithPaymentsMeta } from '../services/clubService'
 import type { GetClubsParams } from '../services/clubService'
 
 export const CLUBS_KEY = 'clubs'
@@ -30,11 +31,35 @@ export function useClubCourts(clubId: string | null) {
   })
 }
 
+const availabilityKey = (clubId: string | null, date: string | null) =>
+  [CLUBS_KEY, 'availability', clubId, date] as const
+
+const selectSlots = (data: WithPaymentsMeta<ClubAvailabilitySlot[]>) => data.items
+const selectPaymentsEnabled = (data: WithPaymentsMeta<ClubAvailabilitySlot[]>) => data.payments_enabled
+
+/** Slots of the club for a day. Shares its request (and cache) with `useClubPaymentsEnabled`. */
 export function useClubAvailability(clubId: string | null, date: string | null) {
   return useQuery({
-    queryKey: [CLUBS_KEY, 'availability', clubId, date],
+    queryKey: availabilityKey(clubId, date),
     queryFn: () => clubService.getClubAvailability(clubId!, date!),
     enabled: !!clubId && !!date,
     staleTime: 1000 * 30, // 30 seconds — availability changes often
+    select: selectSlots,
   })
+}
+
+/**
+ * `meta.payments_enabled` of the club's availability: `false` when the club collects on its own
+ * Mercado Pago account and has no usable link, so paid reservations and matches are refused (409
+ * `CLUB_PAYMENTS_NOT_ENABLED`). `true` until the response arrives, so nothing flashes as blocked.
+ */
+export function useClubPaymentsEnabled(clubId: string | null, date: string | null): boolean {
+  const { data } = useQuery({
+    queryKey: availabilityKey(clubId, date),
+    queryFn: () => clubService.getClubAvailability(clubId!, date!),
+    enabled: !!clubId && !!date,
+    staleTime: 1000 * 30,
+    select: selectPaymentsEnabled,
+  })
+  return data ?? true
 }

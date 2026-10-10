@@ -329,6 +329,21 @@ export interface CourtSlot {
   price: number
 }
 
+/**
+ * `meta` of `GET /courts/:courtId/slots` and `GET /clubs/:clubId/availability` (card #75).
+ * `payments_enabled` is `false` only when the club collects on its own Mercado Pago account and
+ * has no usable link: paid reservations and matches then answer 409 `CLUB_PAYMENTS_NOT_ENABLED`.
+ */
+export interface PaymentsAvailabilityMeta {
+  payments_enabled: boolean
+}
+
+/** A list of slots together with the `meta.payments_enabled` flag. */
+export interface WithPaymentsMeta<T> {
+  items: T
+  payments_enabled: boolean
+}
+
 /** Court entry inside a slot of `GET /clubs/:clubId/availability?date=` */
 export interface ClubAvailabilityCourt {
   court_id: string
@@ -472,6 +487,12 @@ export type PlatformClub = Pick<
   | 'created_at'
   | 'updated_at'
 >
+
+/**
+ * Row of `GET /platform/clubs` for a superadmin: the club plus its charging settings (card #75).
+ * A reviewer never receives these fields (and cannot open the clubs list anyway).
+ */
+export type PlatformClubRow = PlatformClub & ClubChargingSettings
 
 /** Body of `POST /platform/clubs` */
 export interface PlatformClubCreate {
@@ -852,3 +873,69 @@ export type MpCallbackFailureReason =
   | 'storage_failed'
 
 export type MpErrorCode = 'MP_NOT_CONFIGURED'
+
+// ---------------------------------------------------------------------------
+// Charges with a commission per club (card #75, Admin F3). Hand-written: not in Swagger.
+// ---------------------------------------------------------------------------
+
+/** Which Mercado Pago account collects a club's charges. */
+export type CollectionMode = 'platform_account' | 'club_account'
+
+/** Charging settings of a club, as the superadmin sees them in the platform panel. */
+export interface ClubChargingSettings {
+  /** 0..100, at most 2 decimals. Applies to charges created from then on. */
+  commission_percent: number
+  collection_mode: CollectionMode
+  /** The club has a linked Mercado Pago account that is neither expired nor revoked. */
+  mp_connected: boolean
+}
+
+/** Result of `PATCH /platform/clubs/:clubId/commission` and `.../collection-mode`. */
+export type ClubChargingSummary = ClubChargingSettings & { id: string; name: string }
+
+/** Body of `PATCH /platform/clubs/:clubId/commission`. */
+export interface ClubCommissionUpdate {
+  commission_percent: number
+}
+
+/** Body of `PATCH /platform/clubs/:clubId/collection-mode`. */
+export interface ClubCollectionModeUpdate {
+  collection_mode: CollectionMode
+}
+
+/** Where a payment was collected: the platform's account or the club's own. */
+export type PaymentCollectedVia = 'platform' | 'club'
+
+/**
+ * Row of `GET /platform/payments` and `GET /club-admin/:clubId/payments`.
+ * `commission_percent` is the rate frozen at charge time (`null` on rows written before card #75).
+ */
+export type PaymentRow = Pick<
+  Tables<'payments'>,
+  'id' | 'created_at' | 'status' | 'amount' | 'currency' | 'mp_payment_id' | 'reservation_id' | 'commission_percent'
+> & {
+  /** Never null: 0 for payments collected by the platform or written before card #75. */
+  marketplace_fee: number
+  /** Never null: amount minus fee, before Mercado Pago's own processing fee. */
+  net_amount: number
+  collected_via: PaymentCollectedVia
+  seller_mp_user_id: string | null
+  club: { id: string; name: string } | null
+}
+
+/** `meta.totals` of the payments listings: approved payments of the whole filter, not just the page. */
+export interface PaymentTotals {
+  gross: number
+  fee: number
+  net: number
+}
+
+/** Payments page as the API clients return it: the rows, the pagination and the totals. */
+export interface PaymentsPage {
+  items: PaymentRow[]
+  meta: NonNullable<ApiResponse['meta']>
+  totals: PaymentTotals
+}
+
+/** 409 code of `POST /reservations`, `POST /matches` and `POST /payments/preference` (card #75). */
+export type ClubPaymentsErrorCode = 'CLUB_PAYMENTS_NOT_ENABLED'

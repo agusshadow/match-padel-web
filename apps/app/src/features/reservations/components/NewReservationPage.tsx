@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useClubes, useClubById, useClubAvailability } from '../../clubs/hooks/useClubes'
+import { useClubes, useClubById, useClubAvailability, useClubPaymentsEnabled } from '../../clubs/hooks/useClubes'
 import { useCreateReservation } from '../hooks/useReservations'
 import { useReservationStore } from '../store/reservationStore'
 import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 import { bookingErrorMessage } from '../../../lib/booking-errors'
+import { PaymentsDisabledNotice } from '../../../shared/components/PaymentsDisabledNotice'
 
 const DAY_LABELS = ['Hoy', 'Mañana']
 
@@ -140,6 +141,10 @@ function StepSelectSlot({ onNext }: { onNext: () => void }) {
     selectedClubId,
     activeDate,
   )
+  // A club that cannot take online payments yet: free slots stay bookable, priced ones do not.
+  const paymentsEnabled = useClubPaymentsEnabled(selectedClubId, activeDate)
+  const selectedCourtPrice = selectedSlot?.courts.find((c) => c.court_id === selectedCourtId)?.price ?? 0
+  const blockedByPayments = !paymentsEnabled && selectedCourtPrice > 0
 
   return (
     <div className="space-y-5">
@@ -147,6 +152,8 @@ function StepSelectSlot({ onNext }: { onNext: () => void }) {
       <p className="text-sm text-muted-foreground">
         {t('reservations.club')}: <span className="font-medium text-foreground">{selectedClubName}</span>
       </p>
+
+      {!paymentsEnabled && <PaymentsDisabledNotice />}
 
       {/* Day tabs */}
       <div>
@@ -185,7 +192,8 @@ function StepSelectSlot({ onNext }: { onNext: () => void }) {
               <button
                 key={slot.start_time}
                 onClick={() => setSlot(slot)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
+                disabled={!paymentsEnabled && slot.min_total_price > 0}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   selectedSlot?.start_time === slot.start_time
                     ? 'border-primary bg-primary/5'
                     : 'border-border bg-card hover:bg-accent'
@@ -212,7 +220,8 @@ function StepSelectSlot({ onNext }: { onNext: () => void }) {
               <button
                 key={court.court_id}
                 onClick={() => setCourt(court)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
+                disabled={!paymentsEnabled && court.price > 0}
+                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   selectedCourtId === court.court_id
                     ? 'border-primary bg-primary/5'
                     : 'border-border bg-card hover:bg-accent'
@@ -240,7 +249,7 @@ function StepSelectSlot({ onNext }: { onNext: () => void }) {
       {/* Next button */}
       <button
         onClick={onNext}
-        disabled={!selectedSlot || !selectedCourtId}
+        disabled={!selectedSlot || !selectedCourtId || blockedByPayments}
         className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors"
       >
         {t('reservations.continue')}
@@ -254,6 +263,7 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const {
+    selectedClubId,
     selectedClubName,
     selectedCourt,
     selectedDate,
@@ -264,8 +274,10 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
   } = useReservationStore()
 
   const createMutation = useCreateReservation()
+  const paymentsEnabled = useClubPaymentsEnabled(selectedClubId, selectedDate)
 
   if (!selectedSlot || !selectedCourt) return null
+  const blockedByPayments = !paymentsEnabled && selectedCourt.price > 0
 
   // The price is the slot's total as the API computed it (price rules included); never rate x duration.
   const durationMinutes = Math.round(
@@ -343,6 +355,8 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
         />
       </div>
 
+      {blockedByPayments && <PaymentsDisabledNotice />}
+
       {createMutation.isError && (
         <div className="bg-destructive/10 text-destructive text-sm rounded-lg px-4 py-3">
           {bookingErrorMessage(createMutation.error, t)}
@@ -351,7 +365,7 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
 
       <button
         onClick={handleConfirm}
-        disabled={createMutation.isPending}
+        disabled={createMutation.isPending || blockedByPayments}
         className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
       >
         {createMutation.isPending && <Loader2 size={16} className="animate-spin" />}

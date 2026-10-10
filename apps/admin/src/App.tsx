@@ -11,6 +11,7 @@ import { OnboardingPage } from '@/features/onboarding'
 import { TeamPage } from '@/features/team'
 import { InvitePage } from '@/features/invitations'
 import { MercadoPagoPage, MercadoPagoReturnRedirect, MercadoPagoDashboardHint } from '@/features/mercadopago'
+import { PaymentsPage } from '@/features/payments'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
 import { RequireOwnerRole } from '@/shared/components/RequireOwnerRole'
@@ -54,6 +55,7 @@ export default function App() {
               </Route>
               <Route element={<RequireOwnerRole />}>
                 <Route path="mercadopago" element={<MercadoPagoPage />} />
+                <Route path="payments" element={<PaymentsPage />} />
               </Route>
               <Route path="club" element={<ClubPage />} />
             </Route>

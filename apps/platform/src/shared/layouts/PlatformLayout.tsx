@@ -1,5 +1,5 @@
 import { NavLink, Navigate, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, ScrollText, Inbox, LogOut, Menu, Trophy, Target, Sparkles } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, ScrollText, Inbox, LogOut, Menu, Trophy, Target, Sparkles, Wallet } from 'lucide-react'
 import { StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePendingApplicationsCount } from '@/features/requests'
@@ -19,6 +19,7 @@ export function PlatformLayout() {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Resumen', show: isSuperadmin },
     { to: '/clubs', icon: Building2, label: 'Clubes', show: isSuperadmin },
+    { to: '/payments', icon: Wallet, label: 'Cobros', show: isSuperadmin },
     { to: '/users', icon: Users, label: 'Usuarios', show: isSuperadmin },
     { to: '/audit-log', icon: ScrollText, label: 'Auditoría', show: isSuperadmin },
     { to: '/requests', icon: Inbox, label: 'Solicitudes', show: true },

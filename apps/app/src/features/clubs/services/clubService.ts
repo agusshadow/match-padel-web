@@ -2,10 +2,12 @@ import { api } from '../../../lib/axios'
 import type {
   ClubAvailabilityCourt,
   ClubAvailabilitySlot,
+  PaymentsAvailabilityMeta,
+  WithPaymentsMeta,
 } from '../../../../../../packages/types/src/api'
 
 // Availability shapes come from the API contract (`price` is the slot's total, computed by the server).
-export type { ClubAvailabilityCourt, ClubAvailabilitySlot }
+export type { ClubAvailabilityCourt, ClubAvailabilitySlot, WithPaymentsMeta }
 
 export interface Club {
   id: string
@@ -71,8 +73,16 @@ export const clubService = {
     return res.data.data
   },
 
-  getClubAvailability: async (clubId: string, date: string): Promise<ClubAvailabilitySlot[]> => {
-    const res = await api.get(`/clubs/${clubId}/availability`, { params: { date } })
-    return res.data.data
+  // The slots stay in `data` (like every other service); `meta.payments_enabled` (card #75) is read
+  // beside them. A response without the flag (older API) is treated as enabled.
+  getClubAvailability: async (
+    clubId: string,
+    date: string,
+  ): Promise<WithPaymentsMeta<ClubAvailabilitySlot[]>> => {
+    const res = await api.get<{ data: ClubAvailabilitySlot[]; meta?: Partial<PaymentsAvailabilityMeta> }>(
+      `/clubs/${clubId}/availability`,
+      { params: { date } },
+    )
+    return { items: res.data.data, payments_enabled: res.data.meta?.payments_enabled ?? true }
   },
 }

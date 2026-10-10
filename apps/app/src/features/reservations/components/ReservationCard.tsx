@@ -2,6 +2,7 @@ import { CalendarDays, Clock, MapPin, Loader2, CreditCard, Building2 } from 'luc
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Reservation } from '../services/reservationService'
+import { paymentErrorMessage } from '../../../lib/booking-errors'
 import { useCancelReservation, useCreatePaymentPreference } from '../hooks/useReservations'
 
 interface ReservationCardProps {
@@ -82,8 +83,8 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
         const url = import.meta.env.PROD ? data.init_point : data.sandbox_init_point
         window.location.href = url
       },
-      onError: () => {
-        setPayError(t('reservations.paymentStartError'))
+      onError: (error) => {
+        setPayError(paymentErrorMessage(error, t))
       },
     })
   }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft } from 'lucide-react'
+import { paymentErrorMessage } from '../../../lib/booking-errors'
 import { useJoinMatch } from '../hooks/useMatches'
 
 export function JoinMatchPage() {
@@ -43,7 +44,7 @@ export function JoinMatchPage() {
         </div>
 
         {joinMatch.isError && (
-          <p className="text-sm text-destructive text-center">{t('matches.invalidLobbyCode')}</p>
+          <p className="text-sm text-destructive text-center">{paymentErrorMessage(joinMatch.error, t, 'matches.invalidLobbyCode')}</p>
         )}
       </div>
 

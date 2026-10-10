@@ -7,6 +7,9 @@ import { NoteDialog } from '@/shared/components/NoteDialog'
 import { getLifecycleErrorMessage, isConflictError } from '@/lib/errors'
 import { ACTION_COPY, CLUB_STATUSES, CLUB_STATUS_LABELS, CLUB_STATUS_TONES } from '@/shared/permissions'
 import { useClubLifecycle, useClubs, useDebouncedValue, useSetClubActive } from '../hooks/useClubs'
+import { formatPercent } from '../lib/charging'
+import { ClubChargingBadges } from './ClubChargingBadges'
+import { ClubChargingDialog } from './ClubChargingDialog'
 import { CreateClubDialog } from './CreateClubDialog'
 
 const PAGE_SIZE = 20
@@ -24,6 +27,7 @@ export function ClubsPage() {
     null,
   )
   const [success, setSuccess] = useState<string | null>(null)
+  const [chargingClubId, setChargingClubId] = useState<string | null>(null)
 
   const closeDialog = () => {
     setPendingAction(null)
@@ -48,6 +52,7 @@ export function ClubsPage() {
   }
 
   const clubs = data?.items ?? []
+  const chargingClub = clubs.find((c) => c.id === chargingClubId) ?? null
 
   const toggle = (id: string, name: string, isActive: boolean) => {
     if (isActive && !window.confirm(`¿Desactivar "${name}"? Los jugadores dejarán de verlo en la app.`)) return
@@ -104,6 +109,7 @@ export function ClubsPage() {
       {success && <Notice tone="success">{success}</Notice>}
       {!!lifecycle.error && !pendingAction && <Notice>{getLifecycleErrorMessage(lifecycle.error)}</Notice>}
 
+      {chargingClub && <ClubChargingDialog club={chargingClub} onClose={() => setChargingClubId(null)} />}
       {showForm && <CreateClubDialog onClose={() => setShowForm(false)} />}
       {pendingAction && (
         <NoteDialog
@@ -127,7 +133,7 @@ export function ClubsPage() {
           <div className="p-8 text-center text-gray-400">No se encontraron clubes</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[820px]">
+            <table className="w-full text-sm min-w-[1000px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Club</th>
@@ -135,6 +141,7 @@ export function ClubsPage() {
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Alta</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Solicitud</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Visibilidad</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Cobros</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -156,7 +163,20 @@ export function ClubsPage() {
                         tone={club.is_active ? 'green' : 'gray'}
                       />
                     </td>
+                    <td className="px-4 py-3">
+                      <p className="text-gray-900">
+                        Comisión <span className="font-semibold">{formatPercent(club.commission_percent)}</span>
+                      </p>
+                      <ClubChargingBadges club={club} />
+                    </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap space-x-3">
+                      <button
+                        type="button"
+                        onClick={() => setChargingClubId(club.id)}
+                        className="text-xs text-green-700 hover:underline"
+                      >
+                        Cobros
+                      </button>
                       <Link to={`/requests/${club.id}`} className="text-xs text-green-700 hover:underline">
                         Ver solicitud
                       </Link>
