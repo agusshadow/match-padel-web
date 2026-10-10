@@ -22,29 +22,38 @@ export type Database = {
         Row: {
           code: string
           condition: Json
+          created_at: string
           description: string
           icon: string
           id: string
+          is_active: boolean
           name: string
           points: number
+          updated_at: string
         }
         Insert: {
           code: string
           condition?: Json
+          created_at?: string
           description: string
           icon: string
           id?: string
+          is_active?: boolean
           name: string
           points?: number
+          updated_at?: string
         }
         Update: {
           code?: string
           condition?: Json
+          created_at?: string
           description?: string
           icon?: string
           id?: string
+          is_active?: boolean
           name?: string
           points?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -109,6 +118,7 @@ export type Database = {
           reward_currency: number
           reward_xp: number
           target_count: number
+          updated_at: string
         }
         Insert: {
           action_type: Database["public"]["Enums"]["challenge_action"]
@@ -122,6 +132,7 @@ export type Database = {
           reward_currency?: number
           reward_xp?: number
           target_count: number
+          updated_at?: string
         }
         Update: {
           action_type?: Database["public"]["Enums"]["challenge_action"]
@@ -135,6 +146,7 @@ export type Database = {
           reward_currency?: number
           reward_xp?: number
           target_count?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -414,6 +426,7 @@ export type Database = {
           name: string
           price_currency: number
           type: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at: string
         }
         Insert: {
           code: string
@@ -425,6 +438,7 @@ export type Database = {
           name: string
           price_currency: number
           type: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at?: string
         }
         Update: {
           code?: string
@@ -436,6 +450,7 @@ export type Database = {
           name?: string
           price_currency?: number
           type?: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at?: string
         }
         Relationships: []
       }

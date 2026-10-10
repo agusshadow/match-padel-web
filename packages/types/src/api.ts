@@ -698,3 +698,110 @@ export type TeamErrorCode =
   | 'INVITATION_EMAIL_MISMATCH'
   | 'EMAIL_NOT_CONFIRMED'
   | 'INVITATION_EXPIRED'
+
+// ---------------------------------------------------------------------------
+// Gamification catalogs (card #78, Admin F5): `/platform/catalogs/*` (superadmin)
+// and the `cosmetic`/`equipped` shapes the player app reads.
+// Rows come from the generated Supabase types; only `condition` is narrowed.
+// ---------------------------------------------------------------------------
+
+export const ACHIEVEMENT_CONDITION_TYPES = ['matches_played', 'wins'] as const
+export type AchievementConditionType = (typeof ACHIEVEMENT_CONDITION_TYPES)[number]
+export interface AchievementCondition {
+  type: AchievementConditionType
+  count: number
+}
+
+export type ChallengeCadence = Enums<'challenge_cadence'>
+export type ChallengeAction = Enums<'challenge_action'>
+export type CosmeticType = Enums<'cosmetic_type'>
+
+export type CatalogAchievement = Omit<Tables<'achievements'>, 'condition'> & { condition: AchievementCondition }
+export type CatalogChallenge = Tables<'challenges'>
+export type CatalogCosmetic = Tables<'cosmetics'>
+
+/** `usage` of the single-item responses (`GET /catalogs/<entity>/:id`, create, patch, activate). */
+export interface AchievementUsage {
+  owners_count: number
+}
+export interface ChallengeUsage {
+  assignments_count: number
+  active_assignments_count: number
+}
+export interface CosmeticUsage {
+  owners_count: number
+}
+
+export type CatalogAchievementDetail = CatalogAchievement & { usage: AchievementUsage }
+export type CatalogChallengeDetail = CatalogChallenge & { usage: ChallengeUsage }
+export type CatalogCosmeticDetail = CatalogCosmetic & { usage: CosmeticUsage }
+
+/** Body of `POST /platform/catalogs/achievements`. */
+export interface CatalogAchievementCreate {
+  code: string
+  name: string
+  description: string
+  icon: string
+  points?: number
+  condition: AchievementCondition
+  is_active?: boolean
+}
+/** Body of `PATCH /platform/catalogs/achievements/:id` (at least one field; never `code` or `is_active`). */
+export type CatalogAchievementUpdate = Partial<Omit<CatalogAchievementCreate, 'code' | 'is_active'>>
+
+/** Body of `POST /platform/catalogs/challenges`. */
+export interface CatalogChallengeCreate {
+  code: string
+  name: string
+  description: string
+  cadence: ChallengeCadence
+  action_type: ChallengeAction
+  target_count: number
+  reward_xp?: number
+  reward_currency?: number
+  is_active?: boolean
+}
+export type CatalogChallengeUpdate = Partial<Omit<CatalogChallengeCreate, 'code' | 'is_active'>>
+
+/** Body of `POST /platform/catalogs/cosmetics`. */
+export interface CatalogCosmeticCreate {
+  code: string
+  name: string
+  description: string
+  type: CosmeticType
+  image_url: string
+  price_currency: number
+  is_active?: boolean
+}
+export type CatalogCosmeticUpdate = Partial<Omit<CatalogCosmeticCreate, 'code' | 'is_active'>>
+
+/** `POST /platform/catalogs/assets` */
+export interface CatalogAsset {
+  url: string
+  path: string
+  content_type: string
+  size_bytes: number
+}
+
+/** `details` of a 409 `CATALOG_FIELD_LOCKED`. */
+export interface CatalogFieldLockedDetails {
+  fields: string[]
+  usage: Record<string, number>
+}
+
+/** One entry of `details` of a 400 `VALIDATION_ERROR`. */
+export interface ValidationErrorDetail {
+  field: string
+  message: string
+}
+
+export type CatalogErrorCode = 'CODE_ALREADY_EXISTS' | 'CATALOG_FIELD_LOCKED' | 'COSMETIC_INACTIVE'
+
+/**
+ * `GET /marketplace/equipped`: the three equipped ids plus, since card #78, the cosmetic itself per
+ * slot (also when it was deactivated after being equipped), or `null`.
+ */
+export type EquippedCosmeticItem = Pick<
+  Tables<'cosmetics'>,
+  'id' | 'code' | 'name' | 'description' | 'type' | 'image_url' | 'price_currency'
+>
