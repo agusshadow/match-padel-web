@@ -206,14 +206,14 @@ If the component needs a new dependency, add it to the UI package: `npm install 
 
 ## Add a global component in an app
 
-If the component is NOT reusable between `app` and `admin`, it goes in the app itself:
+If the component is NOT reusable between the apps, it goes in the app itself:
 
 ```tsx
 // apps/app/src/components/BottomNav.tsx     (target location: src/components/ does not exist yet)
 // apps/admin/src/components/SidebarNav.tsx  (target location)
 ```
 
-Today the bottom nav and the notification bell are inline in `apps/app/src/shared/layouts/AppLayout.tsx`, and the sidebar is inline in `apps/admin/src/shared/layouts/AdminLayout.tsx`. (`packages/ui` also has an unused `BottomNav`.)
+Today the bottom nav and the notification bell are inline in `apps/app/src/shared/layouts/AppLayout.tsx`, and the sidebars are inline in `apps/admin/src/shared/layouts/ClubLayout.tsx` and `apps/platform/src/shared/layouts/PlatformLayout.tsx`. Components shared by both panels live in `packages/ui/src/components/panel`. (`packages/ui` also has an unused `BottomNav`.)
 
 ---
 
@@ -333,18 +333,16 @@ export const useTournamentUIStore = create<TournamentUIState>((set) => ({
   <Route path="/reservations" element={<ReservationsPage />} />
 </Route>
 
-// apps/admin: ProtectedRoute is a wrapper function defined inline in src/App.tsx
-// and only checks that the user is logged in:
-<Route path="/" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-  <Route path="reservations" element={<ReservationsPage />} />
+// apps/admin (club panel): RequireAccess validates the session and GET /me/access,
+// ClubLayout validates :clubId, RequireManagerRole hides owner/admin-only routes from reception:
+<Route element={<RequireAccess />}>
+  <Route path=":clubId" element={<ClubLayout />}>
+    <Route path="reservations" element={<ReservationsPage />} />
+    <Route element={<RequireManagerRole />}>
+      <Route path="matches" element={<MatchesPage />} />
+    </Route>
+  </Route>
 </Route>
-
-// Target — not implemented yet: admin with club role check
-<Route path="/clubs/:clubId/staff" element={
-  <RequireClubRole roles={['owner', 'admin']}>
-    <StaffPage />
-  </RequireClubRole>
-} />
 ```
 
 ---

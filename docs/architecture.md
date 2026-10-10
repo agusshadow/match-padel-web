@@ -4,13 +4,14 @@
 
 ## Overview
 
-**Turborepo** monorepo containing two React applications and three shared packages.
+**Turborepo** monorepo containing three React applications and three shared packages.
 
 ```
 match-padel-web/
 ├── apps/
 │   ├── app/          → PWA for end users (mobile-first)
-│   └── admin/        → Admin panel for clubs and the platform (desktop-first)
+│   ├── admin/        → Club panel: owner, administrators, reception (desktop-first; directory name kept for the Vercel project)
+│   └── platform/     → Platform panel: superadmin and reviewers (desktop-first)
 ├── packages/
 │   ├── ui/           → Shared UI components + color tokens
 │   ├── types/        → Auto-generated TypeScript types (never manual)
@@ -39,22 +40,43 @@ Main features:
 
 Installable PWA setup today: `vite-plugin-pwa` in `apps/app/vite.config.ts` with `registerType: 'autoUpdate'` and a web manifest (name, `theme_color`, `display: 'standalone'`, `/icon-192.png`, `/icon-512.png` and `/icon-512-maskable.png`). The icons, `favicon.png` and `apple-touch-icon.png` live in `apps/app/public/`, generated from the brand logo in `agusshadow/match-padel-app-legacy`. There is no custom Workbox configuration: offline caching of the user's reservations (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md).
 
-### `apps/admin` — Admin panel
+### The three apps
 
-**Audience**: Club owners and staff, platform super-admin  
+| App | Directory | Audience | Vercel project | Dev port | Talks to |
+|---|---|---|---|---|---|
+| Players | `apps/app` | players (mobile PWA) | `match-padel-app` | 5173 | API + Supabase auth |
+| Club panel | `apps/admin` | club owner, administrators, reception | `match-padel-admin` | 5173 (Vite default) | API (`/me/access`, `/club-admin/:clubId/*`) + Supabase auth |
+| Platform panel | `apps/platform` | superadmin, reviewers | `match-padel-platform` (target — to be created, root `apps/platform`) | 5174 | API (`/me/access`, `/platform/*`) + Supabase auth |
+
+The club panel keeps the directory name `apps/admin` so the existing Vercel project (root directory `apps/admin`) keeps working; its product name is "Panel del club". Both panels read and write **only through the API**, which checks permissions per club and per role; Supabase JS is used for auth only. See [club-platform-scope.md](./club-platform-scope.md) for the full scope and phases.
+
+### `apps/admin` — Club panel
+
+**Audience**: club owner, administrators and reception  
 **Target device**: Desktop  
-**Hosting**: Vercel (subdomain or separate path)
+**Hosting**: Vercel
 
 Main features:
-- Court and schedule management (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
-- Club reservation management (list + status change exist today)
-- Tournaments: creation, bracket, results — only a read-only list exists today; creation, bracket and results (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
-- Staff management (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
-- Finance: revenue, MP payments (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
-- Statistics dashboard (basic counters exist today)
-- Club settings (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)
+- Dashboard with the club's counters and latest reservations (exists)
+- Reservation management: list, filter by status, confirm / complete / cancel (exists)
+- Matches and tournaments of the club, read-only, hidden for reception (exists)
+- Club data view/edit (exists; edit hidden for reception)
+- Courts, schedules, prices, blocks, calendar, team, Mercado Pago account (target — not implemented yet; phases F2/F3)
+- Tournament creation, fixtures and results (target — not implemented yet; phase F4)
 
-Also existing today: clubs list with activate/deactivate and create, users list, matches list.
+### `apps/platform` — Platform panel
+
+**Audience**: platform superadmin and reviewers  
+**Target device**: Desktop  
+**Hosting**: Vercel (separate project, to be created)
+
+Main features:
+- Dashboard with platform counters (exists)
+- Clubs: list, create, activate/deactivate (exists)
+- Users: search and paginated list (exists)
+- Audit log with filters (exists)
+- Applications inbox for reviewers (placeholder page exists; target — not implemented yet; phase F1)
+- Commissions, gamification catalogs, global parameters (target — not implemented yet; phases F3/F5)
 
 ---
 
@@ -116,11 +138,11 @@ src/
 ├── components/             → Reusable global components
 ├── lib/                    → Clients (axios, supabase, query-client; socket (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md)), helpers
 ├── shared/                 → Today's home for app-level pieces: `layouts/` (AppLayout / AdminLayout) and, in apps/app, `components/ProtectedRoute.tsx`
-├── store/                  → Global Zustand stores (apps/admin: `auth.store.ts`)
+├── store/                  → Global Zustand stores (apps/admin and apps/platform: `panel.store.ts`)
 └── i18n/                   → i18next setup + `locales/es.json`, `locales/en.json` (apps/app only)
 ```
 
-Today most features use `services/` instead of `api/`, and only `auth` has an `index.ts`; `apps/admin` has flat page files per feature (see 'Real state vs. target' in CLAUDE.md and [screens.md](./screens.md)). The global `src/components/` folder does not exist yet in either app.
+Today most features use `services/` instead of `api/`, and only `auth` has an `index.ts`; `apps/admin` and `apps/platform` follow the target structure (`api/`, `components/`, `hooks/`, `index.ts` per feature; see [screens.md](./screens.md)). The global `src/components/` folder does not exist yet in either app.
 
 ### FSD import rule
 
@@ -159,7 +181,7 @@ Component
 
 ```ts
 // ✅ Correct: UI state that does not come from the server
-const useAdminSidebarStore = create<SidebarState>(...) // target — not implemented yet (admin has only auth.store.ts)
+const usePanelStore = create<PanelState>(...) // apps/admin: persisted last club + sidebar open state
 // Real example today: useReservationStore (booking wizard selections) in apps/app
 
 // ❌ Incorrect: server data in Zustand
@@ -202,7 +224,7 @@ supabase.channel('court_reservations')
 
 How the login happens today differs per app:
 - `apps/app`: `useLogin` / `useRegister` (`features/auth/hooks/useAuth.ts`) call the API (`POST /auth/login`, `POST /auth/register`), then sync the returned tokens with `supabase.auth.setSession(...)`. On load, `useAuthInit` (called by `ProtectedRoute`) reads `getSession()` and then `GET /auth/me`. The user is kept in the persisted Zustand store `auth.store.ts` (storage key `match-padel-auth`)
-- `apps/admin`: `LoginPage` calls `supabase.auth.signInWithPassword` directly and then reads `users.role` from Supabase; only `club_staff` and `super_admin` are allowed in. The user is kept in the persisted store `src/store/auth.store.ts` (key `match-padel-admin-auth`)
+- `apps/admin` and `apps/platform`: `LoginPage` calls `supabase.auth.signInWithPassword` (auth only) and then `GET /me/access` through the API; access is denied with a message when the user has no club membership and is not superadmin (club panel), or has no `platformRole` (platform panel). The session comes from Supabase (`useSession`) and the access list lives in React Query (`['me-access']`); there is no persisted auth store. A `401` from the API signs the user out
 
 ```ts
 // lib/axios.ts — global interceptor
@@ -217,20 +239,19 @@ api.interceptors.request.use(async (config) => {
 
 ---
 
-## Multi-tenancy in admin
+## Multi-tenancy in the club panel
 
-> Multi-tenancy in the admin is (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). Today the admin has 6 flat routes (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), no `/:clubId`, no `/platform/*` and no role guard beyond being logged in.
-
-All admin routes that belong to a club include `/:clubId/` in the URL.
+Every club route of `apps/admin` is prefixed with `/:clubId/`:
 
 ```
-/clubs/:clubId/reservations
-/clubs/:clubId/courts
-/clubs/:clubId/staff
-/clubs/:clubId/tournaments
+/:clubId/dashboard
+/:clubId/reservations
+/:clubId/matches        (owner, admin, superadmin)
+/:clubId/tournaments    (owner, admin, superadmin)
+/:clubId/club
 ```
 
-The `requireClubAccess` guard (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md) checks in `localStorage` or Zustand that the user has a valid role in that `clubId`.
+`GET /me/access` returns the user's clubs and the role in each one (`owner`, `admin`, `staff`, or `superadmin` for every club when the user is a superadmin). `ClubLayout` validates the `:clubId` against that list, provides the current club and role through `useCurrentClub()`, and renders the club selector; `RequireManagerRole` hides matches and tournaments from reception. These guards are only a convenience: the API enforces permissions per club and per role. Club routes that arrive in later phases (courts, schedules, staff, ...) go under the same prefix. Platform-wide screens live in `apps/platform`, not under `/platform/*` of the club panel.
 
 ---
 
@@ -259,7 +280,7 @@ The `requireClubAccess` guard (target — not implemented yet; see 'Real state v
 }
 ```
 
-**Build order**: `packages/config` → `packages/types` → `packages/ui` → `apps/app` + `apps/admin`. The packages have no `build` script (they are consumed as TypeScript source), so today `^build` is effectively a no-op and only the apps run `vite build`.
+**Build order**: `packages/config` → `packages/types` → `packages/ui` → `apps/app` + `apps/admin` + `apps/platform`. The packages have no `build` script (they are consumed as TypeScript source), so today `^build` is effectively a no-op and only the apps run `vite build`.
 
 ### Commands (npm workspaces)
 
@@ -267,12 +288,13 @@ The package manager is **npm** (there is a `package-lock.json`; the root `packag
 
 ```bash
 npm install                                # install everything (root)
-npm run dev                                # turbo dev: both apps
+npm run dev                                # turbo dev: all apps
 npm run build                              # turbo build
 npm run typecheck                          # turbo typecheck
 npm run lint                               # turbo lint (no ESLint config yet, see above)
 npm run dev -w @match-padel/app            # a single app
-npm run dev -w @match-padel/admin
+npm run dev -w @match-padel/admin         # club panel
+npm run dev -w @match-padel/platform      # platform panel (port 5174)
 npm install <pkg> -w @match-padel/app      # add a dependency to one workspace
 npm run supabase:types                     # regenerate packages/types/src/supabase.ts
 ```
@@ -286,7 +308,7 @@ Automated tests (Vitest + React Testing Library) (target — not implemented yet
 Each app has its own `.env.local`. The `VITE_` prefix is required for Vite to expose them to the client.
 
 ```env
-# Shared by both apps
+# Shared by all three apps
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
 VITE_API_URL=       # must include /api/v1, e.g. https://match-padel-api-dev.onrender.com/api/v1
@@ -298,11 +320,9 @@ VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_VAPID_KEY=
 
-# apps/admin only
-VITE_ADMIN_SECRET=  # target — not implemented yet; not in .env.example and not read by any code
 ```
 
-Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/app/src/lib/axios.ts` falls back to `http://localhost:3001/api/v1` when `VITE_API_URL` is unset; `apps/admin` has no fallback. Both `.env.example` files set `VITE_API_URL` with `/api/v1` already included, as the apps expect.
+Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/app/src/lib/axios.ts` falls back to `http://localhost:3001/api/v1` when `VITE_API_URL` is unset; `apps/admin` and `apps/platform` have no fallback. The three `.env.example` files set `VITE_API_URL` with `/api/v1` already included, as the apps expect.
 
 ---
 
@@ -311,7 +331,8 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 | App     | Vercel project       | Trigger                          | URL                                                      |
 |---------|----------------------|-----------------------------------|----------------------------------------------------------|
 | app     | `match-padel-app`    | automatic, via GitHub integration | `match-padel-app.vercel.app` (prod, from `main`); `match-padel-app-git-develop-agusshadows-projects.vercel.app` (from `develop`)     |
-| admin   | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
+| admin (club panel) | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
+| platform | `match-padel-platform` (target — not created yet; root directory `apps/platform`, same `VITE_*` variables as the other projects) | automatic, via GitHub integration once created | to be assigned by Vercel |
 
 Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.
 

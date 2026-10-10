@@ -7,10 +7,10 @@ description: Recipe to create a new feature in match-padel-web (apps/app or apps
 
 Full reference: `docs/implementing.md` ("Add a new feature") and `docs/conventions.md`. This skill is the operational summary.
 
-1. Confirm which app it belongs to (`apps/app` or `apps/admin`) and that the feature does not already exist in `src/features/`.
+1. Confirm which app it belongs to (`apps/app`, `apps/admin` or `apps/platform`) and that the feature does not already exist in `src/features/`.
 2. Create `src/features/<name>/` following the convention of **that app**:
    - `app`: `api/` or `services/` (Axios calls), `components/`, `hooks/` (React Query), `store/` (Zustand, UI state only), `index.ts`.
-   - `admin`: one folder per feature holding its pages; keep the existing flat style.
+   - `admin` / `platform`: same structure as `app` (`api/`, `components/`, `hooks/`, `index.ts`); no `i18n` (Spanish strings inline).
 3. Data layer: functions using the instance from `src/lib/axios.ts` (never `fetch`), hooks with TanStack Query, types from `@match-padel/types`.
 4. Forms with React Hook Form + Zod.
 5. Cover the loading, empty, error and success states.

@@ -3,9 +3,10 @@
 This file is your working contract. Read it completely before touching any file.
 
 ## What this project is
-A Turborepo monorepo containing two React applications:
+A Turborepo monorepo containing three React applications:
 - `apps/app` — PWA for players (B2C, mobile-first, dark mode by default)
-- `apps/admin` — Admin panel for club staff (B2B, desktop-first)
+- `apps/admin` — Club panel for club owner, administrators and reception (B2B, desktop-first). The directory keeps the name `admin` because the existing Vercel project points at it
+- `apps/platform` — Platform panel for superadmin and reviewers (B2B, desktop-first)
 
 They share code through internal packages.
 
@@ -30,7 +31,8 @@ They share code through internal packages.
 match-padel-web/
 ├── apps/
 │   ├── app/          ← players PWA (mobile-first, dark mode)
-│   └── admin/        ← B2B panel (desktop-first)
+│   ├── admin/        ← club panel (desktop-first)
+│   └── platform/     ← platform panel (desktop-first)
 ├── packages/
 │   ├── ui/           ← shadcn/ui + color tokens (shared)
 │   ├── types/        ← generated types (Supabase + Swagger)
@@ -78,7 +80,7 @@ If you need a new API type, first check that it does not already exist in `packa
 All base components (Button, Input, Dialog, etc.) come from `packages/ui`.
 Import: `import { Button } from '@match-padel/ui'`
 
-Never install shadcn/ui directly in `apps/app` or `apps/admin`. Everything goes through `packages/ui`.
+Never install shadcn/ui directly in `apps/app`, `apps/admin` or `apps/platform`. Everything goes through `packages/ui`.
 
 Color tokens live in `packages/ui/src/globals.css`. The app's primary blue is `--primary`.
 
@@ -123,13 +125,15 @@ For the monorepo's internal packages:
 - **Dynamic lobby**: `/app/matches/:id` visually mutates according to `match.status` WITHOUT changing the URL
 - **Bottom Sheet in the store**: do not navigate to `/store/:id`, open a Drawer from `@match-padel/ui`
 
-## apps/admin — specific rules
+## apps/admin (club panel) and apps/platform — specific rules
 
 - **Desktop-first**: dense Excel-like grids, not mobile-first
-- **Conditional sidebar**: built from `club_staff.role`; `super_admin` sees `/platform/*`
-- **Multi-tenant**: every club route has `/:clubId/` in the URL
-- **Zustand**: keep the sidebar state (open/closed) and the active selection in a global store
-- **Route guards**: verify `club_staff.role` before rendering; redirect if there is no access
+- **Data only through the API**: Supabase JS is for auth (sign in/out, session, JWT) only; no `.from('table')`
+- **Access comes from `GET /me/access`**: the user's clubs with role (`owner`/`admin`/`staff`/`superadmin`) and `platformRole` (`superadmin`/`reviewer`/`null`). The server enforces permissions; guards and hidden actions are UX only
+- **`apps/admin` is multi-tenant**: every club route has `/:clubId/` in the URL; the sidebar is built from the role in that club; reception (`staff`) does not see matches, tournaments or club-data edit actions
+- **`apps/platform`**: needs a non-null `platformRole`; reviewers only see the applications inbox placeholder
+- **Zustand**: only ephemeral UI state (sidebar, last club); server data lives in React Query
+- Shared panel components (`LoginForm`, `PageHeader`, `StatCard`, `StatusBadge`, `Pagination`, `Notice`) and `format*` helpers come from `@match-padel/ui`
 
 ## What you must NOT do
 
@@ -150,11 +154,11 @@ This document describes the **target architecture**. The existing code does not 
 |---|---|---|
 | Feature structure | `api/`, `components/`, `hooks/`, `store/`, `index.ts` | 6 features use `services/` and only 1 uses `api/`; only `auth` has an `index.ts` (1 of 10) |
 | Imports | Always through the feature's `index.ts` | There are 15 direct imports into `features/*/components` |
-| Types | From `@match-padel/types` | No file imports the package alias; the few places that use the types import `packages/types/src/*` by long relative paths. `packages/types` has `supabase.ts` and a hand-written 20-line `api.ts` |
-| Base components | `@match-padel/ui` | Nothing imports it, and `packages/ui/src/index.ts` exports only `cn`, so no component is importable yet (9 components exist in `packages/ui/src/components`) |
+| Types | From `@match-padel/types` | `apps/admin` and `apps/platform` import the package alias; in `apps/app` no file does; the few places that use the types import `packages/types/src/*` by long relative paths. `packages/types` has `supabase.ts` and a hand-written 20-line `api.ts` |
+| Base components | `@match-padel/ui` | `packages/ui/src/index.ts` exports `cn`, `format*` helpers and the panel components (`components/panel`, used by `apps/admin` and `apps/platform`); the 9 shadcn-style components in `packages/ui/src/components` are still not exported and `apps/app` imports nothing from the package |
 | i18n in `apps/app` | Every text through `t('key')` | Met — unified on `src/i18n/index.ts` + `locales/{es,en}.json` (card #32); every screen's UI text goes through `t('key')` |
-| Admin | `/:clubId/...` routes, `/platform/*`, sidebar by `club_staff` role | 6 flat routes (`/dashboard`, `/clubs`, `/reservations`, `/users`, `/matches`, `/tournaments`), no per-route role guards (the login rejects users whose `users.role` is not `club_staff`/`super_admin`); login only, no registration |
-| HTTP | Axios only, all data through the API | No `fetch(` calls. But `apps/admin` bypasses the API: it queries and writes Supabase tables directly, and its `lib/axios.ts` is unused |
+| Admin | `/:clubId/...` routes in the club panel, a separate platform panel, sidebar by role | Met for F0 (card #66): `apps/admin` is the club panel with `/:clubId/{dashboard,reservations,matches,tournaments,club}`, role-aware sidebar and guards from `GET /me/access`; `apps/platform` has dashboard, clubs, users, audit log and a reviewer placeholder. Courts, schedules, prices, calendar, team, MP account, tournament management and the applications inbox are still missing (phases F1-F4). No registration in either panel (login only) |
+| HTTP | Axios only, all data through the API | No `fetch(` calls. Both panels go through the API (`/club-admin/:clubId/*`, `/platform/*`, `/me/access`) with Supabase for auth only; their Axios interceptors do not unwrap `response.data.data` yet (each API file does `.then((r) => r.data.data)`) |
 | Tests | Vitest + RTL, 50% in `src/features/` | No framework and no tests |
 | Lint | ESLint | The `lint` script exists, but I found no ESLint configuration: it probably fails |
 | Duplicates in `apps/app` | — | `auth.store.ts` is the only auth store now (`authStore.ts`, the unused duplicate, was removed — card #33). Two i18n setups: `i18n.ts` (Spanish only, flat keys) is the one **loaded** (`main.tsx` imports `./i18n`, which resolves to the file first); `i18n/index.ts` + `locales/{es,en}.json` is the target but is not loaded. New keys go in `i18n.ts` and are mirrored in the JSON |
@@ -174,7 +178,7 @@ Requirements come in through a Claude session. The main session **orchestrates**
 | Agent | Responsibility |
 |---|---|
 | `planner` | Web-side plan. Read-only |
-| `frontend-dev` | Code in `apps/app` and `apps/admin` |
+| `frontend-dev` | Code in `apps/app`, `apps/admin` and `apps/platform` |
 | `tester` | Tests. Does not modify production code |
 | `reviewer` | Diff review. Does not modify code |
 | `pr-agent` | Git and `gh`: branches, commits, PR |
@@ -183,14 +187,14 @@ Supporting skills: `new-feature`, `pr-format`, `release`, `trello-story`.
 
 ## Branches, environments and hard rules
 
-- `main` is **production** (Vercel projects `match-padel-app` and `match-padel-admin`, pointing at the production API and Supabase). `develop` is the working branch, which points at the dev API (`https://match-padel-api-dev.onrender.com/api/v1`, Render `match-padel-api-dev`) and the dev Supabase project `match-padel-dev` (`vrnonxpxksaruvsvbplt`) through three Vercel Preview variables (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) **scoped to the `develop` branch**, set on both Vercel projects. The dev environment was rebuilt on 03/10/2026 (the previous dev Supabase project no longer exists). Changing those values only takes effect on the next build of `develop`. PR previews from other branches use a second set of Preview variables with no branch scope, set to the same dev values (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, all Preview-only). The old "All Environments" Supabase variables now cover only Production and Development, so no preview can reach production Supabase. Fixed on 03/10/2026 on both Vercel projects; before that, PR previews pointed at production Supabase and at a non-existent API URL (`match-padel-api-preview.vercel.app`).
+- `main` is **production** (Vercel projects `match-padel-app` and `match-padel-admin`, plus `match-padel-platform` once it is created; pointing at the production API and Supabase). `develop` is the working branch, which points at the dev API (`https://match-padel-api-dev.onrender.com/api/v1`, Render `match-padel-api-dev`) and the dev Supabase project `match-padel-dev` (`vrnonxpxksaruvsvbplt`) through three Vercel Preview variables (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) **scoped to the `develop` branch**, set on both Vercel projects. The dev environment was rebuilt on 03/10/2026 (the previous dev Supabase project no longer exists). Changing those values only takes effect on the next build of `develop`. PR previews from other branches use a second set of Preview variables with no branch scope, set to the same dev values (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, all Preview-only). The old "All Environments" Supabase variables now cover only Production and Development, so no preview can reach production Supabase. Fixed on 03/10/2026 on both Vercel projects; before that, PR previews pointed at production Supabase and at a non-existent API URL (`match-padel-api-preview.vercel.app`).
 - **Previewing a branch:** every PR gets a frontend preview that uses the dev API and dev Supabase. The dev API always runs `develop` and the dev database is shared, so backend changes must be merged to `develop` first to be seen in a preview; details and alternatives in `docs/architecture.md`, "Previewing a branch before merging to `develop`".
 - **Vercel is connected to GitHub** (confirmed 2026-09-27): every PR gets an automatic preview per app, posted as a comment by the Vercel bot on the PR (with direct links) and as PR status checks. Pushing to `develop` also updates the fixed branch alias `match-padel-app-git-develop-agusshadows-projects.vercel.app` / `match-padel-admin-git-develop-agusshadows-projects.vercel.app` automatically — the old manual `vercel alias set` workflow is no longer needed.
 - **`main` and `develop` accept no direct commits or pushes.** Everything goes through a pull request. GitHub branch protection is not available for private repos on the free plan, so it is enforced locally: (1) a Claude Code hook (`.claude/hooks/guard-protected-branches.py`, registered in `.claude/settings.json`) that blocks agents, in every session on this repo; (2) git hooks in `.githooks/` for the human, enabled once per clone with `git config core.hooksPath .githooks`. Only the human may override the git hooks in an emergency (`ALLOW_PROTECTED_BRANCH=1`); agents must never bypass them.
 - **Day-to-day:** feature branch from `develop` → PR against `develop` → merged with **squash** by the human.
 - **Release** (`/release` skill): when `develop` has accumulated several commits, a `release/vX.Y.Z` branch is cut from `develop` with all of them plus **one** extra commit, `chore: version bump`, that only raises the version. It is merged into `main` with a **merge commit** (to keep traceability), then `main` is merged back into `develop` (PR, **merge commit**) so both branches are level again.
 - Never enable "automatically delete head branches" on the repository: the release flow uses `develop` and `main` as PR heads.
-- Commits and PRs in **English**, conventional commits. See the `pr-format` skill, including the Screenshots rule for PRs touching `apps/app`/`apps/admin` (images live on the never-merged `assets` orphan branch, never on `develop`/`main`).
+- Commits and PRs in **English**, conventional commits. See the `pr-format` skill, including the Screenshots rule for PRs touching `apps/app`/`apps/admin`/`apps/platform` (images live on the never-merged `assets` orphan branch, never on `develop`/`main`).
 - **Never** touch production from an agent session. Never put secret keys in the bundle: only public `VITE_` variables (anon key, never `service_role`).
 - If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR". If that API PR includes a database migration, it is applied to the dev project when the PR is merged and promoted to production **before** the release that ships this change is merged (the API repo's `release` skill lists the pending migrations). Regenerate `packages/types/src/supabase.ts` from the **dev** project (`SUPABASE_PROJECT_ID=vrnonxpxksaruvsvbplt`) once the migration is applied there, because dev is where the new schema exists first; the header of that generated file may still say the production project until it is regenerated.
 

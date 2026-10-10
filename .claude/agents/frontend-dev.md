@@ -21,7 +21,7 @@ Read `CLAUDE.md`, `docs/conventions.md`, `docs/ui.md` and the relevant section o
 
 ## Per app
 - **`apps/app`** (players): mobile-first, dark mode by default, bottom navigation. **All text goes through `t('key')`**; add each key to `src/i18n.ts` and mirror it in `src/i18n/locales/es.json` and `en.json` (see "Canonical files").
-- **`apps/admin`** (staff): desktop-first, dense tables and grids. Flatter structure (one folder per feature holding its pages). Respect the convention of the folder you are working in instead of forcing the other app's.
+- **`apps/admin`** (club panel) and **`apps/platform`** (platform panel): desktop-first, dense tables and grids. Same feature structure as `apps/app` (`api/`, `components/`, `hooks/`, `index.ts`); data only through the API, Supabase for auth only; shared panel components come from `@match-padel/ui`.
 
 ## Canonical files (legacy duplicates exist)
 In `apps/app`: use `features/auth/store/auth.store.ts` (`authStore.ts` is an unused duplicate). Do not add code to unused duplicates and do not delete them: cleaning them up is a separate task.

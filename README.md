@@ -1,13 +1,14 @@
 # match-padel-web
 
-Monorepo (Turborepo + npm workspaces) with the two frontends for Match Padel. They talk to [`match-padel-api`](https://github.com/agusshadow/match-padel-api).
+Monorepo (Turborepo + npm workspaces) with the three frontends for Match Padel. They talk to [`match-padel-api`](https://github.com/agusshadow/match-padel-api).
 
 ## Apps
 
 | App | Description | Production | `develop` branch |
 |---|---|---|---|
 | `apps/app` | Player PWA (mobile-first) | https://match-padel-app.vercel.app | https://match-padel-app-git-develop-agusshadows-projects.vercel.app |
-| `apps/admin` | Admin panel for staff (desktop-first) | https://match-padel-admin.vercel.app | https://match-padel-admin-git-develop-agusshadows-projects.vercel.app |
+| `apps/admin` | Club panel: owner, administrators, reception (desktop-first; the directory name is kept for the Vercel project) | https://match-padel-admin.vercel.app | https://match-padel-admin-git-develop-agusshadows-projects.vercel.app |
+| `apps/platform` | Platform panel: superadmin and reviewers (desktop-first, dev port 5174) | not deployed yet (Vercel project to be created, root `apps/platform`) | not deployed yet |
 
 **Vercel is connected to GitHub**: every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (linked from the Vercel bot's comment on the PR).
 
@@ -15,21 +16,21 @@ Monorepo (Turborepo + npm workspaces) with the two frontends for Match Padel. Th
 
 | Package | Description |
 |---|---|
-| `packages/ui` | shadcn-style components (9 exist; the package barrel exports only `cn` for now) |
-| `packages/types` | TypeScript types: generated Supabase types and a small hand-written `api.ts` |
+| `packages/ui` | shadcn-style components (9 exist, not exported yet) and the panel components shared by `apps/admin` and `apps/platform` (exported) |
+| `packages/types` | TypeScript types: generated Supabase types and the hand-written `api.ts` (envelope and panel response types) |
 | `packages/config` | Base TypeScript and Tailwind configs |
 
 ## Setup
 
 ```bash
 npm install
-cp apps/app/.env.example apps/app/.env.local      # and the same for apps/admin
-npm run dev            # both apps in parallel
+cp apps/app/.env.example apps/app/.env.local      # and the same for apps/admin and apps/platform
+npm run dev            # all apps in parallel
 ```
 
 | Script | What it does |
 |---|---|
-| `npm run dev` | Run both apps (Turborepo) |
+| `npm run dev` | Run all apps (Turborepo) |
 | `npm run build` | Build everything |
 | `npm run typecheck` | Type-check everything |
 | `npm run supabase:types` | Regenerate `packages/types/src/supabase.ts` (needs the Supabase CLI and `SUPABASE_PROJECT_ID`; use the **dev** project, `vrnonxpxksaruvsvbplt`, where a migration lands first) |
