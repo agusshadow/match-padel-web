@@ -18,13 +18,15 @@ export interface Paginated<T> {
   meta: NonNullable<ApiResponse['meta']>
 }
 
+/**
+ * Error body of the API's error handler: `{ error: CODE, message, details? }`. There is no
+ * `success` field. `details` is a list of `{ field, message }` for validation errors and an
+ * object for some domain errors (e.g. `APPLICATION_INCOMPLETE`, see `ApplicationIncompleteDetails`).
+ */
 export interface ApiError {
-  success: false
-  error: {
-    code: string
-    message: string
-    details?: Array<{ field: string; message: string }>
-  }
+  error: string
+  message: string
+  details?: unknown
 }
 
 // ---------------------------------------------------------------------------
@@ -38,6 +40,7 @@ export interface ApiError {
 export type PlatformRole = 'superadmin' | 'reviewer'
 export type ClubRole = 'owner' | 'admin' | 'staff' | 'superadmin'
 
+export type ClubStatus = Enums<'club_status'>
 export type ReservationStatus = Enums<'reservation_status'>
 export type MatchStatus = Enums<'match_status'>
 export type TournamentStatus = Enums<'tournament_status'>
@@ -54,6 +57,7 @@ export interface ClubAccess {
   name: string
   slug: string
   isActive: boolean
+  status: ClubStatus
   role: ClubRole
 }
 
@@ -130,17 +134,118 @@ export type ClubAdminClub = Pick<
   | 'lat'
   | 'lng'
   | 'is_active'
+  | 'status'
+  | 'legal_name'
+  | 'tax_id'
   | 'created_at'
   | 'updated_at'
->
+> & { opening_hours: OpeningHours }
 
-/** Body of `PATCH /club-admin/:clubId` */
+/** Weekly opening hours draft (`clubs.settings.opening_hours`). A day with no key or no interval is closed. */
+export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+export type Weekday = (typeof WEEKDAYS)[number]
+export interface OpeningInterval {
+  /** `HH:MM` */
+  open: string
+  /** `HH:MM` or `24:00` */
+  close: string
+}
+export type OpeningHours = Partial<Record<Weekday, OpeningInterval[]>>
+
+/** Body of `PATCH /club-admin/:clubId` (at least one field). */
 export type ClubAdminClubUpdate = Partial<
   Pick<
     Tables<'clubs'>,
-    'name' | 'description' | 'address' | 'city' | 'phone' | 'email' | 'logo_url' | 'cover_url' | 'lat' | 'lng'
+    | 'name'
+    | 'description'
+    | 'address'
+    | 'city'
+    | 'phone'
+    | 'email'
+    | 'logo_url'
+    | 'cover_url'
+    | 'lat'
+    | 'lng'
+    | 'legal_name'
+    | 'tax_id'
   >
+> & { opening_hours?: OpeningHours }
+
+/** Body of `POST /me/clubs` */
+export interface MyClubCreate {
+  name: string
+  address: string
+  city: string
+}
+
+export type CourtSurface = Enums<'court_surface'>
+
+/** Row of `GET /club-admin/:clubId/courts` and the body returned by court create/update. */
+export type ClubAdminCourt = Pick<
+  Tables<'courts'>,
+  'id' | 'club_id' | 'name' | 'surface' | 'is_indoor' | 'price_per_hour' | 'is_active' | 'created_at' | 'updated_at'
 >
+
+/** Body of `POST /club-admin/:clubId/courts` */
+export interface ClubAdminCourtCreate {
+  name: string
+  surface: CourtSurface
+  is_indoor?: boolean
+  price_per_hour: number
+  is_active?: boolean
+}
+
+/** Body of `PATCH /club-admin/:clubId/courts/:id` (at least one field). */
+export type ClubAdminCourtUpdate = Partial<ClubAdminCourtCreate>
+
+export type ClubDocumentKind = 'tax_id' | 'company_registration' | 'id_document' | 'other'
+
+/** Document of an application, with a signed URL that expires in 10 minutes (`url` can be null). */
+export type ClubAdminDocument = Pick<
+  Tables<'club_documents'>,
+  'id' | 'file_name' | 'mime_type' | 'size_bytes' | 'uploaded_by' | 'created_at'
+> & { kind: ClubDocumentKind; url: string | null }
+
+export type OnboardingStepKey = 'club' | 'location' | 'contact' | 'courts' | 'schedule' | 'documents'
+
+export interface OnboardingStep {
+  key: OnboardingStepKey
+  complete: boolean
+  /** Field codes still missing, e.g. `name`, `coordinates`, `active_court_with_price`, `opening_hours`, `document`. */
+  missing: string[]
+}
+
+/** Entry of the status history of a club (newest first). */
+export interface ClubStatusHistoryEntry {
+  id: string
+  from_status: ClubStatus | null
+  to_status: ClubStatus
+  note: string | null
+  created_at: string
+  actor: Pick<Tables<'users'>, 'id' | 'first_name' | 'last_name'> | null
+}
+
+/** `GET /club-admin/:clubId/onboarding` */
+export interface ClubOnboarding {
+  status: ClubStatus
+  steps: OnboardingStep[]
+  canSubmit: boolean
+  history: ClubStatusHistoryEntry[]
+  documents: ClubAdminDocument[]
+}
+
+/** `details` of a `422 APPLICATION_INCOMPLETE` from `POST /club-admin/:clubId/submit`. */
+export interface ApplicationIncompleteDetails {
+  /** `<step>.<field>` codes, e.g. `club.tax_id`. */
+  missing: string[]
+  steps: OnboardingStep[]
+}
+
+/** `GET /club-admin/:clubId/documents/:id/url` and `GET /platform/clubs/:clubId/documents/:id/url` */
+export interface DocumentUrl {
+  url: string
+  expiresIn: number
+}
 
 /** `GET /platform/summary` */
 export interface PlatformSummary {
@@ -170,6 +275,9 @@ export type PlatformClub = Pick<
   | 'email'
   | 'logo_url'
   | 'is_active'
+  | 'status'
+  | 'legal_name'
+  | 'tax_id'
   | 'created_at'
   | 'updated_at'
 >

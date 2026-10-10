@@ -3,6 +3,7 @@ import axios from 'axios'
 interface ErrorBody {
   message?: string
   error?: string | { message?: string }
+  details?: unknown
 }
 
 /**
@@ -20,4 +21,16 @@ export function getErrorMessage(error: unknown, fallback = 'Ocurrió un error in
 
 export function getErrorStatus(error: unknown): number | undefined {
   return axios.isAxiosError(error) ? error.response?.status : undefined
+}
+
+/** Machine code of an API error (`{ error: CODE }`), e.g. `APPLICATION_INCOMPLETE`, `USERNAME_TAKEN`. */
+export function getErrorCode(error: unknown): string | undefined {
+  if (!axios.isAxiosError<ErrorBody>(error)) return undefined
+  const code = error.response?.data?.error
+  return typeof code === 'string' ? code : undefined
+}
+
+/** `details` of an API error, untyped: callers narrow it for the codes they know. */
+export function getErrorDetails(error: unknown): unknown {
+  return axios.isAxiosError<ErrorBody>(error) ? error.response?.data?.details : undefined
 }

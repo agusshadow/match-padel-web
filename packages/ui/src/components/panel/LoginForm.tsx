@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Notice } from './Notice'
 
 export interface LoginFormProps {
   title: string
   subtitle: string
   logoSrc?: string
+  /** Rendered under the form (e.g. a link to the registration page). */
+  footer?: ReactNode
   /** Resolve on success; throw (or reject) with an Error to show its message. */
   onSubmit: (credentials: { email: string; password: string }) => Promise<void>
 }
 
 /** Email + password sign-in card shared by the club and platform panels. */
-export function LoginForm({ title, subtitle, logoSrc = '/logo-app.svg', onSubmit }: LoginFormProps) {
+export function LoginForm({ title, subtitle, logoSrc = '/logo-app.svg', footer, onSubmit }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -82,6 +84,7 @@ export function LoginForm({ title, subtitle, logoSrc = '/logo-app.svg', onSubmit
             {loading ? 'Iniciando...' : 'Iniciar sesión'}
           </button>
         </form>
+        {footer && <div className="mt-4 text-center text-sm text-gray-600">{footer}</div>}
       </div>
     </div>
   )

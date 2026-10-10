@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
-import { NavLink, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { LayoutDashboard, CalendarDays, Swords, Trophy, Building2, LogOut, Menu } from 'lucide-react'
+import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { LayoutDashboard, CalendarDays, Swords, Trophy, Building2, ClipboardList, Layers, LogOut, Menu } from 'lucide-react'
 import { Notice, StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePanelStore } from '@/store/panel.store'
 import { CurrentClubProvider } from '../club-context'
-import { CLUB_ROLE_LABELS, canManageClub } from '../permissions'
+import { ClubStatusBadge } from '../components/ClubStatusBadge'
+import { CLUB_ROLE_LABELS, CLUB_STATUS_LABELS, canManageClub, isClubLive } from '../permissions'
 
 export function ClubLayout() {
   const { clubId } = useParams<{ clubId: string }>()
@@ -27,18 +28,25 @@ export function ClubLayout() {
   if (!access || !club) return <Navigate to="/" replace />
 
   const manager = canManageClub(club.role)
+  const live = isClubLive(club.status)
+  // Until the club is approved only its application is available (a superadmin can open anything).
+  const full = live || club.role === 'superadmin'
   const navItems = [
-    { to: 'dashboard', icon: LayoutDashboard, label: 'Resumen', show: true },
-    { to: 'reservations', icon: CalendarDays, label: 'Reservas', show: true },
-    { to: 'matches', icon: Swords, label: 'Partidos', show: manager },
-    { to: 'tournaments', icon: Trophy, label: 'Torneos', show: manager },
-    { to: 'club', icon: Building2, label: 'Club', show: true },
+    { to: 'onboarding', icon: ClipboardList, label: 'Solicitud', show: manager && !live },
+    { to: 'dashboard', icon: LayoutDashboard, label: 'Resumen', show: full },
+    { to: 'reservations', icon: CalendarDays, label: 'Reservas', show: full },
+    { to: 'matches', icon: Swords, label: 'Partidos', show: full && manager },
+    { to: 'tournaments', icon: Trophy, label: 'Torneos', show: full && manager },
+    { to: 'club', icon: Building2, label: 'Club', show: full },
   ].filter((item) => item.show)
 
   const changeClub = (nextId: string) => {
-    // Keep the section (/<oldClub>/reservations -> /<newClub>/reservations).
+    const next = access.clubs.find((c) => c.clubId === nextId)
+    if (!next) return
+    // Keep the section (/<oldClub>/reservations -> /<newClub>/reservations) when the new club is approved.
     const section = location.pathname.split('/')[2] ?? 'dashboard'
-    navigate(`/${nextId}/${section}`)
+    const keep = isClubLive(next.status) && section !== 'onboarding' ? section : null
+    navigate(keep ? `/${nextId}/${keep}` : `/${nextId}`)
   }
 
   return (
@@ -72,7 +80,7 @@ export function ClubLayout() {
               >
                 {access.clubs.map((c) => (
                   <option key={c.clubId} value={c.clubId}>
-                    {c.name}
+                    {c.name} ({CLUB_STATUS_LABELS[c.status]})
                   </option>
                 ))}
               </select>
@@ -81,8 +89,15 @@ export function ClubLayout() {
                 {club.name}
               </p>
             )}
-            <div className="px-1">
+            <div className="px-1 flex flex-wrap gap-1">
               <StatusBadge label={CLUB_ROLE_LABELS[club.role]} tone="purple" />
+              <ClubStatusBadge status={club.status} />
+            </div>
+            <div className="px-1 flex items-center gap-1 text-xs">
+              <Layers className="w-3 h-3 text-gray-400" />
+              <Link to="/clubs" className="text-green-700 hover:underline">
+                Mis clubes
+              </Link>
             </div>
           </div>
 
@@ -126,7 +141,7 @@ export function ClubLayout() {
             <span className="text-sm font-medium">{club.name}</span>
           </div>
           <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
-            {!club.isActive && (
+            {live && !club.isActive && (
               <Notice tone="info">Este club está desactivado: los jugadores no lo ven en la app.</Notice>
             )}
             <Outlet />
