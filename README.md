@@ -32,7 +32,7 @@ npm run dev            # both apps in parallel
 | `npm run dev` | Run both apps (Turborepo) |
 | `npm run build` | Build everything |
 | `npm run typecheck` | Type-check everything |
-| `npm run supabase:types` | Regenerate `packages/types/src/supabase.ts` (needs the Supabase CLI and `SUPABASE_PROJECT_ID`) |
+| `npm run supabase:types` | Regenerate `packages/types/src/supabase.ts` (needs the Supabase CLI and `SUPABASE_PROJECT_ID`; use the **dev** project, `vrnonxpxksaruvsvbplt`, where a migration lands first) |
 
 There is no test framework yet, and `npm run lint` has no ESLint configuration to run (see "Real state vs. target" in `CLAUDE.md`).
 
