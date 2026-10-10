@@ -63,7 +63,8 @@ Main features:
 - Club data view/edit (exists; edit hidden for reception)
 - Owner registration with email code, club selector with statuses, new application and the onboarding wizard with submit, history and read-only states (exists; card #67). Only `approved` clubs open the dashboard and the rest
 - Courts area: courts CRUD, weekly schedule per court, price bands by day and hour, exceptions (club-wide or per court) and a preview of what players see (exists; card #70, owner/admin)
-- Blocks, calendar, team, Mercado Pago account (target — not implemented yet; phase F3)
+- Club calendar: Google Calendar style day / week grid with reservations, ranked matches and blocks, move / cancel with refund summary, blocks for owner/admin (exists; card #71)
+- Team, Mercado Pago account (target — not implemented yet; phase F3)
 - Tournament creation, fixtures and results (target — not implemented yet; phase F4)
 
 ### `apps/platform` — Platform panel

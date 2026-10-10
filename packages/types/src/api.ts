@@ -504,3 +504,124 @@ export interface AuditLogEntry {
   actor: PersonRef | null
   club: { id: string; name: string } | null
 }
+
+// ---------------------------------------------------------------------------
+// Club calendar, move / cancel and blocks (card #71, Admin F2)
+// ---------------------------------------------------------------------------
+
+export type MatchType = Enums<'match_type'>
+
+/** Row of `court_blocks` as `GET /calendar`, `GET /blocks` and `POST /blocks` return it. */
+export type CourtBlock = Tables<'court_blocks'>
+
+/** `unpaid`: nothing approved; `partial`: less than the total; `paid`; `refunded`: only refunded payments. */
+export type CalendarPaymentStatus = 'unpaid' | 'partial' | 'paid' | 'refunded'
+
+/** A contiguous open window of a court on one club-local day. `start`/`end` are club-local `HH:MM`, `*_time` are UTC instants. */
+export interface CalendarOpenWindow {
+  start_time: string
+  end_time: string
+  start: string
+  end: string
+  slot_minutes: SlotMinutes
+}
+
+export interface CalendarDay {
+  /** Club-local `YYYY-MM-DD`. */
+  date: string
+  day_of_week: number
+  closed: boolean
+  closed_reason: string | null
+  source: string
+  open_hours: CalendarOpenWindow[]
+}
+
+export interface CalendarReservation {
+  id: string
+  status: Exclude<ReservationStatus, 'cancelled'>
+  start_time: string
+  end_time: string
+  user: Pick<Tables<'users'>, 'id' | 'first_name' | 'last_name' | 'username'> | null
+  total_price: number
+  payment: { status: CalendarPaymentStatus; paid_amount: number }
+  match: Pick<Tables<'matches'>, 'id' | 'type' | 'is_ranked' | 'status'> | null
+  /** Confirmed players of the linked match; null for a plain reservation. */
+  players_count: number | null
+}
+
+export interface CalendarCourt {
+  court: Pick<Tables<'courts'>, 'id' | 'name' | 'surface' | 'is_indoor' | 'is_active'>
+  days: CalendarDay[]
+  reservations: CalendarReservation[]
+  blocks: CourtBlock[]
+}
+
+/** `GET /club-admin/:clubId/calendar?from=&to=&courtId=` */
+export interface ClubCalendar {
+  from: string
+  to: string
+  timezone: string
+  courts: CalendarCourt[]
+}
+
+/** Body of `PATCH /club-admin/:clubId/reservations/:id/move`. `court_id` omitted keeps the court. */
+export interface ReservationMove {
+  court_id?: string
+  start_time: string
+  end_time: string
+}
+
+/** `refund` of a club cancellation: payments seen, refunded, those MercadoPago rejected and the amount returned. */
+export interface ReservationRefund {
+  payments: number
+  refunded: number
+  failed: string[]
+  amount_refunded: number
+}
+
+/** Result of `POST /club-admin/:clubId/reservations/:id/cancel` (and of `PATCH` with `cancelled`). */
+export type ReservationCancelResult = ClubAdminReservation & {
+  refund: ReservationRefund
+  match: { id: string; status: MatchStatus } | null
+}
+
+/** Body of `POST /club-admin/:clubId/blocks`. */
+export interface CourtBlocksCreate {
+  court_ids: string[]
+  start_time: string
+  end_time: string
+  reason?: string | null
+}
+
+/** One entry of `details.conflicts` of a 409 `BLOCK_CONFLICTS`. */
+export type BlockConflict =
+  | {
+      type: 'reservation'
+      id: string
+      court_id: string
+      start_time: string
+      end_time: string
+      status: ReservationStatus
+      user: Pick<Tables<'users'>, 'id' | 'first_name' | 'last_name' | 'username'> | null
+      match_id: string | null
+    }
+  | {
+      type: 'block'
+      id: string
+      court_id: string
+      start_time: string
+      end_time: string
+      reason: string | null
+    }
+
+/** Error codes of move, cancel and block creation the panel shows a specific message for. */
+export type CalendarErrorCode =
+  | 'CANNOT_MOVE'
+  | 'COURT_INACTIVE'
+  | 'OUTSIDE_SCHEDULE'
+  | 'COURT_CLOSED'
+  | 'COURT_BLOCKED'
+  | 'SLOT_TAKEN'
+  | 'CANNOT_CANCEL'
+  | 'MATCH_COMPLETED'
+  | 'BLOCK_CONFLICTS'

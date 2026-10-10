@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ClubAdminReservation, ReservationStatus } from '@match-padel/types'
 import { Notice, PageHeader, Pagination, StatusBadge, formatDate, formatMoney, formatTime, personName } from '@match-padel/ui'
+import { clubParts } from '@/lib/club-time'
 import { getErrorMessage } from '@/lib/errors'
 import { useCurrentClub } from '@/shared/club-context'
 import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES } from '@/shared/permissions'
@@ -103,7 +105,15 @@ export function ReservationsPage() {
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex gap-1 justify-end">
+                        <div className="flex gap-1 justify-end items-center">
+                          {r.status !== 'cancelled' && (
+                            <Link
+                              to={`/${club.clubId}/calendar?date=${clubParts(r.start_time).date}&reservation=${r.id}`}
+                              className="text-xs px-2 py-1 rounded text-green-700 hover:underline"
+                            >
+                              Ver en calendario
+                            </Link>
+                          )}
                           {transitionsFor(r).map((t) => (
                             <button
                               key={t.status}

@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { LoginPage, RegisterPage } from '@/features/auth'
 import { DashboardPage } from '@/features/dashboard'
+import { CalendarPage } from '@/features/calendar'
 import { ReservationsPage } from '@/features/reservations'
 import { MatchesPage } from '@/features/matches'
 import { TournamentsPage } from '@/features/tournaments'
@@ -35,6 +36,7 @@ export default function App() {
             </Route>
             <Route element={<RequireApprovedClub />}>
               <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="calendar" element={<CalendarPage />} />
               <Route path="reservations" element={<ReservationsPage />} />
               <Route element={<RequireManagerRole />}>
                 <Route path="matches" element={<MatchesPage />} />

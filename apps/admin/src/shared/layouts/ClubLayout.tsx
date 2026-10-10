@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { LayoutDashboard, CalendarDays, Swords, Trophy, Building2, LandPlot, ClipboardList, Layers, LogOut, Menu } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, CalendarRange, Swords, Trophy, Building2, LandPlot, ClipboardList, Layers, LogOut, Menu } from 'lucide-react'
 import { Notice, StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePanelStore } from '@/store/panel.store'
@@ -34,6 +34,7 @@ export function ClubLayout() {
   const navItems = [
     { to: 'onboarding', icon: ClipboardList, label: 'Solicitud', show: manager && !live },
     { to: 'dashboard', icon: LayoutDashboard, label: 'Resumen', show: full },
+    { to: 'calendar', icon: CalendarRange, label: 'Calendario', show: full },
     { to: 'reservations', icon: CalendarDays, label: 'Reservas', show: full },
     { to: 'matches', icon: Swords, label: 'Partidos', show: full && manager },
     { to: 'tournaments', icon: Trophy, label: 'Torneos', show: full && manager },
@@ -141,7 +142,11 @@ export function ClubLayout() {
             </button>
             <span className="text-sm font-medium">{club.name}</span>
           </div>
-          <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
+          <div
+            className={`mx-auto px-6 py-6 space-y-6 ${
+              location.pathname.endsWith('/calendar') ? 'max-w-none' : 'max-w-6xl'
+            }`}
+          >
             {live && !club.isActive && (
               <Notice tone="info">Este club está desactivado: los jugadores no lo ven en la app.</Notice>
             )}
