@@ -10,8 +10,10 @@ import { CourtsPage, CourtDetailPage, ClubExceptionsPage } from '@/features/cour
 import { OnboardingPage } from '@/features/onboarding'
 import { TeamPage } from '@/features/team'
 import { InvitePage } from '@/features/invitations'
+import { MercadoPagoPage, MercadoPagoReturnRedirect, MercadoPagoDashboardHint } from '@/features/mercadopago'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
+import { RequireOwnerRole } from '@/shared/components/RequireOwnerRole'
 import { RequireApprovedClub } from '@/shared/components/RequireApprovedClub'
 import { ClubRedirect } from '@/shared/components/ClubRedirect'
 import { ClubIndexRedirect } from '@/shared/components/ClubIndexRedirect'
@@ -32,13 +34,14 @@ export default function App() {
             <Route path="clubs" element={<MyClubsRoute />} />
             <Route path="new-club" element={<NewClubRoute />} />
           </Route>
+          <Route path="mercadopago" element={<MercadoPagoReturnRedirect />} />
           <Route path=":clubId" element={<ClubLayout />}>
             <Route index element={<ClubIndexRedirect />} />
             <Route element={<RequireManagerRole />}>
               <Route path="onboarding" element={<OnboardingPage />} />
             </Route>
             <Route element={<RequireApprovedClub />}>
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="dashboard" element={<DashboardPage notices={<MercadoPagoDashboardHint />} />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="reservations" element={<ReservationsPage />} />
               <Route element={<RequireManagerRole />}>
@@ -48,6 +51,9 @@ export default function App() {
                 <Route path="courts/exceptions" element={<ClubExceptionsPage />} />
                 <Route path="courts/:courtId" element={<CourtDetailPage />} />
                 <Route path="team" element={<TeamPage />} />
+              </Route>
+              <Route element={<RequireOwnerRole />}>
+                <Route path="mercadopago" element={<MercadoPagoPage />} />
               </Route>
               <Route path="club" element={<ClubPage />} />
             </Route>

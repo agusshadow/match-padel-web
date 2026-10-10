@@ -13,6 +13,11 @@ export function canManageClub(role: ClubRole): boolean {
   return role === 'owner' || role === 'admin' || role === 'superadmin'
 }
 
+/** The Mercado Pago account is the owner's (and a superadmin's): administrators and reception never see it. */
+export function canLinkMercadoPago(role: ClubRole): boolean {
+  return role === 'owner' || role === 'superadmin'
+}
+
 export const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
   pending: 'Pendiente',
   confirmed: 'Confirmada',
