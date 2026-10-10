@@ -375,6 +375,56 @@ export type Database = {
         }
         Relationships: []
       }
+      court_price_rules: {
+        Row: {
+          court_id: string
+          created_at: string
+          days_of_week: number[]
+          end_time: string
+          id: string
+          is_active: boolean
+          name: string
+          price_per_hour: number
+          priority: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          court_id: string
+          created_at?: string
+          days_of_week: number[]
+          end_time: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_per_hour: number
+          priority?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          court_id?: string
+          created_at?: string
+          days_of_week?: number[]
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_per_hour?: number
+          priority?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "court_price_rules_court_id_fkey"
+            columns: ["court_id"]
+            isOneToOne: false
+            referencedRelation: "courts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       court_reservations: {
         Row: {
           club_id: string
@@ -433,6 +483,70 @@ export type Database = {
           {
             foreignKeyName: "court_reservations_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      court_schedule_exceptions: {
+        Row: {
+          close_time: string | null
+          closed: boolean
+          club_id: string
+          court_id: string | null
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          open_time: string | null
+          reason: string | null
+          slot_minutes: number | null
+        }
+        Insert: {
+          close_time?: string | null
+          closed?: boolean
+          club_id: string
+          court_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date: string
+          id?: string
+          open_time?: string | null
+          reason?: string | null
+          slot_minutes?: number | null
+        }
+        Update: {
+          close_time?: string | null
+          closed?: boolean
+          club_id?: string
+          court_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          open_time?: string | null
+          reason?: string | null
+          slot_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "court_schedule_exceptions_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "court_schedule_exceptions_court_fkey"
+            columns: ["court_id", "club_id"]
+            isOneToOne: false
+            referencedRelation: "courts"
+            referencedColumns: ["id", "club_id"]
+          },
+          {
+            foreignKeyName: "court_schedule_exceptions_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -609,6 +723,47 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_log: {
+        Row: {
+          club_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          provider_id: string | null
+          status: string
+          template: string
+          to_email: string
+        }
+        Insert: {
+          club_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          status: string
+          template: string
+          to_email: string
+        }
+        Update: {
+          club_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          provider_id?: string | null
+          status?: string
+          template?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_log_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
             referencedColumns: ["id"]
           },
         ]
@@ -1485,6 +1640,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      replace_court_price_rules: {
+        Args: { p_court_id: string; p_rows: Json }
+        Returns: undefined
+      }
+      replace_court_schedule: {
+        Args: { p_court_id: string; p_rows: Json }
+        Returns: undefined
       }
       submit_match_score_draft: {
         Args: { p_draft: Json; p_match_id: string; p_team: number }

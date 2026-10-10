@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { WEEKDAYS, type ClubAdminClub, type OpeningHours, type OpeningInterval, type Weekday } from '@match-padel/types'
+import { Link } from 'react-router-dom'
 import { Notice } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
+import { useCurrentClub } from '@/shared/club-context'
 import { WEEKDAY_LABELS } from '../constants'
 import { useSaveClub } from '../hooks/useOnboarding'
 import { SaveBar, inputClass } from './fields'
@@ -47,6 +49,7 @@ interface Props {
 
 export function ScheduleStep({ clubId, club, editable, onSaved }: Props) {
   const save = useSaveClub(clubId)
+  const currentClub = useCurrentClub()
   const initial = useMemo(() => normalize(club.opening_hours ?? {}), [club.opening_hours])
   const [hours, setHours] = useState(initial)
   const [problem, setProblem] = useState<string | null>(null)
@@ -72,8 +75,26 @@ export function ScheduleStep({ clubId, club, editable, onSaved }: Props) {
       {problem && <Notice>{problem}</Notice>}
       <p className="text-sm text-gray-500">
         Cargá el horario semanal del club. Un día sin rangos queda cerrado; podés agregar varios rangos (por ejemplo,
-        mañana y tarde). El horario por cancha llega más adelante.
+        mañana y tarde). Es el horario general del club: las canchas sin horario propio lo usan, con turnos de 60
+        minutos.
       </p>
+      <Notice tone="info">
+        {currentClub.status === 'approved' ? (
+          <>
+            El horario detallado de cada cancha (turnos de 30 a 120 minutos, varios rangos por día) y sus precios por
+            franja horaria y día se editan en{' '}
+            <Link to={`/${clubId}/courts`} className="underline font-medium">
+              Canchas
+            </Link>
+            .
+          </>
+        ) : (
+          <>
+            Cuando el club esté aprobado vas a poder cargar el horario detallado de cada cancha y sus precios por
+            franja horaria y día desde la sección Canchas.
+          </>
+        )}
+      </Notice>
       <ul className="divide-y divide-gray-100 border border-gray-200 rounded-lg bg-white">
         {WEEKDAYS.map((day) => (
           <li key={day} className="px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-3">

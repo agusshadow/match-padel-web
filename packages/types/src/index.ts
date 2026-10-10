@@ -1,5 +1,5 @@
 export type { Database, Tables, TablesInsert, TablesUpdate, Enums, Json, Constants } from './supabase'
-export { WEEKDAYS } from './api'
+export { WEEKDAYS, SLOT_MINUTES_OPTIONS } from './api'
 export type {
   ApiResponse,
   ApiError,
@@ -32,6 +32,26 @@ export type {
   ClubAdminCourt,
   ClubAdminCourtCreate,
   ClubAdminCourtUpdate,
+  ClubAdminCourtUpdateResult,
+  CourtWarning,
+  SlotMinutes,
+  CourtScheduleInterval,
+  CourtSchedule,
+  CourtScheduleReplace,
+  ScheduleException,
+  ScheduleExceptionCreate,
+  ScheduleExceptionWarning,
+  ScheduleExceptionCreateResult,
+  PriceRule,
+  PriceRuleInput,
+  CourtPriceRules,
+  CourtPriceRulesReplace,
+  CourtPreviewSlot,
+  CourtPreview,
+  CourtSlot,
+  ClubAvailabilityCourt,
+  ClubAvailabilitySlot,
+  BookingScheduleErrorCode,
   ClubDocumentKind,
   ClubAdminDocument,
   OnboardingStepKey,

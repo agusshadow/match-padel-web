@@ -101,7 +101,24 @@
     "paymentStartError": "No se pudo iniciar el pago. Intenta de nuevo.",
     "defaultCourtName": "Cancha",
     "pay": "Pagar",
-    "processingError": "Error al procesar"
+    "processingError": "Error al procesar",
+    "day": "Día",
+    "slot": "Horario",
+    "noSlots": "No hay turnos disponibles para este día.",
+    "fromTotal": "desde {{price}}",
+    "courtPriceLine": "{{surface}} · {{rate}}/hora · {{price}} el turno",
+    "continue": "Continuar",
+    "summary": "Resumen de tu reserva",
+    "duration": "Duración",
+    "durationMinutes": "{{count}} min",
+    "total": "Total",
+    "notes": "Notas (opcional)",
+    "notesPlaceholder": "Ej: somos 4 personas, traemos pelotas...",
+    "confirmBooking": "Confirmar reserva",
+    "errors": {
+      "OUTSIDE_SCHEDULE": "Ese turno ya no coincide con el horario de la cancha. Elegí otro turno de la lista.",
+      "COURT_CLOSED": "La cancha está cerrada en esa fecha. Elegí otro día u otra cancha."
+    }
   },
   "matches": {
     "title": "Partidos",
@@ -182,7 +199,8 @@
     "yourShare": "Tu parte (1/4)",
     "createAndPay": "Crear y pagar ${{amount}}",
     "creating": "Creando...",
-    "createError": "Error al crear el partido. Intentá de nuevo."
+    "createError": "Error al crear el partido. Intentá de nuevo.",
+    "fromTotalShare": "desde {{total}} (1/4: {{share}})"
   },
   "clubs": {
     "title": "Clubes",

@@ -38,6 +38,11 @@ export function useCreateReservation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [RESERVATIONS_KEY] })
     },
+    // The schedule or the slot changed under the player (409): refresh what is offered.
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['clubs', 'availability'] })
+      queryClient.invalidateQueries({ queryKey: ['slots'] })
+    },
   })
 }
 

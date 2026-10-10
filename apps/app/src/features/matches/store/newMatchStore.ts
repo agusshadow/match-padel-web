@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Court, ClubAvailabilitySlot } from '../../clubs/services/clubService'
+import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 
 // Card #57: creating a match now needs a club/slot/court just like booking a
 // reservation directly. This mirrors reservations/store/reservationStore.ts
@@ -11,14 +11,14 @@ interface NewMatchWizardState {
   selectedDate: string | null // YYYY-MM-DD
   selectedSlot: ClubAvailabilitySlot | null
   selectedCourtId: string | null
-  selectedCourt: Court | null
+  selectedCourt: ClubAvailabilityCourt | null
   type: 'friendly' | 'ranked'
   isRanked: boolean
 
   setClub: (id: string, name: string) => void
   setDate: (date: string) => void
   setSlot: (slot: ClubAvailabilitySlot) => void
-  setCourt: (court: Court) => void
+  setCourt: (court: ClubAvailabilityCourt) => void
   setType: (type: 'friendly' | 'ranked') => void
   setIsRanked: (isRanked: boolean) => void
   resetWizard: () => void
@@ -53,7 +53,7 @@ export const useNewMatchStore = create<NewMatchWizardState>((set) => ({
 
   setSlot: (slot) => set({ selectedSlot: slot, selectedCourtId: null, selectedCourt: null }),
 
-  setCourt: (court) => set({ selectedCourtId: court.id, selectedCourt: court }),
+  setCourt: (court) => set({ selectedCourtId: court.court_id, selectedCourt: court }),
 
   setType: (type) => set({ type, isRanked: type === 'ranked' }),
 

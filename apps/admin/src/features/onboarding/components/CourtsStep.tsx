@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { ClubAdminCourt } from '@match-padel/types'
 import { Notice, StatusBadge, formatMoney } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
+import { useCurrentClub } from '@/shared/club-context'
 import { SURFACE_LABELS } from '../constants'
 import { useCourts, useCreateCourt, useDeleteCourt, useUpdateCourt } from '../hooks/useOnboarding'
 import { TextField, inputClass } from './fields'
@@ -115,6 +117,7 @@ function toBody(v: FormValues) {
 
 export function CourtsStep({ clubId, editable, onContinue }: { clubId: string; editable: boolean; onContinue: () => void }) {
   const courts = useCourts(clubId)
+  const currentClub = useCurrentClub()
   const create = useCreateCourt(clubId)
   const update = useUpdateCourt(clubId)
   const remove = useDeleteCourt(clubId)
@@ -125,6 +128,20 @@ export function CourtsStep({ clubId, editable, onContinue }: { clubId: string; e
 
   return (
     <div className="space-y-4">
+      <Notice tone="info">
+        El precio por hora de la cancha es su precio base.{' '}
+        {currentClub.status === 'approved' ? (
+          <>
+            Los horarios por cancha y los precios por franja horaria y día se editan en{' '}
+            <Link to={`/${clubId}/courts`} className="underline font-medium">
+              Canchas
+            </Link>
+            .
+          </>
+        ) : (
+          <>Una vez aprobado el club, los horarios por cancha y los precios por franja se editan desde la sección Canchas.</>
+        )}
+      </Notice>
       {courts.isError && <Notice>{getErrorMessage(courts.error)}</Notice>}
       {remove.isError && <Notice>{getErrorMessage(remove.error)}</Notice>}
       {update.isError && editingId === null && <Notice>{getErrorMessage(update.error)}</Notice>}

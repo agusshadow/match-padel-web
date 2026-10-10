@@ -5,6 +5,7 @@ import { ReservationsPage } from '@/features/reservations'
 import { MatchesPage } from '@/features/matches'
 import { TournamentsPage } from '@/features/tournaments'
 import { ClubPage } from '@/features/club'
+import { CourtsPage, CourtDetailPage, ClubExceptionsPage } from '@/features/courts'
 import { OnboardingPage } from '@/features/onboarding'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
@@ -38,6 +39,9 @@ export default function App() {
               <Route element={<RequireManagerRole />}>
                 <Route path="matches" element={<MatchesPage />} />
                 <Route path="tournaments" element={<TournamentsPage />} />
+                <Route path="courts" element={<CourtsPage />} />
+                <Route path="courts/exceptions" element={<ClubExceptionsPage />} />
+                <Route path="courts/:courtId" element={<CourtDetailPage />} />
               </Route>
               <Route path="club" element={<ClubPage />} />
             </Route>

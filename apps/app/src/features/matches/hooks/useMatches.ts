@@ -23,6 +23,9 @@ export function useCreateMatch() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matches', 'my'] })
     },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['clubs', 'availability'] })
+    },
   })
 }
 

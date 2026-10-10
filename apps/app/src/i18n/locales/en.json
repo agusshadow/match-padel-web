@@ -101,7 +101,24 @@
     "paymentStartError": "Couldn't start the payment. Try again.",
     "defaultCourtName": "Court",
     "pay": "Pay",
-    "processingError": "Something went wrong"
+    "processingError": "Something went wrong",
+    "day": "Day",
+    "slot": "Time",
+    "noSlots": "No slots available for this day.",
+    "fromTotal": "from {{price}}",
+    "courtPriceLine": "{{surface}} · {{rate}}/hour · {{price}} per slot",
+    "continue": "Continue",
+    "summary": "Your booking summary",
+    "duration": "Duration",
+    "durationMinutes": "{{count}} min",
+    "total": "Total",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "E.g. we are 4 people, we bring balls...",
+    "confirmBooking": "Confirm booking",
+    "errors": {
+      "OUTSIDE_SCHEDULE": "That slot no longer matches the court's schedule. Pick another slot from the list.",
+      "COURT_CLOSED": "The court is closed on that date. Pick another day or another court."
+    }
   },
   "matches": {
     "title": "Matches",
@@ -182,7 +199,8 @@
     "yourShare": "Your share (1/4)",
     "createAndPay": "Create and pay ${{amount}}",
     "creating": "Creating...",
-    "createError": "Failed to create the match. Try again."
+    "createError": "Failed to create the match. Try again.",
+    "fromTotalShare": "from {{total}} (1/4: {{share}})"
   },
   "clubs": {
     "title": "Clubs",
