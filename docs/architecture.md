@@ -65,7 +65,7 @@ Main features:
 - Courts area: courts CRUD, weekly schedule per court, price bands by day and hour, exceptions (club-wide or per court) and a preview of what players see (exists; card #70, owner/admin)
 - Club calendar: Google Calendar style day / week grid with reservations, ranked matches and blocks, move / cancel with refund summary, blocks for owner/admin (exists; card #71)
 - Club team: members (owner, administrators, reception) and invitations by email, with change role / remove / resend / revoke for the owner (administrators read only), and the public `/invite` page to accept an invitation (exists; card #72)
-- Team, Mercado Pago account (target — not implemented yet; phase F3)
+- Mercado Pago account of the club, owner only: status, link (OAuth redirect through the API), unlink, return banners and a dashboard warning (exists; card #74, web half, not verified against the Mercado Pago sandbox until card #73; the charging flows keep the platform token until card #75)
 - Tournament creation, fixtures and results (target — not implemented yet; phase F4)
 
 ### `apps/platform` — Platform panel

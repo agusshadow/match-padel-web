@@ -805,3 +805,50 @@ export type EquippedCosmeticItem = Pick<
   Tables<'cosmetics'>,
   'id' | 'code' | 'name' | 'description' | 'type' | 'image_url' | 'price_currency'
 >
+
+// ---------------------------------------------------------------------------
+// Club Mercado Pago account (card #74, Admin F3). Hand-written: not in Swagger.
+// ---------------------------------------------------------------------------
+
+/** Effective status of a club's Mercado Pago link (derived by the API on every read). */
+export type MpAccountStatus = 'connected' | 'expiring' | 'expired' | 'revoked' | 'error'
+
+/** `GET /club-admin/:clubId/mercadopago`. Not linked: `connected: false` and every other field `null`. Never tokens. */
+export interface ClubMpAccount {
+  connected: boolean
+  status: MpAccountStatus | null
+  mp_user_id: string | null
+  expires_at: string | null
+  days_left: number | null
+  live_mode: boolean | null
+  last_refresh_at: string | null
+  last_error: string | null
+}
+
+/** `POST /club-admin/:clubId/mercadopago/connect`: where the browser goes to authorize. */
+export interface ClubMpConnect {
+  authorization_url: string
+}
+
+/** `DELETE /club-admin/:clubId/mercadopago` (idempotent). */
+export interface ClubMpDisconnect {
+  disconnected: true
+  was_connected: boolean
+}
+
+/** `status` query param of the panel URL the API redirects the browser to after the OAuth callback. */
+export type MpCallbackStatus = 'connected' | 'error'
+
+/** `reason` query param when `status=error`. */
+export type MpCallbackFailureReason =
+  | 'access_denied'
+  | 'invalid_request'
+  | 'invalid_state'
+  | 'state_expired'
+  | 'state_used'
+  | 'club_not_available'
+  | 'not_owner'
+  | 'exchange_failed'
+  | 'storage_failed'
+
+export type MpErrorCode = 'MP_NOT_CONFIGURED'

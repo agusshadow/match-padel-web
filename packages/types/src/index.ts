@@ -114,4 +114,11 @@ export type {
   InvitationPreview,
   InvitationAccepted,
   TeamErrorCode,
+  MpAccountStatus,
+  ClubMpAccount,
+  ClubMpConnect,
+  ClubMpDisconnect,
+  MpCallbackStatus,
+  MpCallbackFailureReason,
+  MpErrorCode,
 } from './api'

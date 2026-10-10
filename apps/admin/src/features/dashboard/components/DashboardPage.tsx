@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { CalendarDays, CalendarCheck, Hourglass, LandPlot, Swords } from 'lucide-react'
 import { Notice, PageHeader, StatCard, StatusBadge, formatDateTime, formatMoney, personName } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
@@ -5,13 +6,16 @@ import { useCurrentClub } from '@/shared/club-context'
 import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES } from '@/shared/permissions'
 import { useClubSummary } from '../hooks/useClubSummary'
 
-export function DashboardPage() {
+/** `notices` is a slot for banners the composition root adds (e.g. the owner's Mercado Pago hint). */
+export function DashboardPage({ notices }: { notices?: ReactNode }) {
   const club = useCurrentClub()
   const { data, isLoading, error } = useClubSummary(club.clubId)
 
   return (
     <div className="space-y-6">
       <PageHeader title="Resumen" subtitle={club.name} />
+
+      {notices}
 
       {error && <Notice>{getErrorMessage(error)}</Notice>}
 
