@@ -283,6 +283,7 @@ export function CalendarPage() {
           reservation={found.reservation}
           court={found.court}
           courts={courts.map((c) => c.court)}
+          canChangeStatus={manager}
           onClose={() => setSelected(null)}
           onCancel={() => {
             setCancelTarget({ reservation: found.reservation, courtName: found.court.name })

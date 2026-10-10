@@ -33,6 +33,7 @@ export function ReservationDrawer({
   reservation,
   court,
   courts,
+  canChangeStatus,
   onClose,
   onCancel,
   onMoved,
@@ -41,6 +42,8 @@ export function ReservationDrawer({
   reservation: CalendarReservation
   court: CalendarCourt['court']
   courts: CalendarCourt['court'][]
+  /** Confirm / complete are owner, admin and superadmin only (reception only moves and cancels). */
+  canChangeStatus: boolean
   onClose: () => void
   /** Opens the cancel confirmation (owned by the page, so its refund summary outlives the reservation). */
   onCancel: () => void
@@ -148,7 +151,7 @@ export function ReservationDrawer({
             <p className="text-xs text-gray-500">La reserva ya terminó: solo se puede cancelar o completar.</p>
           )}
           <div className="flex flex-wrap gap-2">
-            {reservation.status === 'pending' && (
+            {canChangeStatus && reservation.status === 'pending' && (
               <button
                 type="button"
                 disabled={status.isPending}
@@ -158,7 +161,7 @@ export function ReservationDrawer({
                 Confirmar
               </button>
             )}
-            {reservation.status === 'confirmed' && (
+            {canChangeStatus && reservation.status === 'confirmed' && (
               <button
                 type="button"
                 disabled={status.isPending}
