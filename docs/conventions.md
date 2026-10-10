@@ -52,7 +52,7 @@ export type { Reservation } from './api/reservations.api'
 
 Anything NOT in `index.ts` is **private** to the feature.
 
-> Today most features name the API layer `services/` (`<entity>Service.ts`), only `auth` has an `index.ts`, and `apps/admin` has flat page files per feature. Follow the structure above for new code; see 'Real state vs. target' in CLAUDE.md and [screens.md](./screens.md).
+> Today most features name the API layer `services/` (`<entity>Service.ts`), only `auth` has an `index.ts`. `apps/admin` and `apps/platform` already follow it. Follow the structure above for new code; see 'Real state vs. target' in CLAUDE.md and [screens.md](./screens.md).
 
 ---
 
@@ -327,8 +327,10 @@ Routes are declared in each app's `src/App.tsx` (React Router v6; there is no `r
 const Reservations = lazy(() => import('@/features/reservations'))
 const Matches = lazy(() => import('@/features/matches'))
 
-// Target — not implemented yet: apps/admin with /:clubId in club routes
-<Route path="/clubs/:clubId/reservations" element={<AdminReservations />} />
+// apps/admin: club routes carry /:clubId
+<Route path=":clubId" element={<ClubLayout />}>
+  <Route path="reservations" element={<ReservationsPage />} />
+</Route>
 ```
 
 See [screens.md](./screens.md) for the full list of routes.

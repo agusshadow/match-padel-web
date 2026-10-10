@@ -253,7 +253,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 └────────┴──────────────────────────┘
 ```
 
-Real implementation: `apps/admin/src/shared/layouts/AdminLayout.tsx` — a fixed-width sidebar (6 nav links, logout button) and an `<Outlet />`. There is no `Topbar`, no collapsible sidebar and no `useAdminSidebarStore` (target — not implemented yet; see 'Real state vs. target' in CLAUDE.md). The snippet below is the target.
+Real implementation: `apps/admin/src/shared/layouts/ClubLayout.tsx` (club selector, role-based nav, logout) and `apps/platform/src/shared/layouts/PlatformLayout.tsx` — a fixed-width sidebar and an `<Outlet />`; on narrow screens the sidebar opens from a small top bar. There is no `Topbar` on desktop and no collapsible sidebar (`usePanelStore` only keeps the open state of the narrow-screen drawer). The snippet below is the target.
 
 ```tsx
 export function AdminLayout({ children }: { children: React.ReactNode }) {
