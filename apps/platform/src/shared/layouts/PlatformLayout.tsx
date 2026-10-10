@@ -2,12 +2,14 @@ import { NavLink, Navigate, Outlet } from 'react-router-dom'
 import { LayoutDashboard, Building2, Users, ScrollText, Inbox, LogOut, Menu } from 'lucide-react'
 import { StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
+import { usePendingApplicationsCount } from '@/features/requests'
 import { usePanelStore } from '@/store/panel.store'
 import { PLATFORM_ROLE_LABELS } from '../permissions'
 
 export function PlatformLayout() {
   const { data: access } = useAccess(true)
   const signOut = useSignOut()
+  const { data: pendingCount } = usePendingApplicationsCount(!!access?.platformRole)
   const sidebarOpen = usePanelStore((s) => s.sidebarOpen)
   const setSidebarOpen = usePanelStore((s) => s.setSidebarOpen)
 
@@ -58,7 +60,15 @@ export function PlatformLayout() {
               }
             >
               <item.icon className="w-4 h-4" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.to === '/requests' && pendingCount ? (
+                <span
+                  aria-label={`${pendingCount} solicitudes en revisión`}
+                  className="min-w-[1.25rem] px-1.5 py-0.5 text-center text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800"
+                >
+                  {pendingCount}
+                </span>
+              ) : null}
             </NavLink>
           ))}
         </nav>

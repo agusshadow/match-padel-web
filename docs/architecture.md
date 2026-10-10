@@ -76,7 +76,7 @@ Main features:
 - Clubs: paginated list with search and status filter, create, activate/deactivate (exists)
 - Users: search and paginated list (exists)
 - Audit log with filters (exists)
-- Applications inbox for reviewers: read-only list by status (exists; card #67). Review actions and the document viewer (target — not implemented yet; next card)
+- Applications inbox and review (exists; card #68): inbox by status with search and pagination (reviewers: pending and changes requested; superadmin: every status), application detail with club data, courts, documents (signed URLs) and status history, and the review actions (approve, request corrections, reject). Superadmin only: suspend / reactivate and reopen a rejected application
 - Commissions, gamification catalogs, global parameters (target — not implemented yet; phases F3/F5)
 
 ---

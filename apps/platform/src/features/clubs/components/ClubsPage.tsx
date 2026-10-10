@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import type { ClubStatus } from '@match-padel/types'
+import { Link } from 'react-router-dom'
+import type { ClubStatus, PlatformClub } from '@match-padel/types'
 import { Notice, PageHeader, Pagination, StatusBadge, formatDate } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
-import { CLUB_STATUSES, CLUB_STATUS_LABELS, CLUB_STATUS_TONES } from '@/shared/permissions'
-import { useClubs, useDebouncedValue, useSetClubActive } from '../hooks/useClubs'
+import { NoteDialog } from '@/shared/components/NoteDialog'
+import { getLifecycleErrorMessage, isConflictError } from '@/lib/errors'
+import { ACTION_COPY, CLUB_STATUSES, CLUB_STATUS_LABELS, CLUB_STATUS_TONES } from '@/shared/permissions'
+import { useClubLifecycle, useClubs, useDebouncedValue, useSetClubActive } from '../hooks/useClubs'
 import { CreateClubDialog } from './CreateClubDialog'
 
 const PAGE_SIZE = 20
@@ -16,6 +19,33 @@ export function ClubsPage() {
   const debouncedSearch = useDebouncedValue(search.trim())
   const { data, isLoading, error } = useClubs({ search: debouncedSearch, status, page, limit: PAGE_SIZE })
   const setActive = useSetClubActive()
+  const lifecycle = useClubLifecycle()
+  const [pendingAction, setPendingAction] = useState<{ club: PlatformClub; action: 'suspend' | 'unsuspend' } | null>(
+    null,
+  )
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const closeDialog = () => {
+    setPendingAction(null)
+    lifecycle.reset()
+  }
+
+  const confirmLifecycle = (text: string | undefined) => {
+    if (!pendingAction) return
+    const { club, action } = pendingAction
+    lifecycle.mutate(
+      { action, id: club.id, text },
+      {
+        onSuccess: () => {
+          setPendingAction(null)
+          setSuccess(`${club.name}: ${ACTION_COPY[action].success}`)
+        },
+        onError: (err) => {
+          if (isConflictError(err)) setPendingAction(null)
+        },
+      },
+    )
+  }
 
   const clubs = data?.items ?? []
 
@@ -71,8 +101,24 @@ export function ClubsPage() {
 
       {error && <Notice>{getErrorMessage(error)}</Notice>}
       {setActive.error && <Notice>{getErrorMessage(setActive.error)}</Notice>}
+      {success && <Notice tone="success">{success}</Notice>}
+      {!!lifecycle.error && !pendingAction && <Notice>{getLifecycleErrorMessage(lifecycle.error)}</Notice>}
 
       {showForm && <CreateClubDialog onClose={() => setShowForm(false)} />}
+      {pendingAction && (
+        <NoteDialog
+          title={`${ACTION_COPY[pendingAction.action].title}: ${pendingAction.club.name}`}
+          description={ACTION_COPY[pendingAction.action].description}
+          fieldLabel={ACTION_COPY[pendingAction.action].field}
+          required={ACTION_COPY[pendingAction.action].required}
+          confirmLabel={ACTION_COPY[pendingAction.action].confirm}
+          tone={ACTION_COPY[pendingAction.action].tone}
+          isPending={lifecycle.isPending}
+          error={lifecycle.error ? getLifecycleErrorMessage(lifecycle.error) : null}
+          onConfirm={confirmLifecycle}
+          onClose={closeDialog}
+        />
+      )}
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {isLoading ? (
@@ -81,7 +127,7 @@ export function ClubsPage() {
           <div className="p-8 text-center text-gray-400">No se encontraron clubes</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[720px]">
+            <table className="w-full text-sm min-w-[820px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Club</th>
@@ -110,7 +156,24 @@ export function ClubsPage() {
                         tone={club.is_active ? 'green' : 'gray'}
                       />
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap space-x-3">
+                      <Link to={`/requests/${club.id}`} className="text-xs text-green-700 hover:underline">
+                        Ver solicitud
+                      </Link>
+                      {(club.status === 'approved' || club.status === 'suspended') && (
+                        <button
+                          onClick={() => {
+                            setSuccess(null)
+                            lifecycle.reset()
+                            setPendingAction({ club, action: club.status === 'approved' ? 'suspend' : 'unsuspend' })
+                          }}
+                          className={`text-xs underline ${
+                            club.status === 'approved' ? 'text-red-600 hover:text-red-700' : 'text-green-700 hover:text-green-800'
+                          }`}
+                        >
+                          {club.status === 'approved' ? 'Suspender' : 'Reactivar'}
+                        </button>
+                      )}
                       <button
                         disabled={setActive.isPending}
                         onClick={() => toggle(club.id, club.name, club.is_active)}

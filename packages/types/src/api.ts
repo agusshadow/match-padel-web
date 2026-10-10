@@ -247,6 +247,40 @@ export interface DocumentUrl {
   expiresIn: number
 }
 
+// ---------------------------------------------------------------------------
+// Application review (card #68, Admin F1): `/platform/applications*` and the club lifecycle
+// actions under `/platform/clubs/:clubId`.
+// ---------------------------------------------------------------------------
+
+/** `status` of `GET /platform/applications`: one club status, or `all`. */
+export type ApplicationStatusFilter = ClubStatus | 'all'
+
+/** Owner of an application (the first owner registered for the club). */
+export type ApplicationOwner = Pick<Tables<'users'>, 'id' | 'first_name' | 'last_name'> & {
+  email: string | null
+}
+
+/** Row of `GET /platform/applications`. `submitted_at` is the last transition to `pending`. */
+export type ApplicationListRow = Pick<
+  Tables<'clubs'>,
+  'id' | 'name' | 'city' | 'legal_name' | 'tax_id' | 'status'
+> & {
+  owner: ApplicationOwner | null
+  submitted_at: string | null
+  documents_count: number
+}
+
+/** `GET /platform/applications/:clubId`. Each document carries a signed `url` valid `documents_expires_in` seconds. */
+export interface ApplicationDetail {
+  club: ClubAdminClub
+  owner: ApplicationOwner | null
+  courts: ClubAdminCourt[]
+  documents: ClubAdminDocument[]
+  history: ClubStatusHistoryEntry[]
+  submitted_at: string | null
+  documents_expires_in: number
+}
+
 /** `GET /platform/summary` */
 export interface PlatformSummary {
   clubs: number

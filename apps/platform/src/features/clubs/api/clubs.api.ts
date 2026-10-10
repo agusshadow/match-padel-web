@@ -1,4 +1,4 @@
-import type { ApiResponse, ClubStatus, Paginated, PlatformClub, PlatformClubCreate } from '@match-padel/types'
+import type { ApiResponse, ClubAdminClub, ClubStatus, Paginated, PlatformClub, PlatformClubCreate } from '@match-padel/types'
 import { api } from '@/lib/axios'
 
 export interface ClubsQuery {
@@ -25,5 +25,15 @@ export const clubsApi = {
   setActive: (id: string, isActive: boolean) =>
     api
       .patch<ApiResponse<PlatformClub>>(`/platform/clubs/${id}/active`, { isActive })
+      .then((r) => r.data.data),
+
+  /** `POST /platform/clubs/:id/suspend` (superadmin, `reason` 5..2000 chars). */
+  suspend: (id: string, reason: string) =>
+    api.post<ApiResponse<ClubAdminClub>>(`/platform/clubs/${id}/suspend`, { reason }).then((r) => r.data.data),
+
+  /** `POST /platform/clubs/:id/unsuspend` (superadmin, optional `note`). */
+  unsuspend: (id: string, note?: string) =>
+    api
+      .post<ApiResponse<ClubAdminClub>>(`/platform/clubs/${id}/unsuspend`, note ? { note } : {})
       .then((r) => r.data.data),
 }
