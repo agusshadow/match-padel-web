@@ -378,7 +378,8 @@ export default function TournamentsPage() {
 When the Supabase schema changes:
 
 ```bash
-# At the monorepo root (needs the Supabase CLI installed and SUPABASE_PROJECT_ID set)
+# At the monorepo root (needs the Supabase CLI installed and SUPABASE_PROJECT_ID set to the
+# DEV project, vrnonxpxksaruvsvbplt: that is where a migration lands first)
 npm run supabase:types
 
 # Which runs:

@@ -191,7 +191,7 @@ Supporting skills: `new-feature`, `pr-format`, `release`, `trello-story`.
 - Never enable "automatically delete head branches" on the repository: the release flow uses `develop` and `main` as PR heads.
 - Commits and PRs in **English**, conventional commits. See the `pr-format` skill, including the Screenshots rule for PRs touching `apps/app`/`apps/admin` (images live on the never-merged `assets` orphan branch, never on `develop`/`main`).
 - **Never** touch production from an agent session. Never put secret keys in the bundle: only public `VITE_` variables (anon key, never `service_role`).
-- If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR".
+- If the change depends on the API, the `match-padel-api` PR is merged first and this one references it under "Related PR". If that API PR includes a database migration, it is applied to the dev project when the PR is merged and promoted to production **before** the release that ships this change is merged (the API repo's `release` skill lists the pending migrations). Regenerate `packages/types/src/supabase.ts` from the **dev** project (`SUPABASE_PROJECT_ID=vrnonxpxksaruvsvbplt`) once the migration is applied there, because dev is where the new schema exists first; the header of that generated file may still say the production project until it is regenerated.
 
 ## Documentation map
 
