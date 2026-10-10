@@ -336,12 +336,16 @@ export interface CourtSlot {
  */
 export interface PaymentsAvailabilityMeta {
   payments_enabled: boolean
+  /** Card #76: the club's effective refund policy; `null` if the club cannot be resolved (slots). */
+  refund_policy?: RefundPolicyValues | null
 }
 
 /** A list of slots together with the `meta.payments_enabled` flag. */
 export interface WithPaymentsMeta<T> {
   items: T
   payments_enabled: boolean
+  /** Card #76: the club's effective refund policy (`null` when the API did not send it). */
+  refund_policy: RefundPolicyValues | null
 }
 
 /** Court entry inside a slot of `GET /clubs/:clubId/availability?date=` */
@@ -939,3 +943,90 @@ export interface PaymentsPage {
 
 /** 409 code of `POST /reservations`, `POST /matches` and `POST /payments/preference` (card #75). */
 export type ClubPaymentsErrorCode = 'CLUB_PAYMENTS_NOT_ENABLED'
+
+// ---------------------------------------------------------------------------
+// Refund policy per club within platform limits (card #76, Admin F3).
+// Hand-written: not in Swagger. See match-padel-api `docs/refund-policy.md`.
+// ---------------------------------------------------------------------------
+
+/**
+ * A club's refund policy: cancelling at least `hours_before_start` hours before the start refunds 100%;
+ * cancelling later (but before the start) refunds `late_refund_percent` of what was paid, in money;
+ * once the turn started nothing is refunded. This is what players see: `refund_policy` of the club
+ * detail and of `meta` in the availability / slots responses (already clamped to the platform limits).
+ */
+export interface RefundPolicyValues {
+  /** Integer, 0..720. */
+  hours_before_start: number
+  /** 0..100, at most 2 decimals. */
+  late_refund_percent: number
+}
+
+/** Limits set by the platform: `hours_before_start <= max_hours_before_start`, `late_refund_percent >= min_late_refund_percent`. */
+export interface RefundPolicyLimits {
+  max_hours_before_start: number
+  min_late_refund_percent: number
+}
+
+/** `GET` and `PUT /club-admin/:clubId/refund-policy`. */
+export interface ClubRefundPolicy extends RefundPolicyValues {
+  /** What applies to players today: the stored policy clamped to the current platform limits. */
+  effective: RefundPolicyValues
+  /** `true` when the stored policy is outside the platform limits (so `effective` differs from it). */
+  clamped: boolean
+  limits: RefundPolicyLimits
+}
+
+/** Body of `PUT /club-admin/:clubId/refund-policy`. */
+export type ClubRefundPolicyUpdate = RefundPolicyValues
+
+/** Field of a refund policy a platform limit can be violated on. */
+export type RefundPolicyViolation = keyof RefundPolicyValues
+
+/** `details` of the 409 `POLICY_BELOW_PLATFORM_MINIMUM` of `PUT /club-admin/:clubId/refund-policy`. */
+export interface PolicyBelowMinimumDetails {
+  limits: RefundPolicyLimits
+  requested: RefundPolicyValues
+  violations: RefundPolicyViolation[]
+}
+
+/** 409 code of `PUT /club-admin/:clubId/refund-policy`. */
+export type RefundPolicyErrorCode = 'POLICY_BELOW_PLATFORM_MINIMUM'
+
+/** `GET` and `PUT /platform/settings/refund-policy` (superadmin only). */
+export interface PlatformRefundLimits extends RefundPolicyLimits {
+  /** Clubs whose stored policy is outside these limits (their effective policy is clamped). */
+  clubs_clamped: number
+  /** `null` until the limits are edited for the first time. */
+  updated_at: string | null
+  updated_by: string | null
+}
+
+/** Body of `PUT /platform/settings/refund-policy`. */
+export type PlatformRefundLimitsUpdate = RefundPolicyLimits
+
+export type PlayerRefundStatus = 'refunded' | 'partial' | 'none' | 'pending'
+export type PlayerRefundReason = 'before_cutoff' | 'late_window' | 'after_start'
+
+/**
+ * `refund` of `DELETE /matches/:id`, `DELETE /matches/:id/leave` and `DELETE /reservations/:id`
+ * (`null` when nothing was paid). `pending`: owed but the club's Mercado Pago account could not pay
+ * it yet; the cancellation went through.
+ */
+export interface PlayerRefundResult {
+  status: PlayerRefundStatus
+  reason: PlayerRefundReason
+  percent: number
+  amount_paid: number
+  amount_refunded: number
+  amount_pending: number
+  refund_pending: boolean
+  policy: RefundPolicyValues
+}
+
+/** `data` of `DELETE /matches/:id/leave`. `currencyCredited` is always 0 (kept for old clients). */
+export interface MatchLeaveResult {
+  refunded: boolean
+  currencyCredited: number
+  refund: PlayerRefundResult | null
+}

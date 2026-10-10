@@ -55,8 +55,9 @@ export function useCancelMatch() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => matchService.cancelMatch(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ['matches', 'my'] })
+      queryClient.invalidateQueries({ queryKey: ['matches', id] })
     },
   })
 }

@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useClubes, useClubById, useClubAvailability, useClubPaymentsEnabled } from '../../clubs/hooks/useClubes'
+import { useClubes, useClubById, useClubAvailability, useClubPaymentsEnabled, useClubRefundPolicy } from '../../clubs/hooks/useClubes'
 import { useCreateReservation } from '../hooks/useReservations'
 import { useReservationStore } from '../store/reservationStore'
 import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 import { bookingErrorMessage } from '../../../lib/booking-errors'
 import { PaymentsDisabledNotice } from '../../../shared/components/PaymentsDisabledNotice'
+import { RefundPolicyNotice } from '../../../shared/components/RefundPolicyNotice'
 
 const DAY_LABELS = ['Hoy', 'Mañana']
 
@@ -275,6 +276,7 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
 
   const createMutation = useCreateReservation()
   const paymentsEnabled = useClubPaymentsEnabled(selectedClubId, selectedDate)
+  const refundPolicy = useClubRefundPolicy(selectedClubId, selectedDate)
 
   if (!selectedSlot || !selectedCourt) return null
   const blockedByPayments = !paymentsEnabled && selectedCourt.price > 0
@@ -354,6 +356,8 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
           className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
         />
       </div>
+
+      <RefundPolicyNotice policy={refundPolicy} />
 
       {blockedByPayments && <PaymentsDisabledNotice />}
 

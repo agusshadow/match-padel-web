@@ -7,6 +7,7 @@ import { AuditLogPage } from '@/features/audit-log'
 import { PaymentsPage } from '@/features/payments'
 import { AchievementsPage, ChallengesPage, CosmeticsPage } from '@/features/catalogs'
 import { ApplicationDetailPage, RequestsPage } from '@/features/requests'
+import { RefundPolicyLimitsPage } from '@/features/settings'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireSuperadmin } from '@/shared/components/RequireSuperadmin'
 import { HomeRedirect } from '@/shared/components/HomeRedirect'
@@ -24,6 +25,8 @@ export default function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="clubs" element={<ClubsPage />} />
               <Route path="payments" element={<PaymentsPage />} />
+              <Route path="settings" element={<Navigate to="/settings/refund-policy" replace />} />
+              <Route path="settings/refund-policy" element={<RefundPolicyLimitsPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="audit-log" element={<AuditLogPage />} />
               <Route path="catalogs" element={<Navigate to="/catalogs/achievements" replace />} />

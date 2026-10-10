@@ -370,5 +370,22 @@
       "hours": "{{count}}h",
       "days": "{{count}}d"
     }
+  },
+  "refundPolicy": {
+    "title": "Club cancellation policy",
+    "fullBefore": "If you cancel {{hours}} h or more in advance, you get 100% of what you paid.",
+    "fullUntilStart": "You can cancel until the start of the turn and get 100% of what you paid.",
+    "lateNone": "Cancelling later than that gets no refund.",
+    "latePartial": "Cancelling later than that gets {{percent}}% of what you paid.",
+    "lateFull": "Cancelling later than that also gets 100%.",
+    "afterStart": "Once the turn has started there is no refund."
+  },
+  "refundOutcome": {
+    "refunded": "We refunded 100% of what you paid ({{amount}}).",
+    "partial": "We refunded {{amount}}, {{percent}}% of what you paid ({{paid}}).",
+    "noneLate": "You cancelled later than the club's cutoff, so no refund applies.",
+    "noneAfterStart": "The turn had already started, so no refund applies.",
+    "pending": "Your refund of {{amount}} is pending: the club could not process it yet and will take care of it. You do not need to do anything.",
+    "pendingPartial": "We refunded {{amount}} and {{pending}} is still pending: the club could not process it yet and will take care of it."
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { LayoutDashboard, CalendarDays, CalendarRange, Swords, Trophy, Building2, LandPlot, ClipboardList, Users, Layers, Wallet, Receipt, LogOut, Menu } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, CalendarRange, Swords, Trophy, Building2, LandPlot, ClipboardList, Users, Layers, Wallet, Receipt, Undo2, LogOut, Menu } from 'lucide-react'
 import { Notice, StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePanelStore } from '@/store/panel.store'
@@ -42,6 +42,7 @@ export function ClubLayout() {
     { to: 'team', icon: Users, label: 'Equipo', show: full && manager },
     { to: 'payments', icon: Receipt, label: 'Cobros', show: live && canLinkMercadoPago(club.role) },
     { to: 'mercadopago', icon: Wallet, label: 'Mercado Pago', show: live && canLinkMercadoPago(club.role) },
+    { to: 'refund-policy', icon: Undo2, label: 'Política de cancelación', show: full },
     { to: 'club', icon: Building2, label: 'Club', show: full },
   ].filter((item) => item.show)
 

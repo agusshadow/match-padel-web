@@ -1,5 +1,6 @@
 import { api } from '../../../lib/axios'
 import type { Tables } from '../../../../../../packages/types/src/supabase'
+import type { PlayerRefundResult } from '../../../../../../packages/types/src/api'
 
 type Match = Tables<'matches'>
 type User = Tables<'users'>
@@ -70,8 +71,9 @@ export const matchService = {
       .put<{ success: boolean; data: Match }>(`/matches/${id}/score`, score)
       .then((r) => r.data.data),
 
+  // Card #76: `refund` is what the club's policy returned to the creator (null when nothing was paid).
   cancelMatch: (id: string) =>
     api
-      .delete<{ success: boolean; data: Match }>(`/matches/${id}`)
+      .delete<{ success: boolean; data: Match & { refund: PlayerRefundResult | null } }>(`/matches/${id}`)
       .then((r) => r.data.data),
 }

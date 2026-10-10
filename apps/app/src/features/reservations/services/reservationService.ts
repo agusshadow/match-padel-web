@@ -1,6 +1,6 @@
 import { api } from '../../../lib/axios'
 import type { Tables } from '../../../../../../packages/types/src/supabase'
-import type { CourtSlot, PaymentsAvailabilityMeta, WithPaymentsMeta } from '../../../../../../packages/types/src/api'
+import type { CourtSlot, PaymentsAvailabilityMeta, PlayerRefundResult, WithPaymentsMeta } from '../../../../../../packages/types/src/api'
 
 // Types for reservation with joins
 export interface CourtInfo {
@@ -67,7 +67,11 @@ export const reservationService = {
       `/courts/${courtId}/slots`,
       { params: { date } },
     )
-    return { items: res.data.data, payments_enabled: res.data.meta?.payments_enabled ?? true }
+    return {
+      items: res.data.data,
+      payments_enabled: res.data.meta?.payments_enabled ?? true,
+      refund_policy: res.data.meta?.refund_policy ?? null,
+    }
   },
 
   createReservation: async (payload: CreateReservationPayload): Promise<Reservation> => {
@@ -75,7 +79,8 @@ export const reservationService = {
     return res.data.data
   },
 
-  cancelReservation: async (id: string): Promise<Reservation> => {
+  // Card #76: `refund` is what the club's policy returned (null when nothing was paid).
+  cancelReservation: async (id: string): Promise<Reservation & { refund: PlayerRefundResult | null }> => {
     const res = await api.delete(`/reservations/${id}`)
     return res.data.data
   },

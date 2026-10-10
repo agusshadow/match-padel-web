@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Search, Check, Loader2, ChevronLeft, Building2, Swords, Trophy } from 'lucide-react'
-import { useClubes, useClubAvailability, useClubPaymentsEnabled } from '../../clubs/hooks/useClubes'
+import { useClubes, useClubAvailability, useClubPaymentsEnabled, useClubRefundPolicy } from '../../clubs/hooks/useClubes'
 import { useCreateMatch } from '../hooks/useMatches'
 import { useNewMatchStore } from '../store/newMatchStore'
 import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 import { bookingErrorMessage } from '../../../lib/booking-errors'
 import { PaymentsDisabledNotice } from '../../../shared/components/PaymentsDisabledNotice'
+import { RefundPolicyNotice } from '../../../shared/components/RefundPolicyNotice'
 
 const DAY_LABELS = ['Hoy', 'Mañana']
 
@@ -255,6 +256,7 @@ function StepConfirm() {
 
   const createMatch = useCreateMatch()
   const paymentsEnabled = useClubPaymentsEnabled(selectedClubId, selectedDate)
+  const refundPolicy = useClubRefundPolicy(selectedClubId, selectedDate)
 
   if (!selectedSlot || !selectedCourt) return null
   const blockedByPayments = !paymentsEnabled && selectedCourt.price > 0
@@ -357,6 +359,8 @@ function StepConfirm() {
         <p>{t('matches.createInfoLobby')}</p>
         <p>{t('matches.createInfoSplitPayment')}</p>
       </div>
+
+      <RefundPolicyNotice policy={refundPolicy} />
 
       {blockedByPayments && <PaymentsDisabledNotice />}
 
