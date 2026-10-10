@@ -625,3 +625,76 @@ export type CalendarErrorCode =
   | 'CANNOT_CANCEL'
   | 'MATCH_COMPLETED'
   | 'BLOCK_CONFLICTS'
+
+// ---------------------------------------------------------------------------
+// Club team and invitations (card #72, Admin F2): `/club-admin/:clubId/team*`,
+// `GET /invitations/preview` and `POST /me/invitations/accept`.
+// ---------------------------------------------------------------------------
+
+/** Roles an owner can hand out; `owner` is never invitable. */
+export type InvitableRole = Exclude<Enums<'staff_role'>, 'owner'>
+
+/** Member of `GET /club-admin/:clubId/team` (and the result of `PATCH .../team/members/:userId`). `email` comes from Supabase Auth. */
+export type TeamMember = Pick<Tables<'users'>, 'first_name' | 'last_name' | 'username'> & {
+  user_id: string
+  email: string | null
+  role: Enums<'staff_role'>
+  /** When the person joined the club. */
+  created_at: string
+}
+
+/** Open invitations are listed as `pending` or `expired`; revoke answers `revoked`; accepted ones are never listed. */
+export type TeamInvitationStatus = 'pending' | 'accepted' | 'revoked' | 'expired'
+
+export interface TeamInvitation {
+  id: string
+  email: string
+  role: InvitableRole
+  status: TeamInvitationStatus
+  expires_at: string
+  created_at: string
+  invited_by: string | null
+}
+
+/** `GET /club-admin/:clubId/team` */
+export interface ClubTeam {
+  members: TeamMember[]
+  invitations: TeamInvitation[]
+}
+
+/** `POST /club-admin/:clubId/team/invitations` and `.../invitations/:id/resend`. `email_sent` is false when the mail was not delivered. */
+export type TeamInvitationSent = TeamInvitation & { email_sent: boolean }
+
+/** Body of `POST /club-admin/:clubId/team/invitations`. */
+export interface TeamInvitationCreate {
+  email: string
+  role: InvitableRole
+}
+
+/** `GET /invitations/preview?token=` (public). */
+export interface InvitationPreview {
+  club_name: string
+  role: InvitableRole
+  /** Masked address, e.g. `m***@gmail.com`. */
+  email_hint: string
+  expired: boolean
+}
+
+/** `POST /me/invitations/accept` */
+export interface InvitationAccepted {
+  clubId: string
+  role: Enums<'staff_role'>
+}
+
+export type TeamErrorCode =
+  | 'ALREADY_MEMBER'
+  | 'INVITATION_ALREADY_PENDING'
+  | 'INVITATION_LIMIT'
+  | 'INVITATION_ALREADY_ACCEPTED'
+  | 'INVITATION_REVOKED'
+  | 'CANNOT_MODIFY_OWNER'
+  | 'CANNOT_MODIFY_SELF'
+  | 'INVITATION_INVALID'
+  | 'INVITATION_EMAIL_MISMATCH'
+  | 'EMAIL_NOT_CONFIRMED'
+  | 'INVITATION_EXPIRED'

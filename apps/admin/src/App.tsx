@@ -8,6 +8,8 @@ import { TournamentsPage } from '@/features/tournaments'
 import { ClubPage } from '@/features/club'
 import { CourtsPage, CourtDetailPage, ClubExceptionsPage } from '@/features/courts'
 import { OnboardingPage } from '@/features/onboarding'
+import { TeamPage } from '@/features/team'
+import { InvitePage } from '@/features/invitations'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
 import { RequireApprovedClub } from '@/shared/components/RequireApprovedClub'
@@ -23,6 +25,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/invite" element={<InvitePage />} />
         <Route element={<RequireAccess />}>
           <Route index element={<ClubRedirect />} />
           <Route element={<PlainLayout />}>
@@ -44,6 +47,7 @@ export default function App() {
                 <Route path="courts" element={<CourtsPage />} />
                 <Route path="courts/exceptions" element={<ClubExceptionsPage />} />
                 <Route path="courts/:courtId" element={<CourtDetailPage />} />
+                <Route path="team" element={<TeamPage />} />
               </Route>
               <Route path="club" element={<ClubPage />} />
             </Route>

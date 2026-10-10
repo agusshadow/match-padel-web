@@ -189,6 +189,70 @@ export type Database = {
           },
         ]
       }
+      club_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          club_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["staff_role"]
+          status: string
+          token_hash: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          club_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role: Database["public"]["Enums"]["staff_role"]
+          status?: string
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          club_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["staff_role"]
+          status?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_invitations_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_staff: {
         Row: {
           club_id: string
@@ -1624,6 +1688,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_club_invitation: {
+        Args: { p_invitation_id: string; p_user_id: string }
+        Returns: {
+          already_member: boolean
+          club_id: string
+          role: Database["public"]["Enums"]["staff_role"]
+        }[]
+      }
       accept_match_score: {
         Args: {
           p_apply_elo: boolean

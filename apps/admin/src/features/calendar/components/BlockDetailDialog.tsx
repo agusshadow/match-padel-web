@@ -4,7 +4,7 @@ import { Notice } from '@match-padel/ui'
 import { clubParts, formatClubTime, formatDayLong } from '@/lib/club-time'
 import { calendarErrorMessage } from '../lib/errors'
 import { useDeleteBlock } from '../hooks/useCalendar'
-import { Dialog } from './Dialog'
+import { Dialog } from '@/shared/components/Dialog'
 
 export function BlockDetailDialog({
   clubId,

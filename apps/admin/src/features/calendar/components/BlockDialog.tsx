@@ -5,7 +5,7 @@ import { clubInstant, clubParts, formatClubDateTime, hhmmToMinutes, minutesToHhm
 import { blockConflictsOf, calendarErrorMessage } from '../lib/errors'
 import { RESERVATION_STATUS_LABELS } from '@/shared/permissions'
 import { useCreateBlocks } from '../hooks/useCalendar'
-import { Dialog } from './Dialog'
+import { Dialog } from '@/shared/components/Dialog'
 
 const REASON_MAX = 200
 const inputClass =
