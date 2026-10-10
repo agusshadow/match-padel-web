@@ -1,11 +1,25 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { PlatformClubCreate } from '@match-padel/types'
-import { clubsApi } from '../api/clubs.api'
+import { clubsApi, type ClubsQuery } from '../api/clubs.api'
 
 export const CLUBS_QUERY_KEY = ['platform', 'clubs'] as const
 
-export function useClubs() {
-  return useQuery({ queryKey: CLUBS_QUERY_KEY, queryFn: clubsApi.list })
+export function useClubs(query: ClubsQuery) {
+  return useQuery({
+    queryKey: [...CLUBS_QUERY_KEY, query],
+    queryFn: () => clubsApi.list(query),
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useDebouncedValue<T>(value: T, delayMs = 300): T {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs)
+    return () => clearTimeout(id)
+  }, [value, delayMs])
+  return debounced
 }
 
 export function useCreateClub() {

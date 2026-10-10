@@ -67,37 +67,45 @@ Other app-level code: `src/shared/` (`ProtectedRoute`, `AppLayout`), `src/lib/ (
 
 Rebuilt in card #66 (Admin F0). The directory keeps the name `apps/admin` (and the Vercel project `match-padel-admin` keeps pointing at it) but the app is now the **club panel**: club owner, administrators and reception. Platform-wide screens (all clubs, all users) moved to `apps/platform`.
 
-Routes are declared in `apps/admin/src/App.tsx`. Sign-in uses `supabase.auth.signInWithPassword` (auth only); right after, `GET /me/access` is fetched and the user is rejected with a clear message when they have no club membership and are not superadmin. `RequireAccess` (`src/shared/components/RequireAccess.tsx`) runs that check on every load. `ClubLayout` (`src/shared/layouts/ClubLayout.tsx`) resolves `/:clubId` against the clubs returned by `/me/access` (unknown club: redirect to `/`), shows the club selector and builds the sidebar by role. The last club used is remembered in `localStorage` (`match-padel-club-panel`).
+Routes are declared in `apps/admin/src/App.tsx`. Sign-in uses `supabase.auth.signInWithPassword` (auth only), followed by `GET /me/access`. Any signed-in user may enter: one with no clubs lands on `/new-club` ("Empezá la solicitud de tu club"). `RequireAccess` (`src/shared/components/RequireAccess.tsx`) loads the access list on every load. `ClubLayout` (`src/shared/layouts/ClubLayout.tsx`) resolves `/:clubId` against the clubs returned by `/me/access` (unknown club: redirect to `/`), shows the club selector (with each club's status) and builds the sidebar by role and status. The last club used is remembered in `localStorage` (`match-padel-club-panel`).
+
+**Club status gates the panel** (card #67, Admin F1): `/` and `/:clubId` open the dashboard of an `approved` club and the application (`/:clubId/onboarding`) of any other. The dashboard, reservations, matches, tournaments and club-data screens only exist for `approved` clubs (`RequireApprovedClub`); a superadmin can open any. Reception never sees the application.
 
 Every API path is relative to `VITE_API_URL`; `:clubId` is the club in the URL.
 
 | Path | Page component | Access | Feature folder | API endpoints called |
 |------|----------------|--------|----------------|----------------------|
-| `/login` | `LoginPage` | public (redirects to `/` when a session exists) | `auth` | Supabase `signInWithPassword`, then `GET /me/access` |
-| `/` | `ClubRedirect` | any club member or superadmin | — | `GET /me/access` (redirects to the last club used, or the first one, `/:clubId/dashboard`) |
-| `/:clubId/dashboard` | `DashboardPage` | any role | `dashboard` | `GET /club-admin/:clubId/summary` |
-| `/:clubId/reservations` | `ReservationsPage` (status filter, paginated; confirm / complete / cancel) | any role (reception included) | `reservations` | `GET /club-admin/:clubId/reservations?status=&page=&limit=`, `PATCH /club-admin/:clubId/reservations/:id` |
-| `/:clubId/matches` | `MatchesPage` (paginated) | owner, admin, superadmin (reception is redirected to the dashboard and the sidebar hides it) | `matches` | `GET /club-admin/:clubId/matches?page=&limit=` |
-| `/:clubId/tournaments` | `TournamentsPage` (paginated) | owner, admin, superadmin (same as matches) | `tournaments` | `GET /club-admin/:clubId/tournaments?page=&limit=` |
-| `/:clubId/club` | `ClubPage` (view and edit club data; read-only for reception) | any role; edit for owner, admin, superadmin | `club` | `GET /club-admin/:clubId`, `PATCH /club-admin/:clubId` |
-| `*` | redirect to `/` (or to the dashboard inside a club) | — | — | — |
+| `/login` | `LoginPage` (link to `/register`; an unconfirmed account is sent to `/register?verify=<email>`) | public (redirects to `/` when a session exists) | `auth` | Supabase `signInWithPassword`, then `GET /me/access` |
+| `/register` | `RegisterPage`: step 1 account (names, username, email, phone, password), step 2 email code | public (redirects to `/` when a session exists) | `auth` | `POST /auth/register` (no session yet, no skill/hand); then, directly against Supabase, `verifyOtp({ type: 'signup' })` (opens the session) and `resend({ type: 'signup' })`; then `GET /me/access` |
+| `/` | `ClubRedirect` | signed in | — | `GET /me/access`: last club used, else first approved, else first; no clubs: `/new-club` |
+| `/clubs` | `MyClubsPage` (club selector: every club with status badge and role, "Agregar otro club") | signed in | `my-clubs` | `GET /me/access` |
+| `/new-club` | `NewClubPage` ("Empezá la solicitud de tu club": name, address, city), continues on `/:clubId/onboarding` | signed in | `my-clubs` | `POST /me/clubs` (201, or 200 for an identical draft) |
+| `/:clubId/onboarding` | `OnboardingPage`: wizard with steps club, location, contact, courts, schedule, documents and review/submit (`?step=`); per-step completeness, status banner, history timeline. Editable in `draft`, `changes_requested` (and `approved`); read-only in `pending`, `rejected`, `suspended` | owner, admin, superadmin (reception is redirected to the dashboard); submit: owner, superadmin | `onboarding` | `GET /club-admin/:clubId/onboarding` (status, steps with `missing`, `canSubmit`, `history`, `documents`), `GET` / `PATCH /club-admin/:clubId` (club, location, contact, `opening_hours`), `GET` / `POST` / `PATCH /:id` / `DELETE /:id /club-admin/:clubId/courts`, `POST` (multipart `file` + `kind`) / `DELETE /:id` / `GET /:id/url /club-admin/:clubId/documents`, `POST /club-admin/:clubId/submit` (422 `APPLICATION_INCOMPLETE` lists `details.missing`) |
+| `/:clubId/dashboard` | `DashboardPage` | any role, club `approved` | `dashboard` | `GET /club-admin/:clubId/summary` |
+| `/:clubId/reservations` | `ReservationsPage` (status filter, paginated; confirm / complete / cancel) | any role (reception included), club `approved` | `reservations` | `GET /club-admin/:clubId/reservations?status=&page=&limit=`, `PATCH /club-admin/:clubId/reservations/:id` |
+| `/:clubId/matches` | `MatchesPage` (paginated) | owner, admin, superadmin (reception is redirected to the dashboard and the sidebar hides it), club `approved` | `matches` | `GET /club-admin/:clubId/matches?page=&limit=` |
+| `/:clubId/tournaments` | `TournamentsPage` (paginated) | owner, admin, superadmin (same as matches), club `approved` | `tournaments` | `GET /club-admin/:clubId/tournaments?page=&limit=` |
+| `/:clubId/club` | `ClubPage` (view and edit club data; read-only for reception) | any role, club `approved`; edit for owner, admin, superadmin | `club` | `GET /club-admin/:clubId`, `PATCH /club-admin/:clubId` |
+| `*` | redirect to `/` (or to the club's home inside a club) | — | — | — |
 
-The API's error handler answers `{ error, message }`; `lib/errors.ts` shows `message`. People are shown with `personName()` from `@match-padel/ui` (first + last name, falling back to username).
+Errors come from the API as `{ error: CODE, message, details? }` (no `success` field); `lib/errors.ts` exposes `getErrorMessage`, `getErrorStatus`, `getErrorCode` and `getErrorDetails`. People are shown with `personName()` from `@match-padel/ui` (first + last name, falling back to username).
 
-Role labels shown in the UI: `owner` = Dueño, `admin` = Administrador, `staff` = Recepción, `superadmin` = Superadmin (`src/shared/permissions.ts`). Server-side permissions are the source of truth; the route guards and hidden actions are only a convenience.
+Role labels shown in the UI: `owner` = Dueño, `admin` = Administrador, `staff` = Recepción, `superadmin` = Superadmin. Club status labels: `draft` = Borrador, `pending` = En revisión, `changes_requested` = Correcciones solicitadas, `approved` = Aprobado, `rejected` = Rechazado, `suspended` = Suspendido (`src/shared/permissions.ts`). Server-side permissions are the source of truth; the route guards and hidden actions are only a convenience.
 
 ### Features in `apps/admin`
 
 | Feature | `api/` | `components/` | `hooks/` | `index.ts` |
 |---------|:------:|:-------------:|:--------:|:----------:|
-| `auth` | yes | yes (`LoginPage`) | yes (`useAuth.ts`: session, access, sign in/out) | yes |
+| `auth` | yes | yes (`LoginPage`, `RegisterPage`) | yes (`useAuth.ts`: session, access, sign in/out, register, verify email) | yes |
+| `my-clubs` | yes | yes (`MyClubsPage`, `NewClubPage`) | yes | yes |
+| `onboarding` | yes | yes (wizard steps, status banner, history timeline) | yes | yes |
 | `dashboard` | yes | yes | yes | yes |
 | `reservations` | yes | yes | yes | yes |
 | `matches` | yes | yes | yes | yes |
 | `tournaments` | yes | yes | yes | yes |
 | `club` | yes | yes | yes | yes |
 
-App-level code: `src/shared/` (`layouts/ClubLayout.tsx`, `components/RequireAccess|RequireManagerRole|ClubRedirect`, `club-context.tsx`, `permissions.ts`), `src/lib/` (`axios.ts`, `supabase.ts` — auth only, `query-client.ts`, `errors.ts`) and `src/store/panel.store.ts` (persisted last club, sidebar open state). Supabase from the browser: only auth (`signInWithPassword`, `getSession`, `onAuthStateChange`, `signOut`). The access list (`GET /me/access`) lives in React Query, not in a store.
+App-level code: `src/shared/` (`layouts/ClubLayout.tsx` and `PlainLayout.tsx`, `components/RequireAccess|RequireManagerRole|RequireApprovedClub|ClubRedirect|ClubIndexRedirect|MyClubsRoute|ClubStatusBadge`, `club-context.tsx`, `permissions.ts`), `src/lib/` (`axios.ts`, `supabase.ts` — auth only, `query-client.ts`, `errors.ts`) and `src/store/panel.store.ts` (persisted last club, sidebar open state). Supabase from the browser: only auth (`signInWithPassword`, `verifyOtp`, `resend`, `getSession`, `onAuthStateChange`, `signOut`; registration itself goes through `POST /auth/register`, never `signUp`). The access list (`GET /me/access`) lives in React Query, not in a store.
 
 ---
 
@@ -105,17 +113,17 @@ App-level code: `src/shared/` (`layouts/ClubLayout.tsx`, `components/RequireAcce
 
 New in card #66 (Admin F0): the panel for the platform team (superadmin and reviewers). Vite dev server on port 5174. Same tooling and structure as `apps/admin`; it shares `@match-padel/ui` panel components (`LoginForm`, `PageHeader`, `StatCard`, `StatusBadge`, `Pagination`, `Notice`) and the response types in `@match-padel/types` (`src/api.ts`).
 
-Sign-in uses Supabase auth, then `GET /me/access`; the user is rejected with a message unless `platformRole` is `superadmin` or `reviewer`. A reviewer only sees `/requests`; any other route redirects there (`RequireSuperadmin`). Role labels: `superadmin` = Superadmin, `reviewer` = Revisor.
+Sign-in uses Supabase auth, then `GET /me/access`; the user is rejected with a message unless `platformRole` is `superadmin` or `reviewer`. A reviewer only sees `/requests` (the API lets reviewers list clubs by status and read application documents); any other route redirects there (`RequireSuperadmin`). Role labels: `superadmin` = Superadmin, `reviewer` = Revisor.
 
 | Path | Page component | Access | Feature folder | API endpoints called |
 |------|----------------|--------|----------------|----------------------|
 | `/login` | `LoginPage` | public | `auth` | Supabase `signInWithPassword`, then `GET /me/access` |
 | `/` | `HomeRedirect` | platform staff | — | `GET /me/access` (superadmin to `/dashboard`, reviewer to `/requests`) |
 | `/dashboard` | `DashboardPage` (counters + recent reservations) | superadmin | `dashboard` | `GET /platform/summary` |
-| `/clubs` | `ClubsPage` (search, create dialog, activate/deactivate) | superadmin | `clubs` | `GET /platform/clubs`, `POST /platform/clubs`, `PATCH /platform/clubs/:id/active` |
+| `/clubs` | `ClubsPage` (server-side search, status filter, paginated; application-status and visibility columns; create dialog, activate/deactivate) | superadmin | `clubs` | `GET /platform/clubs?search=&status=&page=&limit=`, `POST /platform/clubs`, `PATCH /platform/clubs/:id/active` |
 | `/users` | `UsersPage` (search, paginated) | superadmin | `users` | `GET /platform/users?search=&page=&limit=` |
-| `/audit-log` | `AuditLogPage` (filter by club and by actor user id, paginated) | superadmin | `audit-log` | `GET /platform/audit-log?clubId=&actorId=&page=&limit=`; `GET /platform/clubs` for the club filter |
-| `/requests` | `RequestsPage` — placeholder "Solicitudes (próximamente)"; the applications inbox arrives with F1 | superadmin, reviewer | `requests` | None |
+| `/audit-log` | `AuditLogPage` (filter by club and by actor user id, paginated) | superadmin | `audit-log` | `GET /platform/audit-log?clubId=&actorId=&page=&limit=`; `GET /platform/clubs?limit=100` for the club filter |
+| `/requests` | `RequestsPage` — read-only applications inbox: clubs that are not live, one tab per status (default En revisión), search, paginated. Review actions (approve, reject, ask for corrections) and the document viewer (`GET /platform/clubs/:clubId/documents/:id/url`) are target — not implemented yet (next card) | superadmin, reviewer | `requests` | `GET /platform/clubs?status=&search=&page=&limit=` |
 | `*` | redirect to `/` | — | — | — |
 
 Supabase from the browser in `apps/platform`: only auth.
@@ -131,6 +139,7 @@ Only things verifiable by reading the code. They are deviations from the target 
 - **Axios does not unwrap `response.data.data`**: every service unwraps by itself; some return the raw envelope (`clubService.getClubes`, `reservationService.getMyReservations`, `tournamentService.list`, `withdrawTeam`). Neither app throws `response.data.error`. The two panels' `lib/axios.ts` do not unwrap either; their API files do `.then((r) => r.data.data)`.
 - **Direct imports between features and into `components/`**: `HomePage` imports from `reservations/components`, `reservations/hooks` and `matches/hooks`; `MatchDetailPage`, `ProfilePage`, `EditProfilePage` and `TournamentDetailPage` import `features/auth/store/auth.store`; `reservationStore.ts` imports from `clubs/services`. `App.tsx` imports every page by its component path.
 - **Local interfaces for API entities**: `services/*.ts` declare `Club`, `Court`, `Tournament`, `TimeSlot`, `PaginatedResponse`, etc. by hand.
+- **Club panel file upload**: documents go as `multipart/form-data` through the Axios instance (default `Content-Type` is JSON; the upload overrides it).
 - **Panel styling**: `apps/admin` and `apps/platform` use plain Tailwind `gray`/`green` classes (and the shared panel components in `packages/ui/src/components/panel`) instead of the design tokens; neither app imports `packages/ui/src/globals.css`.
 - **Dark mode**: `apps/app/index.html` has no `dark` class and nothing toggles it, although the pages use `dark:` variants.
 - **Lint and tests**: `npm run lint` runs `eslint src --ext .ts,.tsx`, but there is no ESLint config or dependency; there is no test framework or test file.

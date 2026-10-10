@@ -1,8 +1,3 @@
 export { LoginPage } from './components/LoginPage'
-export {
-  useSession,
-  useAccess,
-  useSignOut,
-  hasClubPanelAccess,
-  NO_ACCESS_MESSAGE,
-} from './hooks/useAuth'
+export { RegisterPage } from './components/RegisterPage'
+export { useSession, useAccess, useSignOut } from './hooks/useAuth'

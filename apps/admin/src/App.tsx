@@ -1,32 +1,47 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { LoginPage } from '@/features/auth'
+import { LoginPage, RegisterPage } from '@/features/auth'
 import { DashboardPage } from '@/features/dashboard'
 import { ReservationsPage } from '@/features/reservations'
 import { MatchesPage } from '@/features/matches'
 import { TournamentsPage } from '@/features/tournaments'
 import { ClubPage } from '@/features/club'
+import { OnboardingPage } from '@/features/onboarding'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
+import { RequireApprovedClub } from '@/shared/components/RequireApprovedClub'
 import { ClubRedirect } from '@/shared/components/ClubRedirect'
+import { ClubIndexRedirect } from '@/shared/components/ClubIndexRedirect'
+import { MyClubsRoute, NewClubRoute } from '@/shared/components/MyClubsRoute'
 import { ClubLayout } from '@/shared/layouts/ClubLayout'
+import { PlainLayout } from '@/shared/layouts/PlainLayout'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route element={<RequireAccess />}>
           <Route index element={<ClubRedirect />} />
+          <Route element={<PlainLayout />}>
+            <Route path="clubs" element={<MyClubsRoute />} />
+            <Route path="new-club" element={<NewClubRoute />} />
+          </Route>
           <Route path=":clubId" element={<ClubLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="reservations" element={<ReservationsPage />} />
+            <Route index element={<ClubIndexRedirect />} />
             <Route element={<RequireManagerRole />}>
-              <Route path="matches" element={<MatchesPage />} />
-              <Route path="tournaments" element={<TournamentsPage />} />
+              <Route path="onboarding" element={<OnboardingPage />} />
             </Route>
-            <Route path="club" element={<ClubPage />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
+            <Route element={<RequireApprovedClub />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="reservations" element={<ReservationsPage />} />
+              <Route element={<RequireManagerRole />}>
+                <Route path="matches" element={<MatchesPage />} />
+                <Route path="tournaments" element={<TournamentsPage />} />
+              </Route>
+              <Route path="club" element={<ClubPage />} />
+            </Route>
+            <Route path="*" element={<ClubIndexRedirect />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

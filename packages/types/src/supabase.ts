@@ -1,6 +1,6 @@
 // AUTO-GENERATED — do not edit manually
 // Run: npm run supabase:types
-// Project: ebdnlrwzhthqflsbdzvu
+// Project: vrnonxpxksaruvsvbplt
 
 export type Json =
   | string
@@ -14,7 +14,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -47,6 +47,147 @@ export type Database = {
           points?: number
         }
         Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          club_id: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          club_id?: string | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          club_id?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_log_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          action_type: Database["public"]["Enums"]["challenge_action"]
+          cadence: Database["public"]["Enums"]["challenge_cadence"]
+          code: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          name: string
+          reward_currency: number
+          reward_xp: number
+          target_count: number
+        }
+        Insert: {
+          action_type: Database["public"]["Enums"]["challenge_action"]
+          cadence: Database["public"]["Enums"]["challenge_cadence"]
+          code: string
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          name: string
+          reward_currency?: number
+          reward_xp?: number
+          target_count: number
+        }
+        Update: {
+          action_type?: Database["public"]["Enums"]["challenge_action"]
+          cadence?: Database["public"]["Enums"]["challenge_cadence"]
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          reward_currency?: number
+          reward_xp?: number
+          target_count?: number
+        }
+        Relationships: []
+      }
+      club_documents: {
+        Row: {
+          club_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          kind: string
+          mime_type: string
+          size_bytes: number
+          uploaded_by: string | null
+        }
+        Insert: {
+          club_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          kind: string
+          mime_type: string
+          size_bytes: number
+          uploaded_by?: string | null
+        }
+        Update: {
+          club_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          kind?: string
+          mime_type?: string
+          size_bytes?: number
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_documents_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       club_staff: {
         Row: {
@@ -87,6 +228,51 @@ export type Database = {
           },
         ]
       }
+      club_status_history: {
+        Row: {
+          actor_id: string | null
+          club_id: string
+          created_at: string
+          from_status: Database["public"]["Enums"]["club_status"] | null
+          id: string
+          note: string | null
+          to_status: Database["public"]["Enums"]["club_status"]
+        }
+        Insert: {
+          actor_id?: string | null
+          club_id: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["club_status"] | null
+          id?: string
+          note?: string | null
+          to_status: Database["public"]["Enums"]["club_status"]
+        }
+        Update: {
+          actor_id?: string | null
+          club_id?: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["club_status"] | null
+          id?: string
+          note?: string | null
+          to_status?: Database["public"]["Enums"]["club_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_status_history_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_status_history_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clubs: {
         Row: {
           address: string
@@ -98,12 +284,15 @@ export type Database = {
           id: string
           is_active: boolean
           lat: number | null
+          legal_name: string | null
           lng: number | null
           logo_url: string | null
           name: string
           phone: string | null
           settings: Json
           slug: string
+          status: Database["public"]["Enums"]["club_status"]
+          tax_id: string | null
           updated_at: string
         }
         Insert: {
@@ -116,12 +305,15 @@ export type Database = {
           id?: string
           is_active?: boolean
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_url?: string | null
           name: string
           phone?: string | null
           settings?: Json
           slug: string
+          status?: Database["public"]["Enums"]["club_status"]
+          tax_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -134,13 +326,52 @@ export type Database = {
           id?: string
           is_active?: boolean
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_url?: string | null
           name?: string
           phone?: string | null
           settings?: Json
           slug?: string
+          status?: Database["public"]["Enums"]["club_status"]
+          tax_id?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      cosmetics: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+          price_currency: number
+          type: Database["public"]["Enums"]["cosmetic_type"]
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          name: string
+          price_currency: number
+          type: Database["public"]["Enums"]["cosmetic_type"]
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          price_currency?: number
+          type?: Database["public"]["Enums"]["cosmetic_type"]
         }
         Relationships: []
       }
@@ -286,6 +517,53 @@ export type Database = {
             columns: ["club_id"]
             isOneToOne: false
             referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      currency_purchases: {
+        Row: {
+          amount_ars: number
+          created_at: string
+          currency_amount: number
+          id: string
+          metadata: Json
+          mp_event_id: string | null
+          mp_payment_id: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_ars: number
+          created_at?: string
+          currency_amount: number
+          id?: string
+          metadata?: Json
+          mp_event_id?: string | null
+          mp_payment_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_ars?: number
+          created_at?: string
+          currency_amount?: number
+          id?: string
+          metadata?: Json
+          mp_event_id?: string | null
+          mp_payment_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "currency_purchases_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -613,6 +891,32 @@ export type Database = {
           },
         ]
       }
+      platform_staff: {
+        Row: {
+          created_at: string
+          role: Database["public"]["Enums"]["platform_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: Database["public"]["Enums"]["platform_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: Database["public"]["Enums"]["platform_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_staff_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       points_transactions: {
         Row: {
           created_at: string
@@ -889,6 +1193,93 @@ export type Database = {
           },
         ]
       }
+      user_challenges: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          progress: number
+          status: Database["public"]["Enums"]["user_challenge_status"]
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          progress?: number
+          status?: Database["public"]["Enums"]["user_challenge_status"]
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          progress?: number
+          status?: Database["public"]["Enums"]["user_challenge_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_cosmetics: {
+        Row: {
+          acquired_at: string
+          cosmetic_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          cosmetic_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          cosmetic_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_cosmetics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_stats: {
         Row: {
           losses: number
@@ -926,6 +1317,9 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           elo: number
+          equipped_avatar_cosmetic_id: string | null
+          equipped_emblem_cosmetic_id: string | null
+          equipped_palette_cosmetic_id: string | null
           fcm_token: string | null
           first_name: string
           full_name: string | null
@@ -933,12 +1327,9 @@ export type Database = {
           is_active: boolean
           last_name: string
           level: number
-          points_balance: number
-          equipped_palette_cosmetic_id: string | null
-          equipped_avatar_cosmetic_id: string | null
-          equipped_emblem_cosmetic_id: string | null
           onboarding_completed_at: string | null
           phone: string | null
+          points_balance: number
           preferred_hand: Database["public"]["Enums"]["preferred_hand"] | null
           role: Database["public"]["Enums"]["user_role"]
           skill_level: Database["public"]["Enums"]["skill_level"] | null
@@ -950,6 +1341,9 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           elo?: number
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
+          equipped_palette_cosmetic_id?: string | null
           fcm_token?: string | null
           first_name: string
           full_name?: string | null
@@ -957,12 +1351,9 @@ export type Database = {
           is_active?: boolean
           last_name: string
           level?: number
-          points_balance?: number
-          equipped_palette_cosmetic_id?: string | null
-          equipped_avatar_cosmetic_id?: string | null
-          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
+          points_balance?: number
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
           role?: Database["public"]["Enums"]["user_role"]
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
@@ -974,6 +1365,9 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           elo?: number
+          equipped_avatar_cosmetic_id?: string | null
+          equipped_emblem_cosmetic_id?: string | null
+          equipped_palette_cosmetic_id?: string | null
           fcm_token?: string | null
           first_name?: string
           full_name?: string | null
@@ -981,12 +1375,9 @@ export type Database = {
           is_active?: boolean
           last_name?: string
           level?: number
-          points_balance?: number
-          equipped_palette_cosmetic_id?: string | null
-          equipped_avatar_cosmetic_id?: string | null
-          equipped_emblem_cosmetic_id?: string | null
           onboarding_completed_at?: string | null
           phone?: string | null
+          points_balance?: number
           preferred_hand?: Database["public"]["Enums"]["preferred_hand"] | null
           role?: Database["public"]["Enums"]["user_role"]
           skill_level?: Database["public"]["Enums"]["skill_level"] | null
@@ -994,7 +1385,29 @@ export type Database = {
           username?: string
           xp?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_equipped_avatar_fkey"
+            columns: ["equipped_avatar_cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_equipped_emblem_fkey"
+            columns: ["equipped_emblem_cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_equipped_palette_fkey"
+            columns: ["equipped_palette_cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1035,11 +1448,44 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      assign_and_expire_challenges: { Args: never; Returns: undefined }
       award_match_xp: {
         Args: { p_match_id: string; p_winner_team: number }
         Returns: undefined
       }
+      credit_currency: {
+        Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: undefined
+      }
+      increment_challenge_progress: {
+        Args: {
+          p_action: Database["public"]["Enums"]["challenge_action"]
+          p_amount?: number
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      is_club_member: { Args: { p_club_id: string }; Returns: boolean }
+      is_court_club_member: { Args: { p_court_id: string }; Returns: boolean }
+      is_match_club_member: { Args: { p_match_id: string }; Returns: boolean }
+      is_platform_staff: { Args: never; Returns: boolean }
+      is_platform_superadmin: { Args: never; Returns: boolean }
       level_for_xp: { Args: { p_xp: number }; Returns: number }
+      purchase_cosmetic: {
+        Args: { p_cosmetic_id: string; p_user_id: string }
+        Returns: {
+          acquired_at: string
+          cosmetic_id: string
+          id: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_cosmetics"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_match_score_draft: {
         Args: { p_draft: Json; p_match_id: string; p_team: number }
         Returns: {
@@ -1072,6 +1518,16 @@ export type Database = {
       }
     }
     Enums: {
+      challenge_action: "play_matches" | "win_matches"
+      challenge_cadence: "daily" | "weekly" | "monthly" | "one_time"
+      club_status:
+        | "draft"
+        | "pending"
+        | "changes_requested"
+        | "approved"
+        | "rejected"
+        | "suspended"
+      cosmetic_type: "palette_skin" | "avatar" | "emblem"
       court_surface: "indoor" | "outdoor" | "panoramic"
       match_status: "waiting" | "in_progress" | "completed" | "cancelled"
       match_type: "friendly" | "ranked" | "tournament"
@@ -1092,6 +1548,7 @@ export type Database = {
         | "rejected"
         | "cancelled"
         | "refunded"
+      platform_role: "superadmin" | "reviewer"
       preferred_hand: "drive" | "backhand"
       reservation_status: "pending" | "confirmed" | "cancelled" | "completed"
       score_status: "pending" | "accepted" | "disputed"
@@ -1108,6 +1565,7 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+      user_challenge_status: "active" | "completed" | "expired"
       user_role: "player" | "club_staff" | "super_admin"
     }
     CompositeTypes: {
@@ -1236,6 +1694,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      challenge_action: ["play_matches", "win_matches"],
+      challenge_cadence: ["daily", "weekly", "monthly", "one_time"],
+      club_status: [
+        "draft",
+        "pending",
+        "changes_requested",
+        "approved",
+        "rejected",
+        "suspended",
+      ],
+      cosmetic_type: ["palette_skin", "avatar", "emblem"],
       court_surface: ["indoor", "outdoor", "panoramic"],
       match_status: ["waiting", "in_progress", "completed", "cancelled"],
       match_type: ["friendly", "ranked", "tournament"],
@@ -1258,6 +1727,7 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      platform_role: ["superadmin", "reviewer"],
       preferred_hand: ["drive", "backhand"],
       reservation_status: ["pending", "confirmed", "cancelled", "completed"],
       score_status: ["pending", "accepted", "disputed"],
@@ -1276,6 +1746,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      user_challenge_status: ["active", "completed", "expired"],
       user_role: ["player", "club_staff", "super_admin"],
     },
   },

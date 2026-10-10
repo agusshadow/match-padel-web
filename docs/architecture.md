@@ -61,6 +61,7 @@ Main features:
 - Reservation management: list, filter by status, confirm / complete / cancel (exists)
 - Matches and tournaments of the club, read-only, hidden for reception (exists)
 - Club data view/edit (exists; edit hidden for reception)
+- Owner registration with email code, club selector with statuses, new application and the onboarding wizard with submit, history and read-only states (exists; card #67). Only `approved` clubs open the dashboard and the rest
 - Courts, schedules, prices, blocks, calendar, team, Mercado Pago account (target — not implemented yet; phases F2/F3)
 - Tournament creation, fixtures and results (target — not implemented yet; phase F4)
 
@@ -72,10 +73,10 @@ Main features:
 
 Main features:
 - Dashboard with platform counters (exists)
-- Clubs: list, create, activate/deactivate (exists)
+- Clubs: paginated list with search and status filter, create, activate/deactivate (exists)
 - Users: search and paginated list (exists)
 - Audit log with filters (exists)
-- Applications inbox for reviewers (placeholder page exists; target — not implemented yet; phase F1)
+- Applications inbox for reviewers: read-only list by status (exists; card #67). Review actions and the document viewer (target — not implemented yet; next card)
 - Commissions, gamification catalogs, global parameters (target — not implemented yet; phases F3/F5)
 
 ---

@@ -22,6 +22,6 @@ export const auditLogApi = {
   // Used to fill the club filter.
   listClubs: () =>
     api
-      .get<ApiResponse<Array<{ id: string; name: string }>>>('/platform/clubs')
+      .get<ApiResponse<Array<{ id: string; name: string }>>>('/platform/clubs', { params: { limit: 100 } })
       .then((r) => r.data.data),
 }
