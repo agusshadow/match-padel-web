@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { tournamentService, CreateTournamentPayload } from '../services/tournamentService'
+import { tournamentService } from '../services/tournamentService'
 
 export function useTournaments(status?: string) {
   return useQuery({
@@ -9,22 +9,17 @@ export function useTournaments(status?: string) {
   })
 }
 
-export function useTournament(id: string | undefined) {
+/**
+ * `pollMs`: refetch interval while a payment is being confirmed by the webhook (the returning
+ * player may arrive before it ran).
+ */
+export function useTournament(id: string | undefined, options: { pollMs?: number | false } = {}) {
   return useQuery({
     queryKey: ['tournaments', id],
     queryFn: () => tournamentService.getById(id!),
     enabled: !!id,
     staleTime: 30_000,
-  })
-}
-
-export function useCreateTournament() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (payload: CreateTournamentPayload) => tournamentService.create(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tournaments'] })
-    },
+    refetchInterval: options.pollMs || false,
   })
 }
 
@@ -44,17 +39,6 @@ export function useWithdrawTeam(tournamentId: string) {
   return useMutation({
     mutationFn: () => tournamentService.withdrawTeam(tournamentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tournaments', tournamentId] })
-    },
-  })
-}
-
-export function useStartTournament(tournamentId: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: () => tournamentService.startTournament(tournamentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tournaments', tournamentId] })
       queryClient.invalidateQueries({ queryKey: ['tournaments'] })
     },
   })

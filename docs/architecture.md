@@ -59,14 +59,14 @@ The club panel keeps the directory name `apps/admin` so the existing Vercel proj
 Main features:
 - Dashboard with the club's counters and latest reservations (exists)
 - Reservation management: list, filter by status, confirm / complete / cancel (exists)
-- Matches and tournaments of the club, read-only, hidden for reception (exists)
+- Matches of the club, read-only, hidden for reception (exists)
 - Club data view/edit (exists; edit hidden for reception)
 - Owner registration with email code, club selector with statuses, new application and the onboarding wizard with submit, history and read-only states (exists; card #67). Only `approved` clubs open the dashboard and the rest
 - Courts area: courts CRUD, weekly schedule per court, price bands by day and hour, exceptions (club-wide or per court) and a preview of what players see (exists; card #70, owner/admin)
 - Club calendar: Google Calendar style day / week grid with reservations, ranked matches and blocks, move / cancel with refund summary, blocks for owner/admin (exists; card #71)
 - Club team: members (owner, administrators, reception) and invitations by email, with change role / remove / resend / revoke for the owner (administrators read only), and the public `/invite` page to accept an invitation (exists; card #72)
 - Mercado Pago account of the club, owner only: status, link (OAuth redirect through the API), unlink, return banners and a dashboard warning (exists; card #74, web half, not verified against the Mercado Pago sandbox until card #73; the charging flows keep the platform token until card #75)
-- Tournament creation, fixtures and results (target — not implemented yet; phase F4)
+- Tournaments: create / edit, publish, start (fixture for round robin, single / double elimination and americano), results with corrections, standings and cancellation with refunds, owner / admin (exists; card #77, web half; not exercised against the real API or the Mercado Pago sandbox). Players only list, register (with payment) and withdraw in `apps/app`
 
 ### `apps/platform` — Platform panel
 
@@ -252,6 +252,8 @@ Every club route of `apps/admin` is prefixed with `/:clubId/`:
 /:clubId/reservations
 /:clubId/matches        (owner, admin, superadmin)
 /:clubId/tournaments    (owner, admin, superadmin)
+/:clubId/tournaments/new
+/:clubId/tournaments/:tournamentId[/edit]
 /:clubId/club
 ```
 

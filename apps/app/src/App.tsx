@@ -17,9 +17,7 @@ import { ClubesPage } from './features/clubs/components/ClubesPage'
 import { ProfilePage } from './features/profile/components/ProfilePage'
 import { EditProfilePage } from './features/profile/components/EditProfilePage'
 import { NotificationsPage } from './features/notifications/components/NotificationsPage'
-import { TournamentsPage } from './features/tournaments/components/TournamentsPage'
-import { TournamentDetailPage } from './features/tournaments/components/TournamentDetailPage'
-import { CreateTournamentPage } from './features/tournaments/components/CreateTournamentPage'
+import { TournamentsPage, TournamentDetailPage } from './features/tournaments'
 import { PaymentResultPage } from './features/reservations/components/PaymentResultPage'
 import { ReservationDetailPage } from './features/reservations/components/ReservationDetailPage'
 import { EloHistoryPage } from './features/profile/components/EloHistoryPage'
@@ -78,7 +76,6 @@ export function App() {
           <Route path="/reservations/:id" element={<PaymentResultPage />} />
           <Route path="/reservations/:id/detail" element={<ReservationDetailPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/tournaments/new" element={<CreateTournamentPage />} />
           <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
         </Route>
 

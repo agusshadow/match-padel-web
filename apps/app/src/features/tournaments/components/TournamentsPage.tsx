@@ -107,12 +107,6 @@ export function TournamentsPage() {
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-bold text-foreground">{t('tournaments.title')}</h1>
-          <button
-            onClick={() => navigate('/tournaments/new')}
-            className="text-sm font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"
-          >
-            + {t('common.create')}
-          </button>
         </div>
 
         {/* Filter chips */}
@@ -140,7 +134,7 @@ export function TournamentsPage() {
           <div className="py-12 text-center">
             <Trophy className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
             <p className="font-medium text-foreground">{t('tournaments.noTournaments')}</p>
-            <p className="text-sm text-muted-foreground mt-1">{t('tournaments.createFirst')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('tournaments.managedByClubs')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
