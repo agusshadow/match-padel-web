@@ -1,5 +1,6 @@
 import { api } from '../../../lib/axios'
 import type { Tables } from '../../../../../../packages/types/src/supabase'
+import type { CourtSlot } from '../../../../../../packages/types/src/api'
 
 // Types for reservation with joins
 export interface CourtInfo {
@@ -21,11 +22,8 @@ export interface Reservation extends Tables<'court_reservations'> {
   court: CourtInfo
 }
 
-export interface TimeSlot {
-  start_time: string
-  end_time: string
-  available: boolean
-}
+/** Slot of `GET /courts/:courtId/slots`: carries the hourly rate and the slot's total price. */
+export type TimeSlot = CourtSlot
 
 export interface CreateReservationPayload {
   court_id: string

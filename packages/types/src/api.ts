@@ -198,6 +198,163 @@ export interface ClubAdminCourtCreate {
 /** Body of `PATCH /club-admin/:clubId/courts/:id` (at least one field). */
 export type ClubAdminCourtUpdate = Partial<ClubAdminCourtCreate>
 
+/** `warning` of a court PATCH that deactivates a court with upcoming pending/confirmed reservations. */
+export interface CourtWarning {
+  code: 'COURT_HAS_FUTURE_RESERVATIONS'
+  future_reservations: number
+}
+
+/** Result of `PATCH /club-admin/:clubId/courts/:id`: the court plus an optional warning. */
+export type ClubAdminCourtUpdateResult = ClubAdminCourt & { warning: CourtWarning | null }
+
+// ---------------------------------------------------------------------------
+// Schedules, exceptions, price rules and preview (card #70, Admin F2).
+// `day_of_week` is 0 = Sunday ... 6 = Saturday; times are club-local `HH:MM` (`24:00` allowed as a close).
+// ---------------------------------------------------------------------------
+
+export type SlotMinutes = 30 | 60 | 90 | 120
+export const SLOT_MINUTES_OPTIONS: readonly SlotMinutes[] = [30, 60, 90, 120]
+
+/** One weekly interval of a court. */
+export type CourtScheduleInterval = Pick<
+  Tables<'court_schedules'>,
+  'day_of_week' | 'open_time' | 'close_time'
+> & { slot_minutes: SlotMinutes }
+
+/** `GET`/`PUT /club-admin/:clubId/courts/:courtId/schedule`. `club` = inherited from the club's opening hours. */
+export interface CourtSchedule {
+  court_id: string
+  source: 'court' | 'club' | 'none'
+  intervals: CourtScheduleInterval[]
+}
+
+/** Body of `PUT .../courts/:courtId/schedule` (replaces the whole weekly schedule). */
+export interface CourtScheduleReplace {
+  intervals: CourtScheduleInterval[]
+}
+
+/** Row of `GET /club-admin/:clubId/schedule-exceptions` (`court_id` null = the whole club). */
+export type ScheduleException = Pick<
+  Tables<'court_schedule_exceptions'>,
+  | 'id'
+  | 'club_id'
+  | 'court_id'
+  | 'date'
+  | 'closed'
+  | 'open_time'
+  | 'close_time'
+  | 'slot_minutes'
+  | 'reason'
+  | 'created_by'
+  | 'created_at'
+>
+
+/** Body of `POST /club-admin/:clubId/schedule-exceptions`. */
+export interface ScheduleExceptionCreate {
+  date: string
+  /** Inclusive end of a range (max 92 days). */
+  date_to?: string
+  court_id?: string | null
+  closed?: boolean
+  open_time?: string
+  close_time?: string
+  slot_minutes?: SlotMinutes
+  reason?: string | null
+}
+
+export interface ScheduleExceptionWarning {
+  code: 'EXCEPTION_HAS_RESERVATIONS'
+  affected_reservations: number
+}
+
+export interface ScheduleExceptionCreateResult {
+  exceptions: ScheduleException[]
+  warning: ScheduleExceptionWarning | null
+}
+
+/** Price rule as stored. */
+export type PriceRule = Pick<
+  Tables<'court_price_rules'>,
+  'id' | 'name' | 'days_of_week' | 'start_time' | 'end_time' | 'price_per_hour' | 'priority' | 'is_active'
+>
+
+/** Rule in the body of `PUT .../price-rules` (no `id`; `priority` and `is_active` have defaults). */
+export type PriceRuleInput = Omit<PriceRule, 'id'>
+
+/** `GET`/`PUT /club-admin/:clubId/courts/:courtId/price-rules` */
+export interface CourtPriceRules {
+  court_id: string
+  base_price_per_hour: number
+  rules: PriceRule[]
+}
+
+export interface CourtPriceRulesReplace {
+  rules: PriceRuleInput[]
+}
+
+/** Slot of `GET /club-admin/:clubId/courts/:courtId/preview`. `start`/`end` are club-local `HH:MM`. */
+export interface CourtPreviewSlot {
+  start_time: string
+  end_time: string
+  start: string
+  end: string
+  slot_minutes: number
+  price_per_hour: number
+  price: number
+  rule_id: string | null
+  rule_name: string | null
+}
+
+export interface CourtPreview {
+  court_id: string
+  date: string
+  day_of_week: number
+  source: 'court_exception' | 'club_exception' | 'court_schedule' | 'club_hours' | 'none'
+  closed: boolean
+  closed_reason: string | null
+  base_price_per_hour: number
+  slots: CourtPreviewSlot[]
+}
+
+// ---------------------------------------------------------------------------
+// Public availability (players app). Prices come from the API: `price` is the total of the slot.
+// ---------------------------------------------------------------------------
+
+/** Item of `GET /courts/:courtId/slots?date=` */
+export interface CourtSlot {
+  start_time: string
+  end_time: string
+  available: boolean
+  price_per_hour: number
+  price: number
+}
+
+/** Court entry inside a slot of `GET /clubs/:clubId/availability?date=` */
+export interface ClubAvailabilityCourt {
+  court_id: string
+  name: string
+  surface: CourtSurface
+  is_indoor: boolean
+  /** Hourly rate applied at this slot (price rule, else the court's base price). */
+  price_per_hour: number
+  /** Total of the slot for this court. */
+  price: number
+}
+
+/** Item of `GET /clubs/:clubId/availability?date=` */
+export interface ClubAvailabilitySlot {
+  start_time: string
+  end_time: string
+  /** Lowest hourly rate among the free courts. */
+  min_price: number
+  /** Lowest total of the slot among the free courts ("desde"). */
+  min_total_price: number
+  courts: ClubAvailabilityCourt[]
+}
+
+/** 409 codes of `POST /reservations` and `POST /matches` added by card #70. */
+export type BookingScheduleErrorCode = 'OUTSIDE_SCHEDULE' | 'COURT_CLOSED'
+
 export type ClubDocumentKind = 'tax_id' | 'company_registration' | 'id_document' | 'other'
 
 /** Document of an application, with a signed URL that expires in 10 minutes (`url` can be null). */

@@ -1,4 +1,11 @@
 import { api } from '../../../lib/axios'
+import type {
+  ClubAvailabilityCourt,
+  ClubAvailabilitySlot,
+} from '../../../../../../packages/types/src/api'
+
+// Availability shapes come from the API contract (`price` is the slot's total, computed by the server).
+export type { ClubAvailabilityCourt, ClubAvailabilitySlot }
 
 export interface Club {
   id: string
@@ -29,21 +36,6 @@ export interface Court {
 
 export interface ClubWithCourts extends Omit<Club, 'courts_count'> {
   courts: Court[]
-}
-
-export interface ClubAvailabilityCourt {
-  court_id: string
-  name: string
-  surface: string
-  is_indoor: boolean
-  price_per_hour: number
-}
-
-export interface ClubAvailabilitySlot {
-  start_time: string
-  end_time: string
-  min_price: number
-  courts: ClubAvailabilityCourt[]
 }
 
 export interface GetClubsParams {

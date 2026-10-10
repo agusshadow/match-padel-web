@@ -34,3 +34,25 @@ export function getErrorCode(error: unknown): string | undefined {
 export function getErrorDetails(error: unknown): unknown {
   return axios.isAxiosError<ErrorBody>(error) ? error.response?.data?.details : undefined
 }
+
+/**
+ * Individual problems of a 400 validation error: `details.errors` (strings, schedule and price rules)
+ * or `details` as a list of `{ field, message }` (schema validation). Empty when there are none.
+ */
+export function getErrorProblems(error: unknown): string[] {
+  const details = getErrorDetails(error)
+  if (Array.isArray(details)) {
+    return details.flatMap((d) => {
+      if (typeof d === 'string') return [d]
+      if (d && typeof d === 'object' && 'message' in d && typeof d.message === 'string') {
+        const field = 'field' in d && typeof d.field === 'string' ? `${d.field}: ` : ''
+        return [`${field}${d.message}`]
+      }
+      return []
+    })
+  }
+  if (details && typeof details === 'object' && 'errors' in details && Array.isArray(details.errors)) {
+    return details.errors.filter((e): e is string => typeof e === 'string')
+  }
+  return []
+}

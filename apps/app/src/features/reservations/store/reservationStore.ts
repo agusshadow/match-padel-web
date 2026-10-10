@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Court, ClubAvailabilitySlot } from '../../clubs/services/clubService'
+import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
 
 interface ReservationWizardState {
   // Step 1: Club
@@ -11,7 +11,7 @@ interface ReservationWizardState {
   selectedSlot: ClubAvailabilitySlot | null
   // Step 2b: Court, chosen from the slot's own available courts
   selectedCourtId: string | null
-  selectedCourt: Court | null
+  selectedCourt: ClubAvailabilityCourt | null
   // Step 3: Notes
   notes: string
 
@@ -19,7 +19,7 @@ interface ReservationWizardState {
   setClub: (id: string, name: string) => void
   setDate: (date: string) => void
   setSlot: (slot: ClubAvailabilitySlot) => void
-  setCourt: (court: Court) => void
+  setCourt: (court: ClubAvailabilityCourt) => void
   setNotes: (notes: string) => void
   resetWizard: () => void
 }
@@ -69,7 +69,7 @@ export const useReservationStore = create<ReservationWizardState>((set) => ({
 
   setCourt: (court) =>
     set({
-      selectedCourtId: court.id,
+      selectedCourtId: court.court_id,
       selectedCourt: court,
     }),
 

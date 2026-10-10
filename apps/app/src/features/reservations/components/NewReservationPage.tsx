@@ -6,6 +6,7 @@ import { useClubes, useClubById, useClubAvailability } from '../../clubs/hooks/u
 import { useCreateReservation } from '../hooks/useReservations'
 import { useReservationStore } from '../store/reservationStore'
 import type { ClubAvailabilityCourt, ClubAvailabilitySlot } from '../../clubs/services/clubService'
+import { bookingErrorMessage } from '../../../lib/booking-errors'
 
 const DAY_LABELS = ['Hoy', 'Mañana']
 
@@ -29,8 +30,8 @@ function formatTime(iso: string): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-function surfaceLabel(surface: string): string {
-  return surface === 'indoor' ? 'Cubierta' : surface === 'outdoor' ? 'Descubierta' : 'Panorámica'
+function money(value: number): string {
+  return `$${value.toLocaleString('es-AR')}`
 }
 
 // ---- Step 1: Select Club ----
@@ -112,7 +113,8 @@ function StepSelectClub({ onNext }: { onNext: () => void }) {
 // Time first, court second: the player cares about when they can play, not
 // which specific court — the court (and its exact price) only matters once
 // a time is chosen. See Trello card #47.
-function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) {
+function StepSelectSlot({ onNext }: { onNext: () => void }) {
+  const { t } = useTranslation()
   const {
     selectedClubId,
     selectedClubName,
@@ -143,12 +145,12 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
     <div className="space-y-5">
       {/* Club info */}
       <p className="text-sm text-muted-foreground">
-        Club: <span className="font-medium text-foreground">{selectedClubName}</span>
+        {t('reservations.club')}: <span className="font-medium text-foreground">{selectedClubName}</span>
       </p>
 
       {/* Day tabs */}
       <div>
-        <p className="text-sm font-medium text-foreground mb-2">Día</p>
+        <p className="text-sm font-medium text-foreground mb-2">{t('reservations.day')}</p>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {dayTabs.map((day) => (
             <button
@@ -168,14 +170,14 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
 
       {/* Time slots for the selected day */}
       <div>
-        <p className="text-sm font-medium text-foreground mb-2">Horario</p>
+        <p className="text-sm font-medium text-foreground mb-2">{t('reservations.slot')}</p>
         {loadingSlots ? (
           <div className="flex justify-center py-6">
             <Loader2 size={20} className="animate-spin text-primary" />
           </div>
         ) : (slots ?? []).length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No hay turnos disponibles para este día.
+            {t('reservations.noSlots')}
           </p>
         ) : (
           <div className="space-y-2">
@@ -193,7 +195,7 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
                   {formatTime(slot.start_time)} – {formatTime(slot.end_time)}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  desde ${slot.min_price.toLocaleString('es-AR')}
+                  {t('reservations.fromTotal', { price: money(slot.min_total_price) })}
                 </span>
               </button>
             ))}
@@ -204,21 +206,12 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
       {/* Court, chosen from the selected slot's available courts */}
       {selectedSlot && (
         <div>
-          <p className="text-sm font-medium text-foreground mb-2">Cancha</p>
+          <p className="text-sm font-medium text-foreground mb-2">{t('reservations.court')}</p>
           <div className="space-y-2">
             {selectedSlot.courts.map((court: ClubAvailabilityCourt) => (
               <button
                 key={court.court_id}
-                onClick={() =>
-                  setCourt({
-                    id: court.court_id,
-                    name: court.name,
-                    surface: court.surface,
-                    is_indoor: court.is_indoor,
-                    price_per_hour: court.price_per_hour,
-                    is_active: true,
-                  })
-                }
+                onClick={() => setCourt(court)}
                 className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
                   selectedCourtId === court.court_id
                     ? 'border-primary bg-primary/5'
@@ -228,7 +221,11 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
                 <div>
                   <p className="font-medium text-sm text-foreground">{court.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {surfaceLabel(court.surface)} · ${court.price_per_hour.toLocaleString('es-AR')}/hora
+                    {t('reservations.courtPriceLine', {
+                      surface: t(`clubs.surface.${court.surface}`),
+                      rate: money(court.price_per_hour),
+                      price: money(court.price),
+                    })}
                   </p>
                 </div>
                 {selectedCourtId === court.court_id && (
@@ -246,7 +243,7 @@ function StepSelectSlot({ onNext }: { onNext: () => void; onBack: () => void }) 
         disabled={!selectedSlot || !selectedCourtId}
         className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors"
       >
-        Continuar
+        {t('reservations.continue')}
       </button>
     </div>
   )
@@ -270,21 +267,15 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
 
   if (!selectedSlot || !selectedCourt) return null
 
-  const durationMs =
-    new Date(selectedSlot.end_time).getTime() -
-    new Date(selectedSlot.start_time).getTime()
-  const durationHours = durationMs / (1000 * 60 * 60)
-  const totalPrice = Math.round(selectedCourt.price_per_hour * durationHours * 100) / 100
-
-  function formatTime(iso: string): string {
-    const d = new Date(iso)
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  }
+  // The price is the slot's total as the API computed it (price rules included); never rate x duration.
+  const durationMinutes = Math.round(
+    (new Date(selectedSlot.end_time).getTime() - new Date(selectedSlot.start_time).getTime()) / 60_000,
+  )
 
   const handleConfirm = () => {
     createMutation.mutate(
       {
-        court_id: selectedCourt.id,
+        court_id: selectedCourt.court_id,
         start_time: selectedSlot.start_time,
         end_time: selectedSlot.end_time,
         notes: notes || undefined,
@@ -301,37 +292,37 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
   return (
     <div className="space-y-5">
       <div className="bg-card border border-border rounded-xl p-5 space-y-3">
-        <h3 className="font-semibold text-foreground">Resumen de tu reserva</h3>
+        <h3 className="font-semibold text-foreground">{t('reservations.summary')}</h3>
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Club</span>
+            <span className="text-muted-foreground">{t('reservations.club')}</span>
             <span className="font-medium text-foreground">{selectedClubName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Cancha</span>
+            <span className="text-muted-foreground">{t('reservations.court')}</span>
             <span className="font-medium text-foreground">{selectedCourt.name}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Fecha</span>
+            <span className="text-muted-foreground">{t('reservations.date')}</span>
             <span className="font-medium text-foreground">{selectedDate}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Horario</span>
+            <span className="text-muted-foreground">{t('reservations.slot')}</span>
             <span className="font-medium text-foreground">
               {formatTime(selectedSlot.start_time)} – {formatTime(selectedSlot.end_time)}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Duración</span>
+            <span className="text-muted-foreground">{t('reservations.duration')}</span>
             <span className="font-medium text-foreground">
-              {durationHours === 1 ? '1 hora' : `${durationHours} horas`}
+              {t('reservations.durationMinutes', { count: durationMinutes })}
             </span>
           </div>
           <div className="border-t border-border pt-2 flex justify-between">
-            <span className="font-semibold text-foreground">Total</span>
+            <span className="font-semibold text-foreground">{t('reservations.total')}</span>
             <span className="font-bold text-foreground text-base">
-              ${totalPrice.toLocaleString('es-AR')}
+              {money(selectedCourt.price)}
             </span>
           </div>
         </div>
@@ -340,12 +331,12 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
       {/* Notes */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-1.5">
-          Notas (opcional)
+          {t('reservations.notes')}
         </label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Ej: somos 4 personas, traemos pelotas..."
+          placeholder={t('reservations.notesPlaceholder')}
           rows={3}
           maxLength={500}
           className="w-full px-3 py-2.5 bg-background border border-input rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
@@ -354,8 +345,7 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
 
       {createMutation.isError && (
         <div className="bg-destructive/10 text-destructive text-sm rounded-lg px-4 py-3">
-          {(createMutation.error as { response?: { data?: { message?: string } } })
-            ?.response?.data?.message ?? t('common.error')}
+          {bookingErrorMessage(createMutation.error, t)}
         </div>
       )}
 
@@ -365,7 +355,7 @@ function StepConfirm({ onBack }: { onBack: () => void }) {
         className="w-full py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
       >
         {createMutation.isPending && <Loader2 size={16} className="animate-spin" />}
-        Confirmar reserva
+        {t('reservations.confirmBooking')}
       </button>
     </div>
   )
@@ -434,10 +424,7 @@ export function NewReservationPage() {
           <StepSelectClub onNext={() => setStep(1)} />
         )}
         {step === 1 && (
-          <StepSelectSlot
-            onNext={() => setStep(2)}
-            onBack={() => setStep(0)}
-          />
+          <StepSelectSlot onNext={() => setStep(2)} />
         )}
         {step === 2 && (
           <StepConfirm onBack={() => setStep(1)} />
