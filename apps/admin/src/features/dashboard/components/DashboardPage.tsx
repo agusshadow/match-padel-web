@@ -1,5 +1,5 @@
 import { CalendarDays, CalendarCheck, Hourglass, LandPlot, Swords } from 'lucide-react'
-import { Notice, PageHeader, StatCard, StatusBadge, formatDateTime, formatMoney } from '@match-padel/ui'
+import { Notice, PageHeader, StatCard, StatusBadge, formatDateTime, formatMoney, personName } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
 import { useCurrentClub } from '@/shared/club-context'
 import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES } from '@/shared/permissions'
@@ -25,9 +25,9 @@ export function DashboardPage() {
         data && (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             <StatCard label="Canchas" value={data.courts} icon={LandPlot} tone="green" />
-            <StatCard label="Reservas" value={data.reservations} icon={CalendarDays} tone="orange" />
-            <StatCard label="Pendientes" value={data.pendingReservations} icon={Hourglass} tone="red" />
-            <StatCard label="Hoy" value={data.todayReservations} icon={CalendarCheck} tone="blue" />
+            <StatCard label="Reservas" value={data.reservations.total} icon={CalendarDays} tone="orange" />
+            <StatCard label="Pendientes" value={data.reservations.pending} icon={Hourglass} tone="red" />
+            <StatCard label="Hoy" value={data.reservations.today} icon={CalendarCheck} tone="blue" />
             <StatCard label="Partidos" value={data.matches} icon={Swords} tone="yellow" />
           </div>
         )
@@ -45,10 +45,10 @@ export function DashboardPage() {
             <div key={r.id} className="px-5 py-3 flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  {r.user?.full_name ?? r.user?.username ?? 'Jugador'}
+                  {personName(r.user, 'Jugador')}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {r.court?.name} · {formatDateTime(r.start_time)}
+                  {r.court.name} · {formatDateTime(r.start_time)}
                 </p>
               </div>
               <div className="text-right space-y-1">

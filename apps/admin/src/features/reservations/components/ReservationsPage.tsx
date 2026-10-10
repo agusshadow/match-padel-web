@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ClubAdminReservation, ReservationStatus } from '@match-padel/types'
-import { Notice, PageHeader, Pagination, StatusBadge, formatDate, formatMoney, formatTime } from '@match-padel/ui'
+import { Notice, PageHeader, Pagination, StatusBadge, formatDate, formatMoney, formatTime, personName } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
 import { useCurrentClub } from '@/shared/club-context'
 import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES } from '@/shared/permissions'
@@ -85,10 +85,10 @@ export function ReservationsPage() {
                   {data?.items.map((r) => (
                     <tr key={r.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{r.user?.full_name ?? 'Sin nombre'}</p>
+                        <p className="font-medium text-gray-900">{personName(r.user)}</p>
                         {r.user?.username && <p className="text-xs text-gray-400">@{r.user.username}</p>}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{r.court?.name}</td>
+                      <td className="px-4 py-3 text-gray-600">{r.court.name}</td>
                       <td className="px-4 py-3 text-gray-600">
                         <p>{formatDate(r.start_time)}</p>
                         <p className="text-xs text-gray-400">

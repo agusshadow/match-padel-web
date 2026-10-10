@@ -10,6 +10,8 @@ export type {
   TournamentStatus,
   MeAccess,
   ClubAccess,
+  PersonRef,
+  PlatformReservation,
   ClubAdminReservation,
   ClubAdminSummary,
   ClubAdminMatch,

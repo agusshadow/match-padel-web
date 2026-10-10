@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Notice, PageHeader, Pagination, formatDateTime } from '@match-padel/ui'
+import { Notice, PageHeader, Pagination, formatDateTime, personName } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
 import { useAuditLog, useClubOptions } from '../hooks/useAuditLog'
 
@@ -78,15 +78,15 @@ export function AuditLogPage() {
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDateTime(entry.created_at)}</td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-gray-900">
-                          {entry.actor?.full_name ?? entry.actor?.username ?? 'Sistema'}
+                          {entry.actor ? personName(entry.actor) : 'Sistema'}
                         </p>
                         {entry.actor?.username && <p className="text-xs text-gray-400">@{entry.actor.username}</p>}
                       </td>
                       <td className="px-4 py-3">
                         <p className="font-mono text-xs text-gray-900">{entry.action}</p>
-                        {entry.entity_type && (
+                        {entry.entity && (
                           <p className="text-xs text-gray-400">
-                            {entry.entity_type}
+                            {entry.entity}
                             {entry.entity_id ? ` · ${entry.entity_id.slice(0, 8)}` : ''}
                           </p>
                         )}

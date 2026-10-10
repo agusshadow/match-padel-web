@@ -77,10 +77,12 @@ Every API path is relative to `VITE_API_URL`; `:clubId` is the club in the URL.
 | `/` | `ClubRedirect` | any club member or superadmin | — | `GET /me/access` (redirects to the last club used, or the first one, `/:clubId/dashboard`) |
 | `/:clubId/dashboard` | `DashboardPage` | any role | `dashboard` | `GET /club-admin/:clubId/summary` |
 | `/:clubId/reservations` | `ReservationsPage` (status filter, paginated; confirm / complete / cancel) | any role (reception included) | `reservations` | `GET /club-admin/:clubId/reservations?status=&page=&limit=`, `PATCH /club-admin/:clubId/reservations/:id` |
-| `/:clubId/matches` | `MatchesPage` | owner, admin, superadmin (reception is redirected to the dashboard and the sidebar hides it) | `matches` | `GET /club-admin/:clubId/matches` |
-| `/:clubId/tournaments` | `TournamentsPage` | owner, admin, superadmin (same as matches) | `tournaments` | `GET /club-admin/:clubId/tournaments` |
+| `/:clubId/matches` | `MatchesPage` (paginated) | owner, admin, superadmin (reception is redirected to the dashboard and the sidebar hides it) | `matches` | `GET /club-admin/:clubId/matches?page=&limit=` |
+| `/:clubId/tournaments` | `TournamentsPage` (paginated) | owner, admin, superadmin (same as matches) | `tournaments` | `GET /club-admin/:clubId/tournaments?page=&limit=` |
 | `/:clubId/club` | `ClubPage` (view and edit club data; read-only for reception) | any role; edit for owner, admin, superadmin | `club` | `GET /club-admin/:clubId`, `PATCH /club-admin/:clubId` |
 | `*` | redirect to `/` (or to the dashboard inside a club) | — | — | — |
+
+The API's error handler answers `{ error, message }`; `lib/errors.ts` shows `message`. People are shown with `personName()` from `@match-padel/ui` (first + last name, falling back to username).
 
 Role labels shown in the UI: `owner` = Dueño, `admin` = Administrador, `staff` = Recepción, `superadmin` = Superadmin (`src/shared/permissions.ts`). Server-side permissions are the source of truth; the route guards and hidden actions are only a convenience.
 
@@ -109,7 +111,7 @@ Sign-in uses Supabase auth, then `GET /me/access`; the user is rejected with a m
 |------|----------------|--------|----------------|----------------------|
 | `/login` | `LoginPage` | public | `auth` | Supabase `signInWithPassword`, then `GET /me/access` |
 | `/` | `HomeRedirect` | platform staff | — | `GET /me/access` (superadmin to `/dashboard`, reviewer to `/requests`) |
-| `/dashboard` | `DashboardPage` | superadmin | `dashboard` | `GET /platform/summary` |
+| `/dashboard` | `DashboardPage` (counters + recent reservations) | superadmin | `dashboard` | `GET /platform/summary` |
 | `/clubs` | `ClubsPage` (search, create dialog, activate/deactivate) | superadmin | `clubs` | `GET /platform/clubs`, `POST /platform/clubs`, `PATCH /platform/clubs/:id/active` |
 | `/users` | `UsersPage` (search, paginated) | superadmin | `users` | `GET /platform/users?search=&page=&limit=` |
 | `/audit-log` | `AuditLogPage` (filter by club and by actor user id, paginated) | superadmin | `audit-log` | `GET /platform/audit-log?clubId=&actorId=&page=&limit=`; `GET /platform/clubs` for the club filter |

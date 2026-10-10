@@ -44,7 +44,7 @@ export type TournamentStatus = Enums<'tournament_status'>
 
 /** `GET /me/access` */
 export interface MeAccess {
-  user: { id: string; email: string; first_name: string | null; last_name: string | null }
+  user: { id: string; email: string | null; first_name: string | null; last_name: string | null }
   platformRole: PlatformRole | null
   clubs: ClubAccess[]
 }
@@ -57,23 +57,31 @@ export interface ClubAccess {
   role: ClubRole
 }
 
-type PersonRef = Pick<Tables<'users'>, 'id' | 'full_name' | 'username'>
+/** Person embedded in club-admin and platform rows. */
+export type PersonRef = Pick<Tables<'users'>, 'id' | 'username' | 'first_name' | 'last_name'>
 
-/** Row of `GET /club-admin/:clubId/reservations` and of the summary's recent list. */
+/** Row of `GET /club-admin/:clubId/reservations`, the PATCH result and the recent lists. */
 export type ClubAdminReservation = Pick<
   Tables<'court_reservations'>,
-  'id' | 'start_time' | 'end_time' | 'status' | 'total_price' | 'notes' | 'created_at'
+  | 'id'
+  | 'court_id'
+  | 'user_id'
+  | 'start_time'
+  | 'end_time'
+  | 'status'
+  | 'total_price'
+  | 'notes'
+  | 'created_at'
+  | 'updated_at'
 > & {
+  court: Pick<Tables<'courts'>, 'id' | 'name' | 'club_id'>
   user: PersonRef | null
-  court: Pick<Tables<'courts'>, 'id' | 'name'> | null
 }
 
 /** `GET /club-admin/:clubId/summary` */
 export interface ClubAdminSummary {
   courts: number
-  reservations: number
-  pendingReservations: number
-  todayReservations: number
+  reservations: { total: number; pending: number; today: number }
   matches: number
   recentReservations: ClubAdminReservation[]
 }
@@ -81,17 +89,50 @@ export interface ClubAdminSummary {
 /** Row of `GET /club-admin/:clubId/matches` */
 export type ClubAdminMatch = Pick<
   Tables<'matches'>,
-  'id' | 'type' | 'status' | 'lobby_url' | 'created_at' | 'score_team1' | 'score_team2'
-> & { creator: PersonRef | null }
+  'id' | 'type' | 'status' | 'is_ranked' | 'score_team1' | 'score_team2' | 'winner_team' | 'created_at'
+> & {
+  reservation: {
+    start_time: string
+    end_time: string
+    court: Pick<Tables<'courts'>, 'id' | 'name'> | null
+  } | null
+  players: Array<{ team: number | null; user: PersonRef | null }>
+}
 
 /** Row of `GET /club-admin/:clubId/tournaments` */
 export type ClubAdminTournament = Pick<
   Tables<'tournaments'>,
-  'id' | 'name' | 'format' | 'status' | 'max_teams' | 'start_date' | 'created_at'
-> & { creator: PersonRef | null; teamsCount?: number }
+  | 'id'
+  | 'name'
+  | 'format'
+  | 'status'
+  | 'max_teams'
+  | 'entry_fee'
+  | 'prize_pool'
+  | 'start_date'
+  | 'end_date'
+  | 'created_at'
+> & { teams: Array<{ count: number }> }
 
 /** `GET /club-admin/:clubId` (and the body returned by `PATCH`). */
-export type ClubAdminClub = Tables<'clubs'>
+export type ClubAdminClub = Pick<
+  Tables<'clubs'>,
+  | 'id'
+  | 'name'
+  | 'slug'
+  | 'description'
+  | 'address'
+  | 'city'
+  | 'phone'
+  | 'email'
+  | 'logo_url'
+  | 'cover_url'
+  | 'lat'
+  | 'lng'
+  | 'is_active'
+  | 'created_at'
+  | 'updated_at'
+>
 
 /** Body of `PATCH /club-admin/:clubId` */
 export type ClubAdminClubUpdate = Partial<
@@ -104,19 +145,34 @@ export type ClubAdminClubUpdate = Partial<
 /** `GET /platform/summary` */
 export interface PlatformSummary {
   clubs: number
-  activeClubs: number
   courts: number
-  users: number
   reservations: number
   pendingReservations: number
   matches: number
+  users: number
+  recentReservations: PlatformReservation[]
 }
 
-/** Row of `GET /platform/clubs` */
+export type PlatformReservation = Omit<ClubAdminReservation, 'court'> & {
+  court: { id: string; name: string; club: { id: string; name: string } | null }
+}
+
+/** Row of `GET /platform/clubs`, and the result of `POST /platform/clubs` and `PATCH /platform/clubs/:id/active`. */
 export type PlatformClub = Pick<
   Tables<'clubs'>,
-  'id' | 'name' | 'slug' | 'address' | 'city' | 'is_active' | 'created_at'
-> & { courtsCount?: number }
+  | 'id'
+  | 'name'
+  | 'slug'
+  | 'description'
+  | 'address'
+  | 'city'
+  | 'phone'
+  | 'email'
+  | 'logo_url'
+  | 'is_active'
+  | 'created_at'
+  | 'updated_at'
+>
 
 /** Body of `POST /platform/clubs` */
 export interface PlatformClubCreate {
@@ -133,19 +189,19 @@ export interface PlatformClubCreate {
 /** Row of `GET /platform/users` */
 export type PlatformUser = Pick<
   Tables<'users'>,
-  'id' | 'full_name' | 'username' | 'elo' | 'role' | 'is_active' | 'created_at'
-> & { email?: string | null }
+  'id' | 'username' | 'first_name' | 'last_name' | 'role' | 'is_active' | 'created_at'
+> & { email: string | null }
 
 /** Row of `GET /platform/audit-log` */
 export interface AuditLogEntry {
   id: string
-  created_at: string
-  action: string
-  entity_type: string | null
-  entity_id: string | null
-  club_id: string | null
   actor_id: string | null
+  club_id: string | null
+  action: string
+  entity: string | null
+  entity_id: string | null
+  metadata: Json | null
+  created_at: string
   actor: PersonRef | null
   club: { id: string; name: string } | null
-  metadata: Json | null
 }

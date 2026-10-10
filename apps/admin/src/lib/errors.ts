@@ -1,10 +1,19 @@
 import axios from 'axios'
-import type { ApiError } from '@match-padel/types'
 
-/** Message to show for a failed request: the API's `error.message` when present. */
+interface ErrorBody {
+  message?: string
+  error?: string | { message?: string }
+}
+
+/**
+ * Message to show for a failed request. The API answers `{ error, message }` from its error
+ * handler; the envelope form `{ error: { message } }` is also accepted.
+ */
 export function getErrorMessage(error: unknown, fallback = 'Ocurrió un error inesperado'): string {
-  if (axios.isAxiosError<ApiError>(error)) {
-    return error.response?.data?.error?.message ?? error.message ?? fallback
+  if (axios.isAxiosError<ErrorBody>(error)) {
+    const body = error.response?.data
+    const fromEnvelope = typeof body?.error === 'object' ? body.error?.message : undefined
+    return body?.message ?? fromEnvelope ?? error.message ?? fallback
   }
   return error instanceof Error ? error.message : fallback
 }

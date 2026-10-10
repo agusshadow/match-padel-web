@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Notice, PageHeader, Pagination, StatusBadge, formatDate, type StatusTone } from '@match-padel/ui'
+import { Notice, PageHeader, Pagination, StatusBadge, formatDate, personName, type StatusTone } from '@match-padel/ui'
 import { getErrorMessage } from '@/lib/errors'
 import { useDebouncedValue, useUsers } from '../hooks/useUsers'
 
@@ -48,7 +48,6 @@ export function UsersPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Usuario</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">ELO</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Rol</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Registro</th>
                   </tr>
@@ -59,13 +58,12 @@ export function UsersPage() {
                     return (
                       <tr key={user.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">{user.full_name ?? 'Sin nombre'}</p>
+                          <p className="font-medium text-gray-900">{personName(user)}</p>
                           <p className="text-xs text-gray-400">
                             @{user.username}
                             {user.email ? ` · ${user.email}` : ''}
                           </p>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-gray-900">{user.elo}</td>
                         <td className="px-4 py-3">
                           <StatusBadge label={role.label} tone={role.tone} />
                         </td>
