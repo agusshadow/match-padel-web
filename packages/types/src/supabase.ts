@@ -1269,6 +1269,8 @@ export type Database = {
           reservation_id: string | null
           seller_mp_user_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
+          tournament_id: string | null
+          tournament_team_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1291,6 +1293,8 @@ export type Database = {
           reservation_id?: string | null
           seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          tournament_id?: string | null
+          tournament_team_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1313,6 +1317,8 @@ export type Database = {
           reservation_id?: string | null
           seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          tournament_id?: string | null
+          tournament_team_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1329,6 +1335,20 @@ export type Database = {
             columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "court_reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_tournament_team_id_fkey"
+            columns: ["tournament_team_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_teams"
             referencedColumns: ["id"]
           },
           {
@@ -1434,51 +1454,105 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          loser_next_match_id: string | null
+          loser_next_match_slot: number | null
           match_id: string | null
+          next_match_id: string | null
+          next_match_slot: number | null
+          position: number | null
+          result_at: string | null
+          result_by: string | null
           round: number
           scheduled_at: string | null
           score_team1: number[] | null
           score_team2: number[] | null
+          stage: string
           status: string
           team1_id: string | null
+          team1_players: string[] | null
           team2_id: string | null
+          team2_players: string[] | null
           tournament_id: string
+          updated_at: string
           winner_team_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          loser_next_match_id?: string | null
+          loser_next_match_slot?: number | null
           match_id?: string | null
+          next_match_id?: string | null
+          next_match_slot?: number | null
+          position?: number | null
+          result_at?: string | null
+          result_by?: string | null
           round?: number
           scheduled_at?: string | null
           score_team1?: number[] | null
           score_team2?: number[] | null
+          stage?: string
           status?: string
           team1_id?: string | null
+          team1_players?: string[] | null
           team2_id?: string | null
+          team2_players?: string[] | null
           tournament_id: string
+          updated_at?: string
           winner_team_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          loser_next_match_id?: string | null
+          loser_next_match_slot?: number | null
           match_id?: string | null
+          next_match_id?: string | null
+          next_match_slot?: number | null
+          position?: number | null
+          result_at?: string | null
+          result_by?: string | null
           round?: number
           scheduled_at?: string | null
           score_team1?: number[] | null
           score_team2?: number[] | null
+          stage?: string
           status?: string
           team1_id?: string | null
+          team1_players?: string[] | null
           team2_id?: string | null
+          team2_players?: string[] | null
           tournament_id?: string
+          updated_at?: string
           winner_team_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tournament_matches_loser_next_match_id_fkey"
+            columns: ["loser_next_match_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_matches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tournament_matches_match_id_fkey"
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_next_match_id_fkey"
+            columns: ["next_match_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_result_by_fkey"
+            columns: ["result_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -1513,33 +1587,52 @@ export type Database = {
       }
       tournament_teams: {
         Row: {
+          expires_at: string | null
           id: string
           name: string
+          paid_at: string | null
+          payment_id: string | null
           player1_id: string
           player2_id: string
           registered_at: string
           seed: number | null
+          status: string
           tournament_id: string
         }
         Insert: {
+          expires_at?: string | null
           id?: string
           name: string
+          paid_at?: string | null
+          payment_id?: string | null
           player1_id: string
           player2_id: string
           registered_at?: string
           seed?: number | null
+          status?: string
           tournament_id: string
         }
         Update: {
+          expires_at?: string | null
           id?: string
           name?: string
+          paid_at?: string | null
+          payment_id?: string | null
           player1_id?: string
           player2_id?: string
           registered_at?: string
           seed?: number | null
+          status?: string
           tournament_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tournament_teams_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tournament_teams_player1_id_fkey"
             columns: ["player1_id"]
@@ -1566,7 +1659,11 @@ export type Database = {
       tournaments: {
         Row: {
           bracket: Json
+          cancel_reason: string | null
+          cancelled_at: string | null
+          category: string | null
           club_id: string
+          completed_at: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -1574,17 +1671,25 @@ export type Database = {
           entry_fee: number
           format: Database["public"]["Enums"]["tournament_format"]
           id: string
+          max_elo: number | null
           max_teams: number
+          min_elo: number | null
           name: string
           prize_pool: number
+          registration_deadline: string | null
           rules: Json
           start_date: string
+          started_at: string | null
           status: Database["public"]["Enums"]["tournament_status"]
           updated_at: string
         }
         Insert: {
           bracket?: Json
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          category?: string | null
           club_id: string
+          completed_at?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -1592,17 +1697,25 @@ export type Database = {
           entry_fee?: number
           format?: Database["public"]["Enums"]["tournament_format"]
           id?: string
+          max_elo?: number | null
           max_teams?: number
+          min_elo?: number | null
           name: string
           prize_pool?: number
+          registration_deadline?: string | null
           rules?: Json
           start_date: string
+          started_at?: string | null
           status?: Database["public"]["Enums"]["tournament_status"]
           updated_at?: string
         }
         Update: {
           bracket?: Json
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          category?: string | null
           club_id?: string
+          completed_at?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -1610,11 +1723,15 @@ export type Database = {
           entry_fee?: number
           format?: Database["public"]["Enums"]["tournament_format"]
           id?: string
+          max_elo?: number | null
           max_teams?: number
+          min_elo?: number | null
           name?: string
           prize_pool?: number
+          registration_deadline?: string | null
           rules?: Json
           start_date?: string
+          started_at?: string | null
           status?: Database["public"]["Enums"]["tournament_status"]
           updated_at?: string
         }

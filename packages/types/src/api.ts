@@ -103,21 +103,6 @@ export type ClubAdminMatch = Pick<
   players: Array<{ team: number | null; user: PersonRef | null }>
 }
 
-/** Row of `GET /club-admin/:clubId/tournaments` */
-export type ClubAdminTournament = Pick<
-  Tables<'tournaments'>,
-  | 'id'
-  | 'name'
-  | 'format'
-  | 'status'
-  | 'max_teams'
-  | 'entry_fee'
-  | 'prize_pool'
-  | 'start_date'
-  | 'end_date'
-  | 'created_at'
-> & { teams: Array<{ count: number }> }
-
 /** `GET /club-admin/:clubId` (and the body returned by `PATCH`). */
 export type ClubAdminClub = Pick<
   Tables<'clubs'>,
@@ -1028,5 +1013,311 @@ export interface PlayerRefundResult {
 export interface MatchLeaveResult {
   refunded: boolean
   currencyCredited: number
+  refund: PlayerRefundResult | null
+}
+
+// ---------------------------------------------------------------------------
+// Club tournaments (card #77, Admin F4). Contract: match-padel-api docs/tournaments.md
+// ---------------------------------------------------------------------------
+
+export type TournamentFormat = Enums<'tournament_format'>
+/** `tournament_teams.status`: unpaid registrations hold the place for 30 minutes. */
+export type TournamentTeamStatus = 'pending_payment' | 'confirmed'
+/** `tournament_matches.status`: `bye` and `void` are resolved by the API, never played. */
+export type TournamentMatchStatus = 'pending' | 'ready' | 'completed' | 'bye' | 'void'
+export type TournamentMatchStage = 'group' | 'main' | 'winners' | 'losers' | 'grand_final' | 'americano'
+export type TournamentSeeding = 'elo' | 'registration'
+
+/** `tournaments.rules`; only `americano_rounds` is interpreted by the API. */
+export type TournamentRules = { americano_rounds?: number } & { [key: string]: Json | undefined }
+
+/** The tournament as the club panel receives it (`serializeTournament` of the API). */
+export type ClubTournament = Pick<
+  Tables<'tournaments'>,
+  | 'id'
+  | 'club_id'
+  | 'name'
+  | 'description'
+  | 'format'
+  | 'status'
+  | 'max_teams'
+  | 'category'
+  | 'min_elo'
+  | 'max_elo'
+  | 'entry_fee'
+  | 'prize_pool'
+  | 'start_date'
+  | 'end_date'
+  | 'registration_deadline'
+  | 'started_at'
+  | 'completed_at'
+  | 'cancelled_at'
+  | 'cancel_reason'
+  | 'created_by'
+  | 'created_at'
+  | 'updated_at'
+> & {
+  /** `max_teams * 2` for americano, `null` for the other formats. */
+  max_players: number | null
+  rules: TournamentRules
+}
+
+/** Row of `GET /club-admin/:clubId/tournaments`. `teams[0].count` counts every registration. */
+export type ClubAdminTournament = ClubTournament & {
+  teams: Array<{ count: number }>
+  teams_confirmed: number
+  teams_pending_payment: number
+}
+
+/** Player of a registration or of an americano match. */
+export type TournamentPlayer = Pick<Tables<'users'>, 'id' | 'username' | 'first_name' | 'last_name'>
+
+export interface TournamentTeamPayment {
+  id: string
+  status: string
+  amount: number
+  marketplace_fee: number | null
+  net_amount: number | null
+  /** `none` | `partial` | `full` | `pending` | `failed` */
+  refund_status: string
+  refunded_amount: number
+  created_at: string
+}
+
+export interface ClubTournamentTeam {
+  id: string
+  name: string
+  seed: number | null
+  status: TournamentTeamStatus
+  registered_at: string
+  /** Deadline of an unpaid registration (`pending_payment`). */
+  expires_at: string | null
+  paid_at: string | null
+  player1: (TournamentPlayer & { elo: number }) | null
+  player2: (TournamentPlayer & { elo: number }) | null
+  payment: TournamentTeamPayment | null
+}
+
+export interface ClubTournamentMatch {
+  id: string
+  stage: TournamentMatchStage
+  /** 1-based. */
+  round: number
+  /** 0-based inside stage and round. */
+  position: number
+  status: TournamentMatchStatus
+  team1_id: string | null
+  team2_id: string | null
+  team1: { id: string; name: string | null } | null
+  team2: { id: string; name: string | null } | null
+  /** Americano only: the two players of each side. */
+  team1_players: TournamentPlayer[] | null
+  team2_players: TournamentPlayer[] | null
+  winner_team_id: string | null
+  /** `1` / `2`; `null` while unplayed (and for an americano draw). */
+  winner: 1 | 2 | null
+  /** Games per set; americano: a single entry (points of the side). */
+  score_team1: number[] | null
+  score_team2: number[] | null
+  next_match_id: string | null
+  next_match_slot: number | null
+  loser_next_match_id: string | null
+  loser_next_match_slot: number | null
+  scheduled_at: string | null
+  result_at: string | null
+}
+
+export interface RoundRobinStanding {
+  team_id: string
+  team_name: string | null
+  position: number
+  played: number
+  wins: number
+  losses: number
+  points: number
+  sets_won: number
+  sets_lost: number
+  set_diff: number
+  games_won: number
+  games_lost: number
+  game_diff: number
+}
+
+export interface EliminationStanding {
+  team_id: string
+  team_name: string | null
+  /** Final placement; `null` while the team is alive. Teams out in the same round share it. */
+  placement: number | null
+  status: 'champion' | 'eliminated' | 'active'
+  eliminated_in: { stage: TournamentMatchStage; round: number } | null
+  wins: number
+  losses: number
+}
+
+export interface AmericanoStanding {
+  player_id: string
+  player: TournamentPlayer
+  position: number
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points_for: number
+  points_against: number
+  point_diff: number
+}
+
+export type TournamentStandings =
+  | { type: 'none'; rows: [] }
+  | { type: 'round_robin'; rows: RoundRobinStanding[] }
+  | { type: 'elimination'; rows: EliminationStanding[] }
+  | { type: 'americano'; rows: AmericanoStanding[] }
+
+/** `GET /club-admin/:clubId/tournaments/:id/standings` */
+export type ClubTournamentStandings = TournamentStandings & {
+  tournament_id: string
+  format: TournamentFormat
+  status: TournamentStatus
+}
+
+export interface TournamentPaymentsSummary {
+  approved: number
+  gross: number
+  fee: number
+  refunded: number
+  refunds_pending: number
+}
+
+/** `GET /club-admin/:clubId/tournaments/:id` */
+export type ClubTournamentDetail = ClubTournament & {
+  counts: {
+    teams_confirmed: number
+    teams_pending_payment: number
+    matches_total: number
+    matches_completed: number
+  }
+  teams: ClubTournamentTeam[]
+  payments_summary: TournamentPaymentsSummary
+  matches: ClubTournamentMatch[]
+  standings: TournamentStandings
+}
+
+/**
+ * Body of `POST /club-admin/:clubId/tournaments`. Americano is sized with `max_players` (even),
+ * every other format with `max_teams`. Money has at most 2 decimals; dates are ISO instants.
+ */
+export interface ClubTournamentCreate {
+  name: string
+  description?: string | null
+  format: TournamentFormat
+  max_teams?: number
+  max_players?: number
+  category?: string | null
+  min_elo?: number | null
+  max_elo?: number | null
+  entry_fee?: number
+  prize_pool?: number
+  rules?: TournamentRules
+  start_date: string
+  end_date?: string | null
+  registration_deadline?: string | null
+}
+
+/** Body of `PATCH /club-admin/:clubId/tournaments/:id` (at least one field). */
+export type ClubTournamentUpdate = Partial<ClubTournamentCreate>
+
+/** `refund` of the cancellation of a tournament: every approved registration goes back at 100%. */
+export interface TournamentCancelRefund {
+  payments: number
+  refunded: number
+  /** Payment ids whose refund could not be completed (left `pending`, the owners are notified). */
+  failed: string[]
+  amount_refunded: number
+}
+
+/** `data` of `POST /club-admin/:clubId/tournaments/:id/cancel` */
+export type ClubTournamentCancelResult = ClubTournament & {
+  refund: TournamentCancelRefund
+  notified_players: number
+}
+
+/** Body of `POST /club-admin/:clubId/tournaments/:id/start` */
+export interface ClubTournamentStart {
+  seeding?: TournamentSeeding
+  /** Americano only: rounds to generate (default: the full rotation). */
+  americano_rounds?: number
+}
+
+/** `data` of `POST /club-admin/:clubId/tournaments/:id/start` */
+export type ClubTournamentStartResult = ClubTournament & {
+  fixture: { teams: number; matches: number; byes: number; seeding: TournamentSeeding }
+}
+
+/** Body of `PATCH /club-admin/:clubId/tournaments/:id/matches/:matchId/result` */
+export interface TournamentResultInput {
+  score_team1: number[]
+  score_team2: number[]
+  /** Only needed (and only accepted) when the score is a tie. */
+  winner?: 'team1' | 'team2'
+}
+
+/** `data` of the result PATCH: the match, what moved because of it and the fresh standings. */
+export interface TournamentResultOutcome {
+  match: ClubTournamentMatch
+  advanced: ClubTournamentMatch[]
+  tournament: { id: string; status: TournamentStatus; completed_at: string | null }
+  standings: TournamentStandings
+}
+
+/** Error codes of the club tournament routes. */
+export type TournamentErrorCode =
+  | 'CLUB_NOT_APPROVED'
+  | 'CLUB_PAYMENTS_NOT_ENABLED'
+  | 'INVALID_STATUS'
+  | 'INVALID_DATES'
+  | 'TOURNAMENT_HAS_REGISTRATIONS'
+  | 'NOT_ENOUGH_TEAMS'
+  | 'MATCH_NOT_READY'
+  | 'RESULT_LOCKED'
+  | 'WINNER_REQUIRED'
+  | 'WINNER_MISMATCH'
+  | 'VALIDATION_ERROR'
+
+/** `details` of a 409 `NOT_ENOUGH_TEAMS`. */
+export interface NotEnoughTeamsDetails {
+  minimum: number
+  confirmed: number
+}
+
+/** `details` of a 409 `RESULT_LOCKED`: the matches already played with teams that came from this one. */
+export interface ResultLockedDetails {
+  match_ids: string[]
+}
+
+/** Player side: `payment` of `POST /tournaments/:id/teams` when the entry fee is above zero. */
+export interface TournamentRegistrationPayment {
+  payment_id: string
+  preference_id: string
+  init_point: string
+  sandbox_init_point: string
+  amount: number
+}
+
+/**
+ * Player side: `data` of `POST /tournaments/:id/teams`: the registration row plus the payment to make.
+ * With an entry fee the team is `pending_payment` (30 minutes) until the webhook confirms it.
+ */
+export type TournamentRegistrationResult = Pick<
+  Tables<'tournament_teams'>,
+  'id' | 'tournament_id' | 'name' | 'player1_id' | 'player2_id' | 'seed' | 'registered_at' | 'expires_at' | 'paid_at'
+> & {
+  status: TournamentTeamStatus
+  payment_required: boolean
+  payment: TournamentRegistrationPayment | null
+}
+
+/** Player side: `data` of `DELETE /tournaments/:id/teams/me`. */
+export interface TournamentWithdrawResult {
+  success: boolean
   refund: PlayerRefundResult | null
 }

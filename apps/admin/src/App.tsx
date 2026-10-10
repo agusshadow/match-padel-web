@@ -4,7 +4,7 @@ import { DashboardPage } from '@/features/dashboard'
 import { CalendarPage } from '@/features/calendar'
 import { ReservationsPage } from '@/features/reservations'
 import { MatchesPage } from '@/features/matches'
-import { TournamentsPage } from '@/features/tournaments'
+import { TournamentsPage, TournamentFormPage, TournamentDetailPage } from '@/features/tournaments'
 import { ClubPage } from '@/features/club'
 import { CourtsPage, CourtDetailPage, ClubExceptionsPage } from '@/features/courts'
 import { OnboardingPage } from '@/features/onboarding'
@@ -49,6 +49,9 @@ export default function App() {
               <Route element={<RequireManagerRole />}>
                 <Route path="matches" element={<MatchesPage />} />
                 <Route path="tournaments" element={<TournamentsPage />} />
+                <Route path="tournaments/new" element={<TournamentFormPage />} />
+                <Route path="tournaments/:tournamentId" element={<TournamentDetailPage />} />
+                <Route path="tournaments/:tournamentId/edit" element={<TournamentFormPage />} />
                 <Route path="courts" element={<CourtsPage />} />
                 <Route path="courts/exceptions" element={<ClubExceptionsPage />} />
                 <Route path="courts/:courtId" element={<CourtDetailPage />} />
