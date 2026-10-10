@@ -370,5 +370,22 @@
       "hours": "{{count}}h",
       "days": "{{count}}d"
     }
+  },
+  "refundPolicy": {
+    "title": "Política de cancelación del club",
+    "fullBefore": "Si cancelás con {{hours}} h o más de anticipación, recibís el 100% de lo que pagaste.",
+    "fullUntilStart": "Podés cancelar hasta el inicio del turno y recibís el 100% de lo que pagaste.",
+    "lateNone": "Con menos anticipación no hay devolución.",
+    "latePartial": "Con menos anticipación recibís el {{percent}}% de lo que pagaste.",
+    "lateFull": "Con menos anticipación también recibís el 100%.",
+    "afterStart": "Una vez empezado el turno no hay devolución."
+  },
+  "refundOutcome": {
+    "refunded": "Te devolvimos el 100% de lo que pagaste ({{amount}}).",
+    "partial": "Te devolvimos {{amount}}, el {{percent}}% de lo que pagaste ({{paid}}).",
+    "noneLate": "Cancelaste con menos anticipación de la que pide el club, así que no corresponde devolución.",
+    "noneAfterStart": "El turno ya había empezado, así que no corresponde devolución.",
+    "pending": "Tu devolución de {{amount}} está pendiente: el club todavía no pudo procesarla y la va a gestionar. No tenés que hacer nada.",
+    "pendingPartial": "Te devolvimos {{amount}} y quedan {{pending}} pendientes: el club todavía no pudo procesarlos y los va a gestionar."
   }
 }

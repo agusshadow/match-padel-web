@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { clubService } from '../services/clubService'
-import type { ClubAvailabilitySlot, WithPaymentsMeta } from '../services/clubService'
+import type { ClubAvailabilitySlot, RefundPolicyValues, WithPaymentsMeta } from '../services/clubService'
 import type { GetClubsParams } from '../services/clubService'
 
 export const CLUBS_KEY = 'clubs'
@@ -36,6 +36,7 @@ const availabilityKey = (clubId: string | null, date: string | null) =>
 
 const selectSlots = (data: WithPaymentsMeta<ClubAvailabilitySlot[]>) => data.items
 const selectPaymentsEnabled = (data: WithPaymentsMeta<ClubAvailabilitySlot[]>) => data.payments_enabled
+const selectRefundPolicy = (data: WithPaymentsMeta<ClubAvailabilitySlot[]>) => data.refund_policy
 
 /** Slots of the club for a day. Shares its request (and cache) with `useClubPaymentsEnabled`. */
 export function useClubAvailability(clubId: string | null, date: string | null) {
@@ -62,4 +63,19 @@ export function useClubPaymentsEnabled(clubId: string | null, date: string | nul
     select: selectPaymentsEnabled,
   })
   return data ?? true
+}
+
+/**
+ * The club's effective refund policy from `meta.refund_policy` of its availability (card #76), shown
+ * before paying. `null` while loading or when the API did not send it. Shares the availability cache.
+ */
+export function useClubRefundPolicy(clubId: string | null, date: string | null): RefundPolicyValues | null {
+  const { data } = useQuery({
+    queryKey: availabilityKey(clubId, date),
+    queryFn: () => clubService.getClubAvailability(clubId!, date!),
+    enabled: !!clubId && !!date,
+    staleTime: 1000 * 30,
+    select: selectRefundPolicy,
+  })
+  return data ?? null
 }

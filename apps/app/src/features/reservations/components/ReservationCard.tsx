@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import type { Reservation } from '../services/reservationService'
 import { paymentErrorMessage } from '../../../lib/booking-errors'
 import { useCancelReservation, useCreatePaymentPreference } from '../hooks/useReservations'
+import { useClubById } from '../../clubs/hooks/useClubes'
+import { RefundPolicyNotice } from '../../../shared/components/RefundPolicyNotice'
+import { RefundOutcomeNotice } from '../../../shared/components/RefundOutcomeNotice'
 
 interface ReservationCardProps {
   reservation: Reservation
@@ -62,6 +65,8 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
     STATUS_CONFIG.pending
   const court = reservation.court
   const club = court?.club
+  // Policy shown next to "Pagar" (the club detail is cached and shared between cards of the same club).
+  const { data: clubDetail } = useClubById(reservation.status === 'pending' ? (club?.id ?? null) : null)
 
   const surfaceLabel = (surface: string) =>
     surface === 'indoor'
@@ -181,6 +186,10 @@ export function ReservationCard({ reservation }: ReservationCardProps) {
           )}
         </div>
       </div>
+
+      {reservation.status === 'pending' && <RefundPolicyNotice policy={clubDetail?.refund_policy ?? null} />}
+
+      {cancelMutation.isSuccess && <RefundOutcomeNotice refund={cancelMutation.data.refund} />}
 
       {(cancelMutation.isError || payError) && (
         <p className="text-xs text-destructive">

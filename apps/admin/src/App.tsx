@@ -12,6 +12,7 @@ import { TeamPage } from '@/features/team'
 import { InvitePage } from '@/features/invitations'
 import { MercadoPagoPage, MercadoPagoReturnRedirect, MercadoPagoDashboardHint } from '@/features/mercadopago'
 import { PaymentsPage } from '@/features/payments'
+import { RefundPolicyPage } from '@/features/refund-policy'
 import { RequireAccess } from '@/shared/components/RequireAccess'
 import { RequireManagerRole } from '@/shared/components/RequireManagerRole'
 import { RequireOwnerRole } from '@/shared/components/RequireOwnerRole'
@@ -57,6 +58,7 @@ export default function App() {
                 <Route path="mercadopago" element={<MercadoPagoPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
               </Route>
+              <Route path="refund-policy" element={<RefundPolicyPage />} />
               <Route path="club" element={<ClubPage />} />
             </Route>
             <Route path="*" element={<ClubIndexRedirect />} />

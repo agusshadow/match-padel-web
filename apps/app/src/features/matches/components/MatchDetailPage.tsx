@@ -6,6 +6,7 @@ import { useMatch, useSubmitScore, useCancelMatch } from '../hooks/useMatches'
 import { useAuthStore } from '../../auth/store/auth.store'
 import type { MatchWithPlayers } from '../services/matchService'
 import { MatchChat } from './MatchChat'
+import { RefundOutcomeNotice } from '../../../shared/components/RefundOutcomeNotice'
 
 function PlayerSlot({ player }: { player?: MatchWithPlayers['match_players'][0]; label?: string }) {
   const { t } = useTranslation()
@@ -196,8 +197,8 @@ export function MatchDetailPage() {
 
   const handleCancel = async () => {
     if (window.confirm(t('matches.confirmCancel'))) {
+      // Stay on the page: the outcome of the club's refund policy is shown above the action bar.
       await cancelMatch.mutateAsync(match.id)
-      navigate('/matches')
     }
   }
 
@@ -357,6 +358,8 @@ export function MatchDetailPage() {
 
       {/* Action bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 space-y-2 pb-6">
+        {cancelMatch.isSuccess && <RefundOutcomeNotice refund={cancelMatch.data.refund} />}
+
         {canSubmitScore && !showScoreForm && match.status !== 'cancelled' && (
           <button
             onClick={() => setShowScoreForm(true)}

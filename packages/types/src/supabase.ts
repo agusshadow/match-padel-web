@@ -436,6 +436,8 @@ export type Database = {
           logo_url: string | null
           name: string
           phone: string | null
+          refund_hours_before_start: number
+          refund_late_percent: number
           settings: Json
           slug: string
           status: Database["public"]["Enums"]["club_status"]
@@ -459,6 +461,8 @@ export type Database = {
           logo_url?: string | null
           name: string
           phone?: string | null
+          refund_hours_before_start?: number
+          refund_late_percent?: number
           settings?: Json
           slug: string
           status?: Database["public"]["Enums"]["club_status"]
@@ -482,6 +486,8 @@ export type Database = {
           logo_url?: string | null
           name?: string
           phone?: string | null
+          refund_hours_before_start?: number
+          refund_late_percent?: number
           settings?: Json
           slug?: string
           status?: Database["public"]["Enums"]["club_status"]
@@ -1257,6 +1263,9 @@ export type Database = {
           mp_event_id: string | null
           mp_payment_id: string | null
           net_amount: number | null
+          refund_error: string | null
+          refund_status: string | null
+          refunded_amount: number
           reservation_id: string | null
           seller_mp_user_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
@@ -1276,6 +1285,9 @@ export type Database = {
           mp_event_id?: string | null
           mp_payment_id?: string | null
           net_amount?: number | null
+          refund_error?: string | null
+          refund_status?: string | null
+          refunded_amount?: number
           reservation_id?: string | null
           seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
@@ -1295,6 +1307,9 @@ export type Database = {
           mp_event_id?: string | null
           mp_payment_id?: string | null
           net_amount?: number | null
+          refund_error?: string | null
+          refund_status?: string | null
+          refunded_amount?: number
           reservation_id?: string | null
           seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
@@ -1319,6 +1334,35 @@ export type Database = {
           {
             foreignKeyName: "payments_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_settings_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]

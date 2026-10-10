@@ -3,11 +3,12 @@ import type {
   ClubAvailabilityCourt,
   ClubAvailabilitySlot,
   PaymentsAvailabilityMeta,
+  RefundPolicyValues,
   WithPaymentsMeta,
 } from '../../../../../../packages/types/src/api'
 
 // Availability shapes come from the API contract (`price` is the slot's total, computed by the server).
-export type { ClubAvailabilityCourt, ClubAvailabilitySlot, WithPaymentsMeta }
+export type { ClubAvailabilityCourt, ClubAvailabilitySlot, RefundPolicyValues, WithPaymentsMeta }
 
 export interface Club {
   id: string
@@ -38,6 +39,8 @@ export interface Court {
 
 export interface ClubWithCourts extends Omit<Club, 'courts_count'> {
   courts: Court[]
+  /** Card #76: the club's effective refund policy (shown before paying). */
+  refund_policy?: RefundPolicyValues
 }
 
 export interface GetClubsParams {
@@ -73,8 +76,9 @@ export const clubService = {
     return res.data.data
   },
 
-  // The slots stay in `data` (like every other service); `meta.payments_enabled` (card #75) is read
-  // beside them. A response without the flag (older API) is treated as enabled.
+  // The slots stay in `data` (like every other service); `meta.payments_enabled` (card #75) and
+  // `meta.refund_policy` (card #76) are read beside them. A response without the payments flag
+  // (older API) is treated as enabled.
   getClubAvailability: async (
     clubId: string,
     date: string,
@@ -83,6 +87,10 @@ export const clubService = {
       `/clubs/${clubId}/availability`,
       { params: { date } },
     )
-    return { items: res.data.data, payments_enabled: res.data.meta?.payments_enabled ?? true }
+    return {
+      items: res.data.data,
+      payments_enabled: res.data.meta?.payments_enabled ?? true,
+      refund_policy: res.data.meta?.refund_policy ?? null,
+    }
   },
 }
