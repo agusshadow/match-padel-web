@@ -340,7 +340,7 @@ Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/ap
 | admin (club panel) | `match-padel-admin`  | automatic, via GitHub integration | `match-padel-admin.vercel.app` (prod, from `main`); `match-padel-admin-git-develop-agusshadows-projects.vercel.app` (from `develop`) |
 | platform | `match-padel-platform` (target — not created yet; root directory `apps/platform`, same `VITE_*` variables as the other projects) | automatic, via GitHub integration once created | to be assigned by Vercel |
 
-Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). Each app has a `vercel.json` with an SPA rewrite to `/index.html`. See 'Branches, environments and hard rules' in CLAUDE.md.
+Every push to `main` or `develop` deploys automatically, and every PR gets its own preview per app (a temporary `<project>-git-<branch>-agusshadows-projects.vercel.app` URL, linked from the Vercel bot's comment on the PR and from the PR's status checks). The three Vercel projects (`match-padel-app`, `match-padel-admin`, `match-padel-platform`) use the repository root as Root Directory with `npx turbo run build --filter=<app>` and `apps/<app>/dist` as output, so the SPA rewrite to `/index.html` lives in the **root** `vercel.json` (the per-app `vercel.json` files are not read with that Root Directory). Without it, direct links such as `/invite` or `/register` return 404. See 'Branches, environments and hard rules' in CLAUDE.md.
 
 ### Environments and Vercel variables
 
