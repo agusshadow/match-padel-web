@@ -302,7 +302,7 @@ VITE_FIREBASE_VAPID_KEY=
 VITE_ADMIN_SECRET=  # target — not implemented yet; not in .env.example and not read by any code
 ```
 
-Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/app/src/lib/axios.ts` falls back to `http://localhost:3001/api/v1` when `VITE_API_URL` is unset; `apps/admin` has no fallback. Note that the `VITE_API_URL` value in both `.env.example` files does not include `/api/v1`.
+Each app has an `.env.example` to copy into `.env.local` (git-ignored). `apps/app/src/lib/axios.ts` falls back to `http://localhost:3001/api/v1` when `VITE_API_URL` is unset; `apps/admin` has no fallback. Both `.env.example` files set `VITE_API_URL` with `/api/v1` already included, as the apps expect.
 
 ---
 
@@ -324,3 +324,20 @@ Every push to `main` or `develop` deploys automatically, and every PR gets its o
 | Any other branch / PR preview (Preview variables with no branch scope) | `https://match-padel-api-dev.onrender.com/api/v1` | `match-padel-dev` (`vrnonxpxksaruvsvbplt`) |
 
 Production builds use the Production-only `VITE_API_URL` plus the two Supabase variables scoped to "Production and Development" (production Supabase). Preview builds never see those Supabase variables: those two Supabase variables were scoped down on 03/10/2026, and the unscoped Preview set was added, on both Vercel projects. Variables live in Vercel (Project Settings > Environment Variables); a change only applies to the next build.
+
+
+### Previewing a branch before merging to `develop`
+
+**Frontend: automatic.** Every PR gets its own preview of each app at `<project>-git-<branch>-agusshadows-projects.vercel.app` (slashes in the branch name become dashes; very long names are shortened with a hash). The Vercel bot comments the exact links on the PR. Those previews use the dev API and the dev Supabase project, never production. Vercel may ask you to be signed in to the team to open them.
+
+**What a preview cannot show:**
+- The dev API (`match-padel-api-dev`) always runs the `develop` branch of `match-padel-api`. If the frontend change depends on an endpoint, field or migration that is not merged to `develop` yet, the preview calls an API that does not have it.
+- The dev database is one, shared by every branch and every preview. A migration applied there for testing affects `develop` and every other preview.
+
+**How to see backend changes before they reach `develop`:**
+1. *Merge the API PR to `develop` first.* This is the normal flow (the API PR merges first and the web PR references it). It puts the change in dev before it is "approved", which is acceptable because dev is disposable.
+2. *Point `match-padel-api-dev` at the API branch for a while* (Render > service > Settings > Branch). Good for a one-off check, but it replaces `develop` for everyone until you switch it back.
+3. *Render service previews per PR* are off today. Whether the free plan allows them, and at what cost, has not been checked.
+4. *Supabase branching* for the database is, as far as we know, a paid feature and has not been evaluated.
+
+For this stage, option 1 is the practical one: a frontend preview per PR, with the backend merged to `develop` first.
