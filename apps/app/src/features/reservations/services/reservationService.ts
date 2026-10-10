@@ -1,6 +1,6 @@
 import { api } from '../../../lib/axios'
 import type { Tables } from '../../../../../../packages/types/src/supabase'
-import type { CourtSlot } from '../../../../../../packages/types/src/api'
+import type { CourtSlot, PaymentsAvailabilityMeta, WithPaymentsMeta } from '../../../../../../packages/types/src/api'
 
 // Types for reservation with joins
 export interface CourtInfo {
@@ -61,9 +61,13 @@ export const reservationService = {
     return res.data.data
   },
 
-  getAvailableSlots: async (courtId: string, date: string): Promise<TimeSlot[]> => {
-    const res = await api.get(`/courts/${courtId}/slots`, { params: { date } })
-    return res.data.data
+  // Slots in `data`, `meta.payments_enabled` (card #75) beside them; missing flag = enabled.
+  getAvailableSlots: async (courtId: string, date: string): Promise<WithPaymentsMeta<TimeSlot[]>> => {
+    const res = await api.get<{ data: TimeSlot[]; meta?: Partial<PaymentsAvailabilityMeta> }>(
+      `/courts/${courtId}/slots`,
+      { params: { date } },
+    )
+    return { items: res.data.data, payments_enabled: res.data.meta?.payments_enabled ?? true }
   },
 
   createReservation: async (payload: CreateReservationPayload): Promise<Reservation> => {

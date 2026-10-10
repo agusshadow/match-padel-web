@@ -26,6 +26,7 @@ export function useAvailableSlots(courtId: string | null, date: string | null) {
     queryFn: () => reservationService.getAvailableSlots(courtId!, date!),
     enabled: !!courtId && !!date,
     staleTime: 1000 * 30, // 30 seconds — slots change often
+    select: (data) => data.items,
   })
 }
 

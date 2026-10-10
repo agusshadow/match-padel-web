@@ -265,6 +265,75 @@ export type Database = {
           },
         ]
       }
+      club_mp_accounts: {
+        Row: {
+          access_token_enc: string
+          club_id: string
+          connected_by: string | null
+          created_at: string
+          expires_at: string
+          last_error: string | null
+          last_notified_at: string | null
+          last_refresh_at: string | null
+          live_mode: boolean | null
+          mp_user_id: string
+          public_key: string | null
+          refresh_token_enc: string
+          scope: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          access_token_enc: string
+          club_id: string
+          connected_by?: string | null
+          created_at?: string
+          expires_at: string
+          last_error?: string | null
+          last_notified_at?: string | null
+          last_refresh_at?: string | null
+          live_mode?: boolean | null
+          mp_user_id: string
+          public_key?: string | null
+          refresh_token_enc: string
+          scope?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token_enc?: string
+          club_id?: string
+          connected_by?: string | null
+          created_at?: string
+          expires_at?: string
+          last_error?: string | null
+          last_notified_at?: string | null
+          last_refresh_at?: string | null
+          live_mode?: boolean | null
+          mp_user_id?: string
+          public_key?: string | null
+          refresh_token_enc?: string
+          scope?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_mp_accounts_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: true
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_mp_accounts_connected_by_fkey"
+            columns: ["connected_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_staff: {
         Row: {
           club_id: string
@@ -353,6 +422,8 @@ export type Database = {
         Row: {
           address: string
           city: string
+          collection_mode: string
+          commission_percent: number
           cover_url: string | null
           created_at: string
           description: string | null
@@ -374,6 +445,8 @@ export type Database = {
         Insert: {
           address: string
           city: string
+          collection_mode?: string
+          commission_percent?: number
           cover_url?: string | null
           created_at?: string
           description?: string | null
@@ -395,6 +468,8 @@ export type Database = {
         Update: {
           address?: string
           city?: string
+          collection_mode?: string
+          commission_percent?: number
           cover_url?: string | null
           created_at?: string
           description?: string | null
@@ -1082,6 +1157,51 @@ export type Database = {
           },
         ]
       }
+      mp_oauth_states: {
+        Row: {
+          club_id: string
+          code_verifier_enc: string | null
+          created_at: string
+          expires_at: string
+          state_hash: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          club_id: string
+          code_verifier_enc?: string | null
+          created_at?: string
+          expires_at?: string
+          state_hash: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          club_id?: string
+          code_verifier_enc?: string | null
+          created_at?: string
+          expires_at?: string
+          state_hash?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mp_oauth_states_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mp_oauth_states_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string
@@ -1126,44 +1246,69 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          club_id: string | null
+          collected_via: string
+          commission_percent: number | null
           created_at: string
           currency: string
           id: string
+          marketplace_fee: number | null
           metadata: Json
           mp_event_id: string | null
           mp_payment_id: string | null
+          net_amount: number | null
           reservation_id: string | null
+          seller_mp_user_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
           amount: number
+          club_id?: string | null
+          collected_via?: string
+          commission_percent?: number | null
           created_at?: string
           currency?: string
           id?: string
+          marketplace_fee?: number | null
           metadata?: Json
           mp_event_id?: string | null
           mp_payment_id?: string | null
+          net_amount?: number | null
           reservation_id?: string | null
+          seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
+          club_id?: string | null
+          collected_via?: string
+          commission_percent?: number | null
           created_at?: string
           currency?: string
           id?: string
+          marketplace_fee?: number | null
           metadata?: Json
           mp_event_id?: string | null
           mp_payment_id?: string | null
+          net_amount?: number | null
           reservation_id?: string | null
+          seller_mp_user_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_reservation_id_fkey"
             columns: ["reservation_id"]
@@ -1779,6 +1924,15 @@ export type Database = {
       is_platform_staff: { Args: never; Returns: boolean }
       is_platform_superadmin: { Args: never; Returns: boolean }
       level_for_xp: { Args: { p_xp: number }; Returns: number }
+      payment_totals: {
+        Args: { p_club_id?: string; p_from?: string; p_to?: string }
+        Returns: {
+          fee: number
+          gross: number
+          net: number
+          payments: number
+        }[]
+      }
       purchase_cosmetic: {
         Args: { p_cosmetic_id: string; p_user_id: string }
         Returns: {

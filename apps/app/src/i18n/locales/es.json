@@ -115,7 +115,9 @@
     "notes": "Notas (opcional)",
     "notesPlaceholder": "Ej: somos 4 personas, traemos pelotas...",
     "confirmBooking": "Confirmar reserva",
+    "paymentsDisabledNotice": "Este club todavía no puede recibir pagos online. Podés ver los turnos, pero no reservar canchas con precio hasta que lo habilite.",
     "errors": {
+      "CLUB_PAYMENTS_NOT_ENABLED": "Este club todavía no puede recibir pagos online. Probá de nuevo más tarde o contactá al club.",
       "OUTSIDE_SCHEDULE": "Ese turno ya no coincide con el horario de la cancha. Elegí otro turno de la lista.",
       "COURT_CLOSED": "La cancha está cerrada en esa fecha. Elegí otro día u otra cancha."
     }

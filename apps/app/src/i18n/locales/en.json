@@ -115,7 +115,9 @@
     "notes": "Notes (optional)",
     "notesPlaceholder": "E.g. we are 4 people, we bring balls...",
     "confirmBooking": "Confirm booking",
+    "paymentsDisabledNotice": "This club can't take online payments yet. You can browse the slots, but paid bookings are unavailable until it enables them.",
     "errors": {
+      "CLUB_PAYMENTS_NOT_ENABLED": "This club can't take online payments yet. Try again later or contact the club.",
       "OUTSIDE_SCHEDULE": "That slot no longer matches the court's schedule. Pick another slot from the list.",
       "COURT_CLOSED": "The court is closed on that date. Pick another day or another court."
     }

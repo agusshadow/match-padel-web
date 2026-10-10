@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { PlatformClubCreate } from '@match-padel/types'
+import type { ClubCollectionModeUpdate, ClubCommissionUpdate, PlatformClubCreate } from '@match-padel/types'
 import { clubsApi, type ClubsQuery } from '../api/clubs.api'
 
 export const CLUBS_QUERY_KEY = ['platform', 'clubs'] as const
@@ -59,5 +59,25 @@ export function useClubLifecycle() {
     onSuccess: refresh,
     // 409: the status changed meanwhile; reload so the list shows the current one.
     onError: refresh,
+  })
+}
+
+/** Commission and collection mode of a club (superadmin). Refreshes the list and the audit log. */
+export function useClubCharging() {
+  const queryClient = useQueryClient()
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: CLUBS_QUERY_KEY })
+    queryClient.invalidateQueries({ queryKey: ['platform', 'audit-log'] })
+  }
+  return useMutation({
+    mutationFn: (
+      input:
+        | { kind: 'commission'; id: string; body: ClubCommissionUpdate }
+        | { kind: 'collection-mode'; id: string; body: ClubCollectionModeUpdate },
+    ) =>
+      input.kind === 'commission'
+        ? clubsApi.setCommission(input.id, input.body)
+        : clubsApi.setCollectionMode(input.id, input.body),
+    onSuccess: refresh,
   })
 }

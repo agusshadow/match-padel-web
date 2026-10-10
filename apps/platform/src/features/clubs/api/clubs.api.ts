@@ -1,4 +1,15 @@
-import type { ApiResponse, ClubAdminClub, ClubStatus, Paginated, PlatformClub, PlatformClubCreate } from '@match-padel/types'
+import type {
+  ApiResponse,
+  ClubAdminClub,
+  ClubChargingSummary,
+  ClubCollectionModeUpdate,
+  ClubCommissionUpdate,
+  ClubStatus,
+  Paginated,
+  PlatformClub,
+  PlatformClubCreate,
+  PlatformClubRow,
+} from '@match-padel/types'
 import { api } from '@/lib/axios'
 
 export interface ClubsQuery {
@@ -9,9 +20,9 @@ export interface ClubsQuery {
 }
 
 export const clubsApi = {
-  list: ({ search, status, page, limit }: ClubsQuery): Promise<Paginated<PlatformClub>> =>
+  list: ({ search, status, page, limit }: ClubsQuery): Promise<Paginated<PlatformClubRow>> =>
     api
-      .get<ApiResponse<PlatformClub[]>>('/platform/clubs', {
+      .get<ApiResponse<PlatformClubRow[]>>('/platform/clubs', {
         params: { search: search || undefined, status: status || undefined, page, limit },
       })
       .then((r) => ({
@@ -35,5 +46,15 @@ export const clubsApi = {
   unsuspend: (id: string, note?: string) =>
     api
       .post<ApiResponse<ClubAdminClub>>(`/platform/clubs/${id}/unsuspend`, note ? { note } : {})
+      .then((r) => r.data.data),
+
+  /** `PATCH /platform/clubs/:id/commission` (superadmin; 0..100, up to 2 decimals). Applies to charges created from then on. */
+  setCommission: (id: string, body: ClubCommissionUpdate) =>
+    api.patch<ApiResponse<ClubChargingSummary>>(`/platform/clubs/${id}/commission`, body).then((r) => r.data.data),
+
+  /** `PATCH /platform/clubs/:id/collection-mode` (superadmin). */
+  setCollectionMode: (id: string, body: ClubCollectionModeUpdate) =>
+    api
+      .patch<ApiResponse<ClubChargingSummary>>(`/platform/clubs/${id}/collection-mode`, body)
       .then((r) => r.data.data),
 }
