@@ -346,6 +346,11 @@
     "empty": "Todavía no hay artículos disponibles.",
     "equip": "Equipar",
     "equipped": "Equipado",
+    "notInStore": "Fuera de la tienda",
+    "errors": {
+      "inactive": "Este artículo ya no está disponible en la tienda.",
+      "generic": "No pudimos completar la compra. Intentá de nuevo."
+    },
     "type": {
       "palette_skin": "Paletas",
       "avatar": "Avatares",

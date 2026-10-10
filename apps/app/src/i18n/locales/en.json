@@ -346,6 +346,11 @@
     "empty": "No items available yet.",
     "equip": "Equip",
     "equipped": "Equipped",
+    "notInStore": "Not in the store",
+    "errors": {
+      "inactive": "This item is no longer available in the store.",
+      "generic": "We couldn't complete the purchase. Please try again."
+    },
     "type": {
       "palette_skin": "Paddles",
       "avatar": "Avatars",

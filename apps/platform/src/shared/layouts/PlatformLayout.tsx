@@ -1,5 +1,5 @@
 import { NavLink, Navigate, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Building2, Users, ScrollText, Inbox, LogOut, Menu } from 'lucide-react'
+import { LayoutDashboard, Building2, Users, ScrollText, Inbox, LogOut, Menu, Trophy, Target, Sparkles } from 'lucide-react'
 import { StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePendingApplicationsCount } from '@/features/requests'
@@ -23,6 +23,16 @@ export function PlatformLayout() {
     { to: '/audit-log', icon: ScrollText, label: 'Auditoría', show: isSuperadmin },
     { to: '/requests', icon: Inbox, label: 'Solicitudes', show: true },
   ].filter((item) => item.show)
+
+  const catalogItems = [
+    { to: '/catalogs/achievements', icon: Trophy, label: 'Logros' },
+    { to: '/catalogs/challenges', icon: Target, label: 'Desafíos' },
+    { to: '/catalogs/cosmetics', icon: Sparkles, label: 'Cosméticos' },
+  ]
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+      isActive ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+    }`
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -71,6 +81,22 @@ export function PlatformLayout() {
               ) : null}
             </NavLink>
           ))}
+
+          {isSuperadmin && (
+            <div className="pt-4" role="group" aria-labelledby="nav-catalogs">
+              <p id="nav-catalogs" className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                Catálogos
+              </p>
+              <div className="space-y-1">
+                {catalogItems.map((item) => (
+                  <NavLink key={item.to} to={item.to} onClick={() => setSidebarOpen(false)} className={linkClass}>
+                    <item.icon className="w-4 h-4" />
+                    <span className="flex-1">{item.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          )}
         </nav>
 
         <div className="p-3 border-t border-gray-100 space-y-1">

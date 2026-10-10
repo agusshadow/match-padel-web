@@ -42,6 +42,8 @@ export function usePurchaseCosmetic() {
   return useMutation({
     mutationFn: (cosmeticId: string) => marketplaceService.purchaseCosmetic(cosmeticId),
     onSuccess: invalidate,
+    // COSMETIC_INACTIVE / ALREADY_OWNED: the catalog or the inventory changed, refresh both.
+    onError: invalidate,
   })
 }
 

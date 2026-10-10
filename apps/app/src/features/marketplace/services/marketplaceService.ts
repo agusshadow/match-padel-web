@@ -25,6 +25,14 @@ export interface EquippedSlots {
   equipped_emblem_cosmetic_id: string | null
 }
 
+// Card #78: the cosmetic itself per slot, also when it was deactivated after the purchase
+// (it is then missing from the public catalog).
+export interface EquippedCosmetics extends EquippedSlots {
+  palette: Cosmetic | null
+  avatar: Cosmetic | null
+  emblem: Cosmetic | null
+}
+
 export interface CheckoutPreference {
   preference_id: string
   init_point: string
@@ -39,7 +47,7 @@ export const marketplaceService = {
     api.get<{ success: boolean; data: OwnedCosmetic[] }>('/marketplace/cosmetics/me').then((r) => r.data.data),
 
   getMyEquipped: () =>
-    api.get<{ success: boolean; data: EquippedSlots }>('/marketplace/equipped').then((r) => r.data.data),
+    api.get<{ success: boolean; data: EquippedCosmetics }>('/marketplace/equipped').then((r) => r.data.data),
 
   getMyBalance: () =>
     api
