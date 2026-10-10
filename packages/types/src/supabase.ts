@@ -375,6 +375,61 @@ export type Database = {
         }
         Relationships: []
       }
+      court_blocks: {
+        Row: {
+          club_id: string
+          court_id: string
+          created_at: string
+          created_by: string | null
+          end_time: string
+          id: string
+          reason: string | null
+          start_time: string
+        }
+        Insert: {
+          club_id: string
+          court_id: string
+          created_at?: string
+          created_by?: string | null
+          end_time: string
+          id?: string
+          reason?: string | null
+          start_time: string
+        }
+        Update: {
+          club_id?: string
+          court_id?: string
+          created_at?: string
+          created_by?: string | null
+          end_time?: string
+          id?: string
+          reason?: string | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "court_blocks_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "court_blocks_court_fkey"
+            columns: ["court_id", "club_id"]
+            isOneToOne: false
+            referencedRelation: "courts"
+            referencedColumns: ["id", "club_id"]
+          },
+          {
+            foreignKeyName: "court_blocks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       court_price_rules: {
         Row: {
           court_id: string
@@ -1607,6 +1662,17 @@ export type Database = {
       award_match_xp: {
         Args: { p_match_id: string; p_winner_team: number }
         Returns: undefined
+      }
+      create_court_blocks: {
+        Args: {
+          p_club_id: string
+          p_court_ids: string[]
+          p_created_by: string
+          p_end: string
+          p_reason: string
+          p_start: string
+        }
+        Returns: Json
       }
       credit_currency: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
