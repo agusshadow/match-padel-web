@@ -2,7 +2,7 @@
 
 Status: agreed on 10/10/2026 in a product discussion with the owner. This is the
 target; nothing here is built yet unless it says so. Trello cards `[Admin F0]` to
-`[Admin F5]` (and the go-live prerequisite) track the work.
+`[Admin F5]` track the work.
 
 Principle: **everything a player sees is administered through a panel**, not loaded
 by SQL. Clubs administer their own club; the platform team administers what is
@@ -86,8 +86,8 @@ them; its create-tournament screen is removed.
 - **Audit log**: who changed what (prices, schedules, reservations, commissions, approvals).
 - **Private storage** for application documents, readable only by the platform team and the owner.
 - **Transactional email** through Resend (domain `matchpadel.com.ar` is verified; the API has no email module yet).
-- **Production readiness** before real clubs: a paid Supabase plan (the free plan pauses inactive projects and has no point-in-time restore), backups and an alert for downtime.
-- The three demo clubs seeded in production stay for now; they have no phone, email, logo or coordinates, so complete them or mark them as demo before launch.
+- **Availability** is out of scope while this is a thesis project: production stays on the free plans (Supabase pauses inactive projects, Render sleeps), and the team makes sure everything is running before each demo.
+- The three demo clubs seeded in production stay for now; they have coordinates but no phone, email or logo, so complete them or mark them as demo before launch.
 
 ## 9. Delivery phases
 
@@ -99,4 +99,3 @@ them; its create-tournament screen is removed.
 | F3 | Mercado Pago per club, commission, webhooks per seller, refund policy per club | F2 |
 | F4 | Tournament management in the club panel and removal from the players app | F2, F3 |
 | F5 | Gamification catalogs in the platform panel | F0 |
-| Prerequisite | Production ready for real clubs | before the first real club |
