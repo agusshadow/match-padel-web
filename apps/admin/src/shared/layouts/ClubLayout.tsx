@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { LayoutDashboard, CalendarDays, CalendarRange, Swords, Trophy, Building2, LandPlot, ClipboardList, Layers, LogOut, Menu } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, CalendarRange, Swords, Trophy, Building2, LandPlot, ClipboardList, Users, Layers, LogOut, Menu } from 'lucide-react'
 import { Notice, StatusBadge } from '@match-padel/ui'
 import { useAccess, useSignOut } from '@/features/auth'
 import { usePanelStore } from '@/store/panel.store'
@@ -39,6 +39,7 @@ export function ClubLayout() {
     { to: 'matches', icon: Swords, label: 'Partidos', show: full && manager },
     { to: 'tournaments', icon: Trophy, label: 'Torneos', show: full && manager },
     { to: 'courts', icon: LandPlot, label: 'Canchas', show: full && manager },
+    { to: 'team', icon: Users, label: 'Equipo', show: full && manager },
     { to: 'club', icon: Building2, label: 'Club', show: full },
   ].filter((item) => item.show)
 

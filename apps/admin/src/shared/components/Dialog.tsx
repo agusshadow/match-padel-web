@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-/** Centered modal used by the calendar's block and cancel flows (Escape and the close button dismiss it). */
+/** Centered modal shared by the panel (calendar blocks and cancel, team). Escape and the close button dismiss it. */
 export function Dialog({
   title,
   onClose,

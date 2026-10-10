@@ -64,6 +64,7 @@ Main features:
 - Owner registration with email code, club selector with statuses, new application and the onboarding wizard with submit, history and read-only states (exists; card #67). Only `approved` clubs open the dashboard and the rest
 - Courts area: courts CRUD, weekly schedule per court, price bands by day and hour, exceptions (club-wide or per court) and a preview of what players see (exists; card #70, owner/admin)
 - Club calendar: Google Calendar style day / week grid with reservations, ranked matches and blocks, move / cancel with refund summary, blocks for owner/admin (exists; card #71)
+- Club team: members (owner, administrators, reception) and invitations by email, with change role / remove / resend / revoke for the owner (administrators read only), and the public `/invite` page to accept an invitation (exists; card #72)
 - Team, Mercado Pago account (target — not implemented yet; phase F3)
 - Tournament creation, fixtures and results (target — not implemented yet; phase F4)
 
@@ -254,7 +255,7 @@ Every club route of `apps/admin` is prefixed with `/:clubId/`:
 /:clubId/club
 ```
 
-`GET /me/access` returns the user's clubs and the role in each one (`owner`, `admin`, `staff`, or `superadmin` for every club when the user is a superadmin). `ClubLayout` validates the `:clubId` against that list, provides the current club and role through `useCurrentClub()`, and renders the club selector; `RequireManagerRole` hides matches and tournaments from reception. These guards are only a convenience: the API enforces permissions per club and per role. Club routes that arrive in later phases (courts, schedules, staff, ...) go under the same prefix. Platform-wide screens live in `apps/platform`, not under `/platform/*` of the club panel.
+`GET /me/access` returns the user's clubs and the role in each one (`owner`, `admin`, `staff`, or `superadmin` for every club when the user is a superadmin). `ClubLayout` validates the `:clubId` against that list, provides the current club and role through `useCurrentClub()`, and renders the club selector; `RequireManagerRole` hides matches, tournaments, courts and the team from reception. These guards are only a convenience: the API enforces permissions per club and per role. Club routes that arrive in later phases (courts, schedules, staff, ...) go under the same prefix. Platform-wide screens live in `apps/platform`, not under `/platform/*` of the club panel.
 
 ---
 

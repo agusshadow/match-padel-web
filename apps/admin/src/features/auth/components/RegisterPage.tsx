@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { Notice } from '@match-padel/ui'
+import { postAuthPath, usePendingInvitation } from '@/lib/pending-invitation'
+import { CLUB_ROLE_LABELS } from '@/shared/permissions'
 import { getErrorCode, getErrorMessage, getErrorStatus } from '@/lib/errors'
 import { useRegisterOwner, useResendCode, useSession, useVerifyEmail } from '../hooks/useAuth'
 
@@ -46,6 +48,8 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { session, loading } = useSession()
+  const invitation = usePendingInvitation()
+  const joining = invitation?.context ?? null
   const registerOwner = useRegisterOwner()
   const verify = useVerifyEmail()
   const resend = useResendCode()
@@ -57,7 +61,7 @@ export function RegisterPage() {
   const form = useForm<RegisterForm>({ resolver: zodResolver(registerSchema), defaultValues: { phone: '' } })
   const codeForm = useForm<CodeForm>({ resolver: zodResolver(codeSchema) })
 
-  if (!loading && session && !verified) return <Navigate to="/" replace />
+  if (!loading && session && !verified) return <Navigate to={postAuthPath()} replace />
 
   const submitRegistration = form.handleSubmit((values) => {
     registerOwner.mutate(
@@ -73,8 +77,9 @@ export function RegisterPage() {
       {
         onSuccess: () => {
           setVerified(true)
-          // No club yet: `/` sends the new owner to "start your application".
-          navigate('/', { replace: true })
+          // No club yet: `/` sends the new owner to "start your application"; an invited person
+          // goes back to the invitation to accept it.
+          navigate(postAuthPath(), { replace: true })
         },
       },
     )
@@ -98,12 +103,16 @@ export function RegisterPage() {
         <div className="text-center mb-8">
           <img src="/logo-app.svg" alt="Match Padel" className="w-14 h-14 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900">
-            {email ? 'Confirmá tu email' : 'Registrá tu club'}
+            {email ? 'Confirmá tu email' : invitation ? 'Creá tu cuenta' : 'Registrá tu club'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {email
               ? `Te enviamos un código a ${email}. Ingresalo para activar tu cuenta.`
-              : 'Creá tu cuenta de dueño para empezar la solicitud de alta de tu club.'}
+              : joining
+                ? `Para unirte a ${joining.clubName} como ${CLUB_ROLE_LABELS[joining.role]}. Usá el email al que llegó la invitación (${joining.emailHint}).`
+                : invitation
+                  ? 'Creá tu cuenta con el email al que llegó la invitación para unirte al club.'
+                  : 'Creá tu cuenta de dueño para empezar la solicitud de alta de tu club.'}
           </p>
         </div>
 

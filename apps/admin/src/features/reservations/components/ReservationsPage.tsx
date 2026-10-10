@@ -5,7 +5,7 @@ import { Notice, PageHeader, Pagination, StatusBadge, formatDate, formatMoney, f
 import { clubParts } from '@/lib/club-time'
 import { getErrorMessage } from '@/lib/errors'
 import { useCurrentClub } from '@/shared/club-context'
-import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES } from '@/shared/permissions'
+import { RESERVATION_STATUS_LABELS, RESERVATION_STATUS_TONES, canManageClub } from '@/shared/permissions'
 import { useClubReservations, useUpdateReservationStatus } from '../hooks/useReservations'
 
 const PAGE_SIZE = 20
@@ -13,17 +13,20 @@ const STATUSES: ReservationStatus[] = ['pending', 'confirmed', 'cancelled', 'com
 
 type Transition = { label: string; status: Exclude<ReservationStatus, 'pending'>; danger?: boolean }
 
-function transitionsFor(reservation: ClubAdminReservation): Transition[] {
+/** Reception only cancels: the API rejects confirm / complete for it (card #72). */
+function transitionsFor(reservation: ClubAdminReservation, canConfirm: boolean): Transition[] {
+  const cancel: Transition = { label: 'Cancelar', status: 'cancelled', danger: true }
+  if (!canConfirm) return reservation.status === 'pending' || reservation.status === 'confirmed' ? [cancel] : []
   switch (reservation.status) {
     case 'pending':
       return [
         { label: 'Confirmar', status: 'confirmed' },
-        { label: 'Cancelar', status: 'cancelled', danger: true },
+        cancel,
       ]
     case 'confirmed':
       return [
         { label: 'Completar', status: 'completed' },
-        { label: 'Cancelar', status: 'cancelled', danger: true },
+        cancel,
       ]
     default:
       return []
@@ -32,6 +35,7 @@ function transitionsFor(reservation: ClubAdminReservation): Transition[] {
 
 export function ReservationsPage() {
   const club = useCurrentClub()
+  const canConfirm = canManageClub(club.role)
   const [status, setStatus] = useState<ReservationStatus | undefined>(undefined)
   const [page, setPage] = useState(1)
 
@@ -114,7 +118,7 @@ export function ReservationsPage() {
                               Ver en calendario
                             </Link>
                           )}
-                          {transitionsFor(r).map((t) => (
+                          {transitionsFor(r, canConfirm).map((t) => (
                             <button
                               key={t.status}
                               disabled={update.isPending}

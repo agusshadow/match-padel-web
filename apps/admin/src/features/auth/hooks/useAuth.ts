@@ -68,6 +68,13 @@ export function useSignIn() {
   }
 }
 
+/** Re-reads `GET /me/access` now (after accepting an invitation the new club must be in the list). */
+export function useRefreshAccess() {
+  const queryClient = useQueryClient()
+  return () =>
+    queryClient.fetchQuery({ queryKey: ACCESS_QUERY_KEY, queryFn: authApi.getAccess, staleTime: 0 })
+}
+
 export function useSignOut() {
   const queryClient = useQueryClient()
   return async () => {

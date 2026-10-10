@@ -4,7 +4,7 @@ import { Notice, formatMoney, personName } from '@match-padel/ui'
 import { formatClubDateTime } from '@/lib/club-time'
 import { calendarErrorMessage } from '../lib/errors'
 import { useCancelReservation } from '../hooks/useCalendar'
-import { Dialog } from './Dialog'
+import { Dialog } from '@/shared/components/Dialog'
 
 const REASON_MAX = 300
 
